@@ -1,0 +1,282 @@
+<script src="./flex/flexmonster.js"></script>
+<script src="./dist/apexcharts.js"></script>
+<script src="./PivotChart.js"></script>
+
+
+<div id="pivot-container" style="max-height: 300;"></div>
+<div id="chart"></div>
+<div id="buttons_panel"></div>
+<!-- <script src="./flex/main.js"></script> -->
+<script>
+    let pivot = new Flexmonster({
+        container: "#pivot-container",
+        componentFolder: "https://cdn.flexmonster.com/",
+        licenseFilePath: "https://cdn.flexmonster.com/jsfiddle.charts.key",
+        width: "100%",
+        height: 550,
+        // customizeCell: customizeCell,
+        toolbar: true,
+        report: {
+            "dataSource": {
+            "type": "json",
+            "filename": "https://cdn.flexmonster.com/data/retail-data.json",
+            "mapping": {
+                "Quantity": {
+                "type": "number"
+                },
+                "Price": {
+                "type": "number"
+                },
+                "Retail Category": {
+                "type": "string"
+                },
+                "Sales": {
+                "type": "number"
+                },
+                "Order Date": {
+                "type": "year/quarter/month/day"
+                },
+                "Date": {
+                "type": "date"
+                },
+                "Status": {
+                "type": "string"
+                },
+                "Product Code": {
+                "type": "string"
+                },
+                "Phone": {
+                "type": "string"
+                },
+                "Country": {
+                "type": "string",
+                "folder": "Location"
+                },
+                "City": {
+                "type": "string",
+                "folder": "Location"
+                },
+                "CurrencyID": {
+                "type": "property",
+                "hierarchy": "Country"
+                },
+                "Contact Last Name": {
+                "type": "string"
+                },
+                "Contact First Name": {
+                "type": "string"
+                },
+                "Deal Size": {
+                "type": "string"
+                }
+            }
+            },
+            "slice": {
+                "rows": [
+                    {
+                        "uniqueName": "Country",
+                        "filter": {
+                            "members": [
+                                "country.[australia]",
+                                "country.[usa]",
+                                "country.[japan]"
+                            ]
+                        }
+                    },
+                    {
+                        "uniqueName": "Status",
+                    }
+                ],
+                "columns": [
+                    {
+                        "uniqueName": "Order Date"
+                    },
+                    {
+                        "uniqueName": "[Measures]"
+                    }
+                ],
+                "measures": [
+                    {
+                        "uniqueName": "Price",
+                        "aggregation": "sum",
+                        "format": "-13w0a1w1c23j00"
+                    }
+                ],
+                "sorting": {
+                    "column": {
+                        "type": "desc",
+                        "tuple": [],
+                        "measure": {
+                            "uniqueName": "Price",
+                            "aggregation": "sum"
+                        }
+                    }
+                },              
+                
+                "flatSort": [
+                    {
+                        "uniqueName": "Price",
+                        "sort": "desc"
+                    }
+                ]
+            },
+
+            "conditions": [{
+                "formula": "#value > 35000",
+                "isTotal": true,
+                "measure": "Price",
+                "format": {
+                "backgroundColor": "#00A45A",
+                "color": "#FFFFFF",
+                "fontFamily": "Arial",
+                "fontSize": "12px"
+                }
+            },
+            {
+                "formula": "#value < 2000",
+                "isTotal": false,
+                "measure": "Price",
+                "format": {
+                "backgroundColor": "#df3800",
+                "color": "#FFFFFF",
+                "fontFamily": "Arial",
+                "fontSize": "12px"
+                }
+            }
+            ],
+            "formats": [{
+            "name": "-13w0a1w1c23j00",
+            "thousandsSeparator": " ",
+            "decimalSeparator": ".",
+            "decimalPlaces": 0,
+            "currencySymbol": "$",
+            "positiveCurrencyFormat": "$1",
+            "nullValue": "-",
+            "textAlign": "right",
+            "isPercent": false
+            }]
+        },
+        reportcomplete: function() {
+            pivot.off("reportcomplete");
+            createChart();
+        }
+    });
+
+// let pivot = new Flexmonster({
+//   container: "pivot-container",
+//   componentFolder: "https://cdn.flexmonster.com/",
+//   licenseFilePath: "https://cdn.flexmonster.com/jsfiddle.charts.key",
+//   report: {
+//     dataSource: {
+//       dataSourceType: "csv",
+//       filename: "data/data.csv"
+//     },
+//     // slice: {
+//     //   rows: [{
+//     //     uniqueName: "Country"
+//     //   }],
+//     //   columns: [{
+//     //     uniqueName: "[Measures]"
+//     //   }],
+//     //   measures: [{
+//     //     uniqueName: "Price"
+//     //   }],
+//     //   sorting: {
+//     //     column: {
+//     //       type: "desc",
+//     //       tuple: [],
+//     //       measure: "Price"
+//     //     }
+//     //   }
+//     // },
+//     options: {
+        
+//         type: "chart",
+//       grid: {
+//         showHeaders: false
+//       }
+//     }
+//   },
+//   height: 300,
+//   toolbar: true,
+//   reportcomplete: function() {
+//     pivot.off("reportcomplete");
+//     createChart();
+//   }
+// });
+
+Data.Flexmonster = pivot;
+
+function createChart() {
+  pivot.getData({}, 
+    drawChart, 
+    updateChart
+  );		
+}
+
+function prepareDataFunction(rawData) {
+    console.log(rawData);
+    Data.Model.dataStorage = new Data.DataStorage(rawData);
+    var d = Data.Model.dataStorage ;
+    var myData = d.getVisibleDataSets();
+    return myData;
+}
+    
+function drawChart(rawData) {  
+
+    let data = prepareDataFunction(rawData);   
+    var options = {
+    chart: {
+        type: 'bar',  
+        width: 700,
+        height: 300      
+    },
+    plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '55%',
+            endingShape: 'rounded'
+          },
+    },
+    dataLabels: {
+        enabled: false
+    },
+    stroke: {
+        show: true,
+        width: 2,
+        curve: 'straight',
+        // colors: ['transparent']
+    },
+    series: data.series,
+    xaxis:data.xaxis
+
+    }
+
+    var chart = new pivotcharts.PivotChart(document.querySelector('#chart'), options);    
+    chart.render();
+
+    addButtons(options);
+   
+
+    
+}
+
+function updateChart(rawData) {
+    Data.Chart.updateOptions(prepareDataFunction(rawData));
+    addButtons(Data.Chart.w.config);
+    // pivot.drillDownCell('columns', ['Cancelled'], null, "2018");
+}
+
+function addButtons(options){
+    var a = document.getElementById("buttons_panel");
+    a.innerHTML = '';
+    var buttons = '';
+    for(var i = 0; i < options.series[0].data.length; i++){
+        buttons += "<button id = '"+i+"_button' disabled onclick = 'pivotcharts.PivotXAxis.close(this.id)'>click</button>";
+    }
+
+    a.insertAdjacentHTML('beforeend',buttons);
+}
+
+
+</script>

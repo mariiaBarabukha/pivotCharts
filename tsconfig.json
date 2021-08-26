@@ -1,0 +1,28 @@
+{
+    "compilerOptions": {
+        "module": "amd",
+        "noImplicitAny": false,
+        "preserveConstEnums": true,
+        "removeComments": false, // need for release build (keep exposes)
+        "sourceMap": true,
+        "target": "es6",
+        "outFile": "PivotChart.js",
+        "lib": [
+            "dom",
+            "es2017"
+        ]
+    },
+    "files": [
+        "types/apexcharts.d.ts",
+        "types/legend.d.ts",
+
+        "scr/Data/DataSetsMaker.ts",
+        "scr/Data/DataStorage.ts",
+        "scr/Data/Model.ts",
+        "scr/Data/Params.ts",
+
+        "scr/Charts/Bar.ts",
+
+        "scr/PivotChart.ts"
+    ]
+}

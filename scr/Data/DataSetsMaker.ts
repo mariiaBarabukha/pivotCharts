@@ -1,0 +1,165 @@
+namespace Data {
+  export class DataSetsMaker {
+    static rows_names: string[]; //names
+    static cols_names: string[]; //names
+    rows_filters: string; // name of countries and quartals
+
+    _data = undefined;
+    _meta = undefined;
+
+    constructor(data) {
+      this._data = data.data;
+      this._meta = data.meta;
+    }
+
+    makeDataSets() {
+      return this._groupAndGetData();
+    }
+
+    _groupAndGetData() {
+      DataSetsMaker.rows_names = [];
+      DataSetsMaker.cols_names = [];
+      if (Data.Chart != undefined) {
+        [...Data.Chart.w.globals.collapsedSeries].forEach((i) => {
+          var realIndex = Data.LegendHelper._realIndex(i.index).realIndex;
+          const seriesToMakeVisible = [
+            {
+              cs: Data.Chart.w.globals.collapsedSeries,
+              csi: Data.Chart.w.globals.collapsedSeriesIndices,
+            },
+            {
+              cs: Data.Chart.w.globals.ancillaryCollapsedSeries,
+              csi: Data.Chart.w.globals.ancillaryCollapsedSeriesIndices,
+            },
+          ];
+          seriesToMakeVisible.forEach((r) => {
+            Data.LegendHelper.riseCollapsedSeries(r.cs, r.csi, realIndex);
+          });
+        });
+      }
+
+      var rows_amount = this._meta.rAmount;
+      for (var i = 0; i < rows_amount; i++) {
+        DataSetsMaker.rows_names.push(this._meta["r" + i + "Name"]);
+      }
+
+      var cols_amount = this._meta.cAmount;
+      for (var i = 0; i < cols_amount; i++) {
+        DataSetsMaker.cols_names.push(this._meta["c" + i + "Name"]);
+      }
+
+      var nms = Data.DataSetsMaker.cols_names;
+
+      this._data.splice(0, 1);
+      this._data.forEach((element) => {
+        var name_c: string = "";
+        var name_r: string = "";
+        var keys = Object.entries(element);
+        keys.forEach((key) => {
+          if(key[0][0] == 'c' && key[0].includes('full')){
+            element.c_full =
+            element[key[0]] === undefined
+              ? ""
+              : element[key[0]]
+                  .match(/(?<=\[)[^\][]*(?=])/g)
+                  .map((x) => this.capitalizeFirstLetter(x))
+                  .join("_");
+          }
+          if(key[0][0] == 'r' && key[0].includes('full')){
+          element.r_full =
+            element[key[0]] === undefined
+              ? ""
+              : element[key[0]]
+                  .match(/(?<=\[)[^\][]*(?=])/g)
+                  .map((x) => this.capitalizeFirstLetter(x))
+                  .join("_");
+          }
+        });
+
+        // element.c_full += name_c.length > 1 ? name_c.substring(1) : "";
+        // element.r_full += name_r.length > 1 ? name_r.substring(1) : "";
+        // console.log(element.r0_full.match(/(?<=\[)[^\][]*(?=])/g));
+        Data.Categories.push(element.r_full);
+      });
+
+      var sortByColumns = this._regroup(this._data, "c_full");
+      if (sortByColumns.length > 1) {
+        sortByColumns.splice(0, 1);
+        sortByColumns.forEach((group) => {
+          if (group.length > 1) {
+            group.splice(0, 1);
+          }
+        });
+      }
+      var categories: string[] = sortByColumns[0].map((x) => {
+        var r = x.r_full.split("_");
+        return this.capitalizeFirstLetter(r[r.length - 1]);
+      });
+      // Data.Categories = categories;
+      var series = [];
+      sortByColumns.forEach((group) => {
+        if (group[0].r0 === undefined && group.length > 1) {
+          group.splice(0, 1);
+        }
+        var n = group[0].c_full.split("_");
+        series.push({
+          name: n[n.length - 1] || "",
+          data: group.map((a) => a.v0),
+          full_name: group[0].c_full,
+        });
+      });
+
+      var legends = series.map((x) => x.full_name.toLowerCase());
+
+      for (var i = 0; i < legends.length; i++) {
+        for (var j = 1; j < legends.length; j++) {
+          if (legends[i] != legends[j] && legends[j].includes(legends[i])) {
+            var sEl = null;
+            var obj = Data.LegendHelper._realIndex(i);
+            sEl = obj.seriesEl;
+            Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: i });
+            break;
+          }
+        }
+
+        // for(var j = 0; j < nms.length; j++){
+        //   if(i < legends.length - 1){
+        //     var members = Data.Flexmonster.getMembers(nms[j]);
+        //     var index = [...members].map(x => x.caption).indexOf(legends[i]);
+        //     if(index > -1 && members[index].children.length > 0){
+        //       var children = members[index].children.map(x => x.caption);
+        //       if(children.includes(legends[i+1])){
+        //         var sEl = null;
+        //         var obj = Data.LegendHelper._realIndex(i);
+        //         sEl = obj.seriesEl;
+        //         Data.LegendHelper.hideSeries({seriesEl: sEl, realIndex: i});
+        //       }
+        //     }
+        //   }
+        // }
+      }
+
+      return { series: series, xaxis: { categories: categories } };
+    }
+
+    _regroup(arr, objKey) {
+      var groups = {};
+      return arr.reduce(function (result, item) {
+        // console.log(Object.keys(item))
+        var key = item[objKey];
+        var group = groups[key];
+        if (!group)
+          if (arr[objKey] === undefined)
+            result.push((group = groups[key] = []));
+
+        group.push(item);
+
+        return result;
+      }, []);
+    }
+
+    capitalizeFirstLetter(str: string): string {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+  }
+}
