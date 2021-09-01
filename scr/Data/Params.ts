@@ -9,5 +9,9 @@ namespace Data{
     export var Flexmonster: any;
     export var LegendHelper: pivotcharts.PivotHelper;
     export var Categories = [];
+    export function processData(rawData, type='bar'){
+        Data.Model.dataStorage = new Data.DataStorage(rawData, type);
+        return Data.Model.dataStorage.getVisibleDataSets();
+    }
     // export var RawData;
 }

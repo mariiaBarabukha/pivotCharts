@@ -1,43 +1,24 @@
 namespace Data {
   export class DataStorage {
     //#queries = undefined;
-    #datasets = undefined;
-    #amount_main_groups = undefined;
-    #visibleLayers = [];
-    labels = undefined;
+    res = undefined;
     q: Data.DataSetsMaker = undefined;
-    constructor(data) {
-      this.q = new Data.DataSetsMaker(data);
-      if (data) {
-        this.setData(data);
-      }
+    constructor(data, type) {
+      this.q = new Data.DataSetsMaker(data, type); 
+      this.res = this.q.makeDataSets();         
     }
 
-    setData(data) {
-      var res = this.q.makeDataSets();
-      this.#datasets = res.series;
-      this.labels = res.xaxis.categories;
-      var temp = [];
-      //this.#amount_main_groups = this.q.amount_of_params;
-
-      for (var i = 0; i < res.series[0].length; i++) {
-        temp.push(0);
-      }
-      this.#visibleLayers.push(temp);
-
-      temp = [];
-      for (var i = 0; i < res.series.length; i++) {
-        temp.push(0);
-      }
-      this.#visibleLayers.push(temp);
-    }
+    
 
     getAllDataSets() {
-      return this.#datasets;
+      return this.res.series;
     }
 
-    getVisibleDataSets(visible, mode) {
-      return { series: this.#datasets, xaxis: { categories: this.labels } };
+    getVisibleDataSets(i: number = -1) {
+      if(i > -1){
+        return { series: this.res.series[i].data, labels: this.res.labels };
+      }
+      return { series: this.res.series, labels: this.res.labels };
     }
 
     static manipulateChartData(names, drill, action, dim) {

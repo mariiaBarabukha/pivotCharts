@@ -177,6 +177,7 @@ declare module apexcharts {
   export class Data{
     constructor(ctx);
     parseDataAxisCharts(ser, ctx);
+    parseDataNonAxisCharts(ser);
     w;
   }
 
@@ -268,6 +269,47 @@ declare module apexcharts {
   export class Line{
     constructor(ctx, xy, b);
     draw(series, ptype, seriesIndex);
+    w;
+    ctx;
+    yRatio;
+    zRatio;
+    xRatio;
+    baseLineY;
+    xyRatios;
+    lineHelpers;
+    _initSerieVariables(series, i, realIndex);
+    categoryAxisCorrection;
+    elSeries;
+    zeroY;
+    _calculatePathsFrom({
+      series,
+      i,
+      realIndex,
+      prevX,
+      prevY
+    });
+    _iterateOverDataPoints({
+      series,
+      realIndex,
+      i,
+      x,
+      y,
+      pX,
+      pY,
+      pathsFrom,
+      linePaths,
+      areaPaths,
+      seriesIndex,
+      lineYPosition,
+      xArrj,
+      yArrj
+    });
+    _handlePaths({ type, realIndex, i, paths });
+    elPointsMain;
+    elDataLabelsWrap;
+    xDivision;
+    strokeWidth;
+    yaxisIndex;
   }
 
   export class BoxCandleStick{
@@ -306,6 +348,51 @@ declare module apexcharts {
   export class Radar{
     constructor(ctx);
     draw(a);
+    drawPolygons(opts);
+    drawXAxisTexts();
+    yaxisLabels;
+    w;
+    ctx;
+    dataPointsLen;
+    disAngle;
+    graphics;
+    dataRadiusOfPercent;
+    dataRadius;
+    angleArr;
+    maxValue;
+    minValue;
+    isLog;
+    coreUtils;
+    getDataPointsPos(
+      dataRadiusArr,
+      angleArr,
+      dataPointsLen
+    );
+    createPaths(pos, origin);
+    size;
+    getPreviousPath(realIndex);
+    strokeWidth;
+
+  }
+
+  export class Fill{
+    constructor(ctx);
+    fillPath(opts) ;
+  }
+
+  export class Filters{
+    constructor(ctx);
+    dropShadow(el, attrs, i);
+  }
+
+  export class Markers{
+    constructor(ctx);
+    getMarkerConfig(cssClass, seriesIndex, dataPointIndex);
+  }
+
+  export class DataLabels{
+    constructor(ctx);
+    plotDataLabelsText(opts);
   }
 
   export class UpdateHelpers{

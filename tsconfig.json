@@ -21,7 +21,19 @@
         "scr/Data/Model.ts",
         "scr/Data/Params.ts",
 
+        "scr/Modules/Legend.ts",
+        "scr/Modules/Core.ts",
+        "scr/Modules/InitCtxVariables.ts",
+        "scr/Modules/Axis.ts",
+        "scr/Modules/Grid.ts",
+        "scr/Modules/Data.ts",
+        "scr/Modules/UpdateHelper.ts",
+        "scr/Modules/Graphics.ts",
+        
         "scr/Charts/Bar.ts",
+        "scr/Charts/Pie.ts",
+        "scr/Charts/Radar.ts",
+        "scr/Charts/Line.ts",
 
         "scr/PivotChart.ts"
     ]

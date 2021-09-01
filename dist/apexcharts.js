@@ -31254,6 +31254,11 @@
   window.apexcharts.Radial = Radial;
   window.apexcharts.UpdateHelpers = UpdateHelpers;
   window.apexcharts.Annotations = Annotations;
+
+  window.apexcharts.Fill = Fill;
+  window.apexcharts.Markers = Markers;
+  window.apexcharts.Filters = Filters;
+  window.apexcharts.DataLabels = DataLabels;
   return ApexCharts$1;
 
 })));

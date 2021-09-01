@@ -6,10 +6,12 @@ namespace Data {
 
     _data = undefined;
     _meta = undefined;
+    _type = undefined;
 
-    constructor(data) {
+    constructor(data, type) {
       this._data = data.data;
       this._meta = data.meta;
+      this._type = type;
     }
 
     makeDataSets() {
@@ -17,6 +19,20 @@ namespace Data {
     }
 
     _groupAndGetData() {
+      
+      this.riseAllCollapsedSeries();
+      var sortByColumns = this.sortData();
+      var categories: string[] = sortByColumns[0].map((x) => {
+        var r = x.r_full.split("_");
+        return this.capitalizeFirstLetter(r[r.length - 1]);
+      });
+      var series = this.makeSeries(sortByColumns);     
+      this.hiseSeries(series);    
+
+      return { series: series, labels: categories };
+    }
+
+    private riseAllCollapsedSeries(){
       DataSetsMaker.rows_names = [];
       DataSetsMaker.cols_names = [];
       if (Data.Chart != undefined) {
@@ -37,7 +53,9 @@ namespace Data {
           });
         });
       }
+    }
 
+    private sortData(): any[]{
       var rows_amount = this._meta.rAmount;
       for (var i = 0; i < rows_amount; i++) {
         DataSetsMaker.rows_names.push(this._meta["r" + i + "Name"]);
@@ -47,13 +65,10 @@ namespace Data {
       for (var i = 0; i < cols_amount; i++) {
         DataSetsMaker.cols_names.push(this._meta["c" + i + "Name"]);
       }
-
-      var nms = Data.DataSetsMaker.cols_names;
-
+      
       this._data.splice(0, 1);
       this._data.forEach((element) => {
-        var name_c: string = "";
-        var name_r: string = "";
+        
         var keys = Object.entries(element);
         keys.forEach((key) => {
           if(key[0][0] == 'c' && key[0].includes('full')){
@@ -76,9 +91,6 @@ namespace Data {
           }
         });
 
-        // element.c_full += name_c.length > 1 ? name_c.substring(1) : "";
-        // element.r_full += name_r.length > 1 ? name_r.substring(1) : "";
-        // console.log(element.r0_full.match(/(?<=\[)[^\][]*(?=])/g));
         Data.Categories.push(element.r_full);
       });
 
@@ -91,11 +103,10 @@ namespace Data {
           }
         });
       }
-      var categories: string[] = sortByColumns[0].map((x) => {
-        var r = x.r_full.split("_");
-        return this.capitalizeFirstLetter(r[r.length - 1]);
-      });
-      // Data.Categories = categories;
+      return sortByColumns;
+    }
+    
+    private makeSeries(sortByColumns: any[]): any[]{
       var series = [];
       sortByColumns.forEach((group) => {
         if (group[0].r0 === undefined && group.length > 1) {
@@ -108,9 +119,11 @@ namespace Data {
           full_name: group[0].c_full,
         });
       });
+      return series;
+    }
 
+    private hiseSeries(series: any[]){
       var legends = series.map((x) => x.full_name.toLowerCase());
-
       for (var i = 0; i < legends.length; i++) {
         for (var j = 1; j < legends.length; j++) {
           if (legends[i] != legends[j] && legends[j].includes(legends[i])) {
@@ -120,29 +133,11 @@ namespace Data {
             Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: i });
             break;
           }
-        }
-
-        // for(var j = 0; j < nms.length; j++){
-        //   if(i < legends.length - 1){
-        //     var members = Data.Flexmonster.getMembers(nms[j]);
-        //     var index = [...members].map(x => x.caption).indexOf(legends[i]);
-        //     if(index > -1 && members[index].children.length > 0){
-        //       var children = members[index].children.map(x => x.caption);
-        //       if(children.includes(legends[i+1])){
-        //         var sEl = null;
-        //         var obj = Data.LegendHelper._realIndex(i);
-        //         sEl = obj.seriesEl;
-        //         Data.LegendHelper.hideSeries({seriesEl: sEl, realIndex: i});
-        //       }
-        //     }
-        //   }
-        // }
+        }        
       }
-
-      return { series: series, xaxis: { categories: categories } };
     }
 
-    _regroup(arr, objKey) {
+    private _regroup(arr, objKey) {
       var groups = {};
       return arr.reduce(function (result, item) {
         // console.log(Object.keys(item))
