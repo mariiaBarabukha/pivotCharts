@@ -11,7 +11,7 @@ namespace Data{
     export var Categories = [];
     export function processData(rawData, type='bar'){
         Data.Model.dataStorage = new Data.DataStorage(rawData, type);
-        return Data.Model.dataStorage.getVisibleDataSets();
+        return Data.Model.dataStorage.getVisibleDataSets(type);
     }
     // export var RawData;
 }

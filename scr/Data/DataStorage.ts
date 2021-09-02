@@ -4,8 +4,15 @@ namespace Data {
     res = undefined;
     q: Data.DataSetsMaker = undefined;
     constructor(data, type) {
-      this.q = new Data.DataSetsMaker(data, type); 
-      this.res = this.q.makeDataSets();         
+      switch(type){
+        case 'bar':
+        case 'line':
+        case 'radar':
+          this.q = new Data.AxisDataSetsMaker(data); 
+          break;
+      }
+      
+              
     }
 
     
@@ -14,11 +21,12 @@ namespace Data {
       return this.res.series;
     }
 
-    getVisibleDataSets(i: number = -1) {
-      if(i > -1){
-        return { series: this.res.series[i].data, labels: this.res.labels };
-      }
-      return { series: this.res.series, labels: this.res.labels };
+    getVisibleDataSets() {
+      // if(i > -1){
+      //   return { series: this.res.series[i].data, labels: this.res.labels };
+      // }
+
+      return this.q.makeDataSets();
     }
 
     static manipulateChartData(names, drill, action, dim) {

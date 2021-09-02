@@ -1,27 +1,11 @@
 var Data;
 (function (Data) {
     class DataSetsMaker {
-        constructor(data, type) {
+        constructor(data) {
             this._data = undefined;
             this._meta = undefined;
-            this._type = undefined;
             this._data = data.data;
             this._meta = data.meta;
-            this._type = type;
-        }
-        makeDataSets() {
-            return this._groupAndGetData();
-        }
-        _groupAndGetData() {
-            this.riseAllCollapsedSeries();
-            var sortByColumns = this.sortData();
-            var categories = sortByColumns[0].map((x) => {
-                var r = x.r_full.split("_");
-                return this.capitalizeFirstLetter(r[r.length - 1]);
-            });
-            var series = this.makeSeries(sortByColumns);
-            this.hiseSeries(series);
-            return { series: series, labels: categories };
         }
         riseAllCollapsedSeries() {
             DataSetsMaker.rows_names = [];
@@ -140,22 +124,44 @@ var Data;
 })(Data || (Data = {}));
 var Data;
 (function (Data) {
+    class AxisDataSetsMaker extends Data.DataSetsMaker {
+        makeDataSets() {
+            this.riseAllCollapsedSeries();
+            var sortByColumns = this.sortData();
+            var categories = sortByColumns[0].map((x) => {
+                var r = x.r_full.split("_");
+                return this.capitalizeFirstLetter(r[r.length - 1]);
+            });
+            var series = this.makeSeries(sortByColumns);
+            this.hiseSeries(series);
+            return { series: series, xaxis: { categories: categories } };
+        }
+    }
+    Data.AxisDataSetsMaker = AxisDataSetsMaker;
+})(Data || (Data = {}));
+var Data;
+(function (Data) {
     class DataStorage {
         constructor(data, type) {
             //#queries = undefined;
             this.res = undefined;
             this.q = undefined;
-            this.q = new Data.DataSetsMaker(data, type);
-            this.res = this.q.makeDataSets();
+            switch (type) {
+                case 'bar':
+                case 'line':
+                case 'radar':
+                    this.q = new Data.AxisDataSetsMaker(data);
+                    break;
+            }
         }
         getAllDataSets() {
             return this.res.series;
         }
-        getVisibleDataSets(i = -1) {
-            if (i > -1) {
-                return { series: this.res.series[i].data, labels: this.res.labels };
-            }
-            return { series: this.res.series, labels: this.res.labels };
+        getVisibleDataSets() {
+            // if(i > -1){
+            //   return { series: this.res.series[i].data, labels: this.res.labels };
+            // }
+            return this.q.makeDataSets();
         }
         static manipulateChartData(names, drill, action, dim) {
             var nms = dim === "columns"
@@ -234,7 +240,7 @@ var Data;
     Data.Categories = [];
     function processData(rawData, type = 'bar') {
         Data.Model.dataStorage = new Data.DataStorage(rawData, type);
-        return Data.Model.dataStorage.getVisibleDataSets();
+        return Data.Model.dataStorage.getVisibleDataSets(type);
     }
     Data.processData = processData;
     // export var RawData;

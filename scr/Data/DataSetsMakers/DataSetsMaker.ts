@@ -1,38 +1,23 @@
 namespace Data {
-  export class DataSetsMaker {
+  export abstract class DataSetsMaker {
     static rows_names: string[]; //names
     static cols_names: string[]; //names
     rows_filters: string; // name of countries and quartals
 
     _data = undefined;
     _meta = undefined;
-    _type = undefined;
 
-    constructor(data, type) {
+    constructor(data) {
       this._data = data.data;
       this._meta = data.meta;
-      this._type = type;
+    
     }
 
-    makeDataSets() {
-      return this._groupAndGetData();
-    }
+    abstract makeDataSets();
 
-    _groupAndGetData() {
-      
-      this.riseAllCollapsedSeries();
-      var sortByColumns = this.sortData();
-      var categories: string[] = sortByColumns[0].map((x) => {
-        var r = x.r_full.split("_");
-        return this.capitalizeFirstLetter(r[r.length - 1]);
-      });
-      var series = this.makeSeries(sortByColumns);     
-      this.hiseSeries(series);    
+    
 
-      return { series: series, labels: categories };
-    }
-
-    private riseAllCollapsedSeries(){
+    protected riseAllCollapsedSeries(){
       DataSetsMaker.rows_names = [];
       DataSetsMaker.cols_names = [];
       if (Data.Chart != undefined) {
@@ -55,7 +40,7 @@ namespace Data {
       }
     }
 
-    private sortData(): any[]{
+    protected sortData(): any[]{
       var rows_amount = this._meta.rAmount;
       for (var i = 0; i < rows_amount; i++) {
         DataSetsMaker.rows_names.push(this._meta["r" + i + "Name"]);
@@ -106,7 +91,7 @@ namespace Data {
       return sortByColumns;
     }
     
-    private makeSeries(sortByColumns: any[]): any[]{
+    protected makeSeries(sortByColumns: any[]): any[]{
       var series = [];
       sortByColumns.forEach((group) => {
         if (group[0].r0 === undefined && group.length > 1) {
@@ -122,7 +107,7 @@ namespace Data {
       return series;
     }
 
-    private hiseSeries(series: any[]){
+    protected hiseSeries(series: any[]){
       var legends = series.map((x) => x.full_name.toLowerCase());
       for (var i = 0; i < legends.length; i++) {
         for (var j = 1; j < legends.length; j++) {
@@ -137,7 +122,7 @@ namespace Data {
       }
     }
 
-    private _regroup(arr, objKey) {
+    protected _regroup(arr, objKey) {
       var groups = {};
       return arr.reduce(function (result, item) {
         // console.log(Object.keys(item))
