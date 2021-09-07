@@ -6,7 +6,6 @@ namespace pivotcharts{
             super(el, config);
             var initCtx = new PivotInitCtxVariables(this);
             initCtx.initModules();
-            console.log("CHART");
             Data.Chart = this;
            
             

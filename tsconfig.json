@@ -16,8 +16,13 @@
         "types/apexcharts.d.ts",
         "types/legend.d.ts",
 
-        "scr/Data/DataSetsMakers/DataSetsMaker.ts",
-        "scr/Data/DataSetsMakers/AxisDataSetsMaker.ts",
+        "scr/Data/DataSetsMakers/DataSetsMaker.ts",        
+        "scr/Data/DataSetsMakers/AxisDataSetsMaker.ts",        
+        "scr/Data/DataSetsMakers/OneDimentionalDataSetsMaker.ts",
+
+        "scr/Data/DataControllers/DataControllers.ts",
+        "scr/Data/DataControllers/MeasuresSelectorController.ts",
+        
 
         "scr/Data/DataStorage.ts",
         "scr/Data/Model.ts",

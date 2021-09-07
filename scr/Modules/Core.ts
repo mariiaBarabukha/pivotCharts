@@ -128,7 +128,7 @@ namespace pivotcharts{
       
           let line = new charts.PivotLine(this.ctx, xyRatios, false)
           let boxCandlestick = new apexcharts.BoxCandleStick(this.ctx, xyRatios)
-          this.ctx.pie = new apexcharts.Pie(this.ctx)
+          this.ctx.pie = new charts.PivotPie(this.ctx)
           let radialBar = new apexcharts.Radial(this.ctx)
           this.ctx.rangeBar = new apexcharts.RangeBar(this.ctx, xyRatios)
           let radar = new charts.PivotRadar(this.ctx)

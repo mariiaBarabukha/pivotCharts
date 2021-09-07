@@ -40,16 +40,20 @@ namespace Data {
       }
     }
 
-    protected sortData(): any[]{
+    protected determinateRowsNames(){
       var rows_amount = this._meta.rAmount;
       for (var i = 0; i < rows_amount; i++) {
         DataSetsMaker.rows_names.push(this._meta["r" + i + "Name"]);
       }
+    }
 
+    protected determinateColumnsNames(){
       var cols_amount = this._meta.cAmount;
       for (var i = 0; i < cols_amount; i++) {
         DataSetsMaker.cols_names.push(this._meta["c" + i + "Name"]);
       }
+    }
+    protected sortData(): any[]{      
       
       this._data.splice(0, 1);
       this._data.forEach((element) => {
@@ -73,6 +77,9 @@ namespace Data {
                   .match(/(?<=\[)[^\][]*(?=])/g)
                   .map((x) => this.capitalizeFirstLetter(x))
                   .join("_");
+          }
+          if(key[0][0] == 'v' && key[1] != key[1]){
+            element[key[0]] = 0;
           }
         });
 
@@ -107,7 +114,7 @@ namespace Data {
       return series;
     }
 
-    protected hiseSeries(series: any[]){
+    protected hideSeries(series: any[]){
       var legends = series.map((x) => x.full_name.toLowerCase());
       for (var i = 0; i < legends.length; i++) {
         for (var j = 1; j < legends.length; j++) {
@@ -138,7 +145,7 @@ namespace Data {
       }, []);
     }
 
-    capitalizeFirstLetter(str: string): string {
+    protected capitalizeFirstLetter(str: string): string {
       return str.charAt(0).toUpperCase() + str.slice(1);
     }
   }

@@ -172,7 +172,6 @@
         }
 
         function prepareDataFunction(rawData, type) {
-            console.log(rawData);
             return Data.processData(rawData, type);
         }
             
@@ -212,27 +211,12 @@
 
             var chart = new pivotcharts.PivotChart(document.querySelector('#chart'), options);    
             chart.render();
-
-            addButtons(options);
-        
-
-            
         }
 
         function updateChart(rawData) {
             Data.Chart.updateOptions(prepareDataFunction(rawData));
-            addButtons(Data.Chart.w.config);
         }
 
-        function addButtons(options){
-            var a = document.getElementById("buttons_panel");
-            a.innerHTML = '';
-            var buttons = '';
-            for(var i = 0; i < options.series[0].data.length; i++){
-                buttons += "<button id = '"+i+"_button' disabled onclick = 'pivotcharts.PivotXAxis.close(this.id)'>click</button>";
-            }
-
-            a.insertAdjacentHTML('beforeend',buttons);
-        }
+     
     </script>
 </body>

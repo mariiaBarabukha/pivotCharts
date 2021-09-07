@@ -29,15 +29,19 @@ var Data;
                 });
             }
         }
-        sortData() {
+        determinateRowsNames() {
             var rows_amount = this._meta.rAmount;
             for (var i = 0; i < rows_amount; i++) {
                 DataSetsMaker.rows_names.push(this._meta["r" + i + "Name"]);
             }
+        }
+        determinateColumnsNames() {
             var cols_amount = this._meta.cAmount;
             for (var i = 0; i < cols_amount; i++) {
                 DataSetsMaker.cols_names.push(this._meta["c" + i + "Name"]);
             }
+        }
+        sortData() {
             this._data.splice(0, 1);
             this._data.forEach((element) => {
                 var keys = Object.entries(element);
@@ -59,6 +63,9 @@ var Data;
                                     .match(/(?<=\[)[^\][]*(?=])/g)
                                     .map((x) => this.capitalizeFirstLetter(x))
                                     .join("_");
+                    }
+                    if (key[0][0] == 'v' && key[1] != key[1]) {
+                        element[key[0]] = 0;
                     }
                 });
                 Data.Categories.push(element.r_full);
@@ -89,7 +96,7 @@ var Data;
             });
             return series;
         }
-        hiseSeries(series) {
+        hideSeries(series) {
             var legends = series.map((x) => x.full_name.toLowerCase());
             for (var i = 0; i < legends.length; i++) {
                 for (var j = 1; j < legends.length; j++) {
@@ -127,17 +134,68 @@ var Data;
     class AxisDataSetsMaker extends Data.DataSetsMaker {
         makeDataSets() {
             this.riseAllCollapsedSeries();
+            this.determinateRowsNames();
+            this.determinateColumnsNames();
             var sortByColumns = this.sortData();
             var categories = sortByColumns[0].map((x) => {
                 var r = x.r_full.split("_");
                 return this.capitalizeFirstLetter(r[r.length - 1]);
             });
             var series = this.makeSeries(sortByColumns);
-            this.hiseSeries(series);
+            this.hideSeries(series);
             return { series: series, xaxis: { categories: categories } };
         }
     }
     Data.AxisDataSetsMaker = AxisDataSetsMaker;
+})(Data || (Data = {}));
+var Data;
+(function (Data) {
+    class OneDimentionalDataSetsMaker extends Data.DataSetsMaker {
+        makeDataSets() {
+            var sortByColumns = this.sortData();
+            var categories = sortByColumns[0].map((x) => {
+                var r = x.r_full.split("_");
+                return this.capitalizeFirstLetter(r[r.length - 1]);
+            });
+            var series = this.makeSeries(sortByColumns);
+            this.hideSeries(series);
+            return { series: series, labels: categories };
+        }
+    }
+    Data.OneDimentionalDataSetsMaker = OneDimentionalDataSetsMaker;
+})(Data || (Data = {}));
+var Data;
+(function (Data) {
+    class DataSelectotController {
+        constructor(ctx, data, key, type) {
+            this.outerWrapperName = "";
+            this.ctx = ctx;
+            this.data = data;
+            this.key = key;
+            this.outerWrapperName = type;
+        }
+        draw() {
+            var options = this.data.map((x) => x[this.key]);
+            var dropDown = "<div class='" + this.outerWrapperName + "'>" + this.selectedItem ||
+                options[0] + "<div class='menu'>";
+            options.forEach((option) => {
+                dropDown += (" <div class='item'>" + option + "</div>");
+            });
+            dropDown += "</div></div>";
+            var chart = document.getElementById(this.ctx.el);
+            chart.insertAdjacentHTML('beforebegin', dropDown);
+        }
+    }
+    Data.DataSelectotController = DataSelectotController;
+})(Data || (Data = {}));
+var Data;
+(function (Data) {
+    class MeasuresSelectorController extends Data.DataSelectotController {
+        constructor(ctx, data) {
+            super(ctx, data, 'measures', 'v');
+        }
+    }
+    Data.MeasuresSelectorController = MeasuresSelectorController;
 })(Data || (Data = {}));
 var Data;
 (function (Data) {
@@ -152,6 +210,9 @@ var Data;
                 case 'radar':
                     this.q = new Data.AxisDataSetsMaker(data);
                     break;
+                case 'pie':
+                case 'donute':
+                    this.q = new Data.OneDimentionalDataSetsMaker(data);
             }
         }
         getAllDataSets() {
@@ -402,11 +463,6 @@ var pivotcharts;
             this.onLegendClick = this.onLegendClick.bind(this);
             this.legendHelpers = new PivotHelper(this);
             Data.LegendHelper = this.legendHelpers;
-        }
-        onLegendClick(e) {
-            super.onLegendClick(e);
-            console.log("LEGEND");
-            //this._onClick(super., isHidden);
         }
         drawLegends() {
             let self = this;
@@ -709,7 +765,7 @@ var pivotcharts;
             });
             let line = new charts.PivotLine(this.ctx, xyRatios, false);
             let boxCandlestick = new apexcharts.BoxCandleStick(this.ctx, xyRatios);
-            this.ctx.pie = new apexcharts.Pie(this.ctx);
+            this.ctx.pie = new charts.PivotPie(this.ctx);
             let radialBar = new apexcharts.Radial(this.ctx);
             this.ctx.rangeBar = new apexcharts.RangeBar(this.ctx, xyRatios);
             let radar = new charts.PivotRadar(this.ctx);
@@ -1257,6 +1313,10 @@ var charts;
 var charts;
 (function (charts) {
     class PivotPie extends apexcharts.Pie {
+        constructor(ctx) {
+            super(ctx);
+            // var controller = new PieController();
+        }
     }
     charts.PivotPie = PivotPie;
 })(charts || (charts = {}));
@@ -1444,7 +1504,6 @@ var pivotcharts;
             super(el, config);
             var initCtx = new pivotcharts.PivotInitCtxVariables(this);
             initCtx.initModules();
-            console.log("CHART");
             Data.Chart = this;
         }
         create(ser, opts) {

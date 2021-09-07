@@ -198,12 +198,7 @@ namespace pivotcharts{
             this.legendHelpers = new PivotHelper(this);
             Data.LegendHelper = this.legendHelpers;
         }
-        onLegendClick(e:Event){
-            super.onLegendClick(e);
-            console.log("LEGEND");
-            
-            //this._onClick(super., isHidden);
-        }
+        
 
         drawLegends() {
           let self = this

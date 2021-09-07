@@ -10,6 +10,9 @@ namespace Data {
         case 'radar':
           this.q = new Data.AxisDataSetsMaker(data); 
           break;
+        case 'pie':
+        case 'donute':
+          this.q = new Data.OneDimentionalDataSetsMaker(data);
       }
       
               
