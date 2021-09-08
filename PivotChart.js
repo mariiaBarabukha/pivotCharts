@@ -96,19 +96,42 @@ var Data;
             });
             return series;
         }
+        getOldLegends() {
+            var data = Data.Model.dataStorage.getAllData();
+            if (data == undefined) {
+                return;
+            }
+            return data.series.map(x => x.full_name);
+        }
         hideSeries(series) {
+            var old_legends = this.getOldLegends();
+            if (old_legends == undefined) {
+                return;
+            }
             var legends = series.map((x) => x.full_name.toLowerCase());
             for (var i = 0; i < legends.length; i++) {
                 for (var j = 1; j < legends.length; j++) {
-                    if (legends[i] != legends[j] && legends[j].includes(legends[i])) {
+                    if (legends[i].toLowerCase() != legends[j].toLowerCase()
+                        && this.isPrevLegend(legends[i], legends[j])) {
                         var sEl = null;
                         var obj = Data.LegendHelper._realIndex(i);
                         sEl = obj.seriesEl;
-                        Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: i });
+                        Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: j - 1 });
                         break;
                     }
                 }
             }
+        }
+        isPrevLegend(old_legend, expand_legend) {
+            var words_old = old_legend.toLowerCase().split('_');
+            var words_new = expand_legend.toLowerCase().split('_');
+            var res = true;
+            for (var i = 0; i < words_old.length; i++) {
+                if (words_old[i] != words_new[i]) {
+                    res = false;
+                }
+            }
+            return res;
         }
         _regroup(arr, objKey) {
             var groups = {};
@@ -161,6 +184,13 @@ var Data;
             this.hideSeries(series);
             return { series: series, labels: categories };
         }
+        getOldLegends() {
+            var old_legends = Data.Model.dataStorage.getAllData();
+            if (old_legends == undefined) {
+                return;
+            }
+            return old_legends.labels;
+        }
     }
     Data.OneDimentionalDataSetsMaker = OneDimentionalDataSetsMaker;
 })(Data || (Data = {}));
@@ -204,6 +234,9 @@ var Data;
             //#queries = undefined;
             this.res = undefined;
             this.q = undefined;
+            this.setConfigs(data, type);
+        }
+        setConfigs(data, type) {
             switch (type) {
                 case 'bar':
                 case 'line':
@@ -215,14 +248,15 @@ var Data;
                     this.q = new Data.OneDimentionalDataSetsMaker(data);
             }
         }
-        getAllDataSets() {
-            return this.res.series;
+        getAllData() {
+            return this.res;
         }
         getVisibleDataSets() {
             // if(i > -1){
             //   return { series: this.res.series[i].data, labels: this.res.labels };
             // }
-            return this.q.makeDataSets();
+            this.res = this.q.makeDataSets();
+            return this.res;
         }
         static manipulateChartData(names, drill, action, dim) {
             var nms = dim === "columns"
@@ -300,7 +334,12 @@ var Data;
     Data.visibleDataSets = [];
     Data.Categories = [];
     function processData(rawData, type = 'bar') {
-        Data.Model.dataStorage = new Data.DataStorage(rawData, type);
+        if (Data.Model.dataStorage == undefined) {
+            Data.Model.dataStorage = new Data.DataStorage(rawData, type);
+        }
+        else {
+            Data.Model.dataStorage.setConfigs(rawData, type);
+        }
         return Data.Model.dataStorage.getVisibleDataSets(type);
     }
     Data.processData = processData;

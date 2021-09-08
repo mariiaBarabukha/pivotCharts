@@ -10,7 +10,12 @@ namespace Data{
     export var LegendHelper: pivotcharts.PivotHelper;
     export var Categories = [];
     export function processData(rawData, type='bar'){
-        Data.Model.dataStorage = new Data.DataStorage(rawData, type);
+        if(Data.Model.dataStorage == undefined){
+            Data.Model.dataStorage = new Data.DataStorage(rawData, type);
+        }else{
+            Data.Model.dataStorage.setConfigs(rawData, type);
+        }
+
         return Data.Model.dataStorage.getVisibleDataSets(type);
     }
     // export var RawData;

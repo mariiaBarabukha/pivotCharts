@@ -15,5 +15,6 @@ namespace Data {
 
       return { series: series, xaxis: { categories: categories } };
     }
+
   }
 }

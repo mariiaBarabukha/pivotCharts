@@ -4,6 +4,12 @@ namespace Data {
     res = undefined;
     q: Data.DataSetsMaker = undefined;
     constructor(data, type) {
+      
+      this.setConfigs(data,type);
+              
+    }
+
+    setConfigs(data, type){
       switch(type){
         case 'bar':
         case 'line':
@@ -14,14 +20,11 @@ namespace Data {
         case 'donute':
           this.q = new Data.OneDimentionalDataSetsMaker(data);
       }
-      
-              
     }
-
     
 
-    getAllDataSets() {
-      return this.res.series;
+    getAllData() {
+      return this.res;
     }
 
     getVisibleDataSets() {
@@ -29,7 +32,8 @@ namespace Data {
       //   return { series: this.res.series[i].data, labels: this.res.labels };
       // }
 
-      return this.q.makeDataSets();
+      this.res = this.q.makeDataSets();
+      return this.res;
     }
 
     static manipulateChartData(names, drill, action, dim) {
