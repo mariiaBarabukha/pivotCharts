@@ -11,6 +11,7 @@ namespace pivotcharts{
             type: s.type ? s.type : ser && ser.type,
             data: s.data ? s.data : ser && ser.data,
             full_name: s.full_name ? s.full_name : ser && ser.full_name,
+            level : s.level != undefined ? s.level : ser && ser.level
           }
         }
       }

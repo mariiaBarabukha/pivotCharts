@@ -121,6 +121,7 @@ declare module apexcharts {
     static getBoundingClientRect(element);
     static sanitizeDom(string);
     static escapeString(str, escapeWith);
+    shadeColor(p,color);
   }
 
   export class CoreUtils{
@@ -399,6 +400,18 @@ declare module apexcharts {
     constructor(ctx);
     _extendSeries(s, i);
     w;
+  }
+
+  export class Theme{
+    constructor(ctx);
+    init();
+    pushExtraColors(colorSeries, length?, distributed?);
+    isBarDistributed;
+    isHeatmapDistributed;
+    w;
+    isColorFn;
+    colors;
+    predefined();
   }
 
  

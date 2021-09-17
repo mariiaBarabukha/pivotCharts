@@ -174,16 +174,14 @@
     }
 
     function drawChart(rawData) {
-      var type = "line";
+      var type = "pie";
       let data = prepareDataFunction(rawData, type);
       var options = {
+        series: data.series[0].data,
         chart: {
           type: type,
           width: 700,
           height: 300,
-          toolbar: {
-            show: false,
-          }
         },
         plotOptions: {
           bar: {
@@ -200,10 +198,8 @@
           width: 2,
           curve: "straight",
         },
-        series: data.series,
-        xaxis: {
-          categories: data.xaxis.categories,
-        },
+
+        labels: data.labels,
       };
 
       var chart = new pivotcharts.PivotChart(

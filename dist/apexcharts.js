@@ -2080,7 +2080,7 @@
             x2 = temp;
           }
 
-          var rect = this.annoCtx.graphics.drawRect(x1 + anno.offsetX, // x1
+          var rect =  this.annoCtx.graphics.drawRect(x1 + anno.offsetX, // x1
           0 + anno.offsetY, // y1
           x2 - x1, // x2
           w.globals.gridHeight + anno.offsetY, // y2
@@ -31259,6 +31259,8 @@
   window.apexcharts.Markers = Markers;
   window.apexcharts.Filters = Filters;
   window.apexcharts.DataLabels = DataLabels;
+
+  window.apexcharts.Theme = Theme;
   return ApexCharts$1;
 
 })));

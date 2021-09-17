@@ -36,6 +36,7 @@
         "scr/Modules/Data.ts",
         "scr/Modules/UpdateHelper.ts",
         "scr/Modules/Graphics.ts",
+        "scr/Modules/Theme.ts",
         
         "scr/Charts/Bar.ts",
         "scr/Charts/Pie.ts",

@@ -4,24 +4,21 @@ namespace Data {
     res = undefined;
     q: Data.DataSetsMaker = undefined;
     constructor(data, type) {
-      
-      this.setConfigs(data,type);
-              
+      this.setConfigs(data, type);
     }
 
-    setConfigs(data, type){
-      switch(type){
-        case 'bar':
-        case 'line':
-        case 'radar':
-          this.q = new Data.AxisDataSetsMaker(data); 
+    setConfigs(data, type) {
+      switch (type) {
+        case "bar":
+        case "line":
+        case "radar":
+          this.q = new Data.AxisDataSetsMaker(data);
           break;
-        case 'pie':
-        case 'donute':
+        case "pie":
+        case "donute":
           this.q = new Data.OneDimentionalDataSetsMaker(data);
       }
     }
-    
 
     getAllData() {
       return this.res;
@@ -54,7 +51,7 @@ namespace Data {
           if (m.children.length > 0) {
             var prev = [...names].slice(0, i);
             var aaa = [...names].slice(i);
-            var toDrill = aaa.map(x => '['+x+']').join('.');
+            var toDrill = aaa.map((x) => "[" + x + "]").join(".");
             drill(dim, prev, null, toDrill);
             break;
           } else {
@@ -64,24 +61,25 @@ namespace Data {
       }
     }
 
-    private static search(members, names){
-      if(members.length < 1 || members == null){
+    private static search(members, names) {
+      if (members.length < 1 || members == null) {
         return null;
       }
       var b = false;
       var index = -1;
       for (var i = 0; i < members.length; i++) {
-        var incl = names.map(x=>members[i].uniqueName.includes(x.toLowerCase()));
+        var incl = names.map((x) =>
+          members[i].uniqueName.includes(x.toLowerCase())
+        );
         var res = true;
-        incl.forEach(element => {
+        incl.forEach((element) => {
           res &&= element;
         });
         if (res) {
           return members[i];
         }
-        
       }
-      var childen = members.map(x => x.children);
+      var childen = members.map((x) => x.children);
       // var children_res = [].concat().apply();
       return this.search(Array.prototype.concat.apply([], childen), names);
     }

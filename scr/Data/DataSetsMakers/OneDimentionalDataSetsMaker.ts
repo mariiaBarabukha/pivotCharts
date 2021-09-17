@@ -1,10 +1,6 @@
 namespace Data {
-  export class AxisDataSetsMaker extends Data.DataSetsMaker {
+  export class OneDimentionalDataSetsMaker extends Data.DataSetsMaker {
     makeDataSets() {
-      this.riseAllCollapsedSeries();
-
-      this.determinateRowsNames();
-      this.determinateColumnsNames();
       var sortByColumns = this.sortData();
       var categories: string[] = sortByColumns[0].map((x) => {
         var r = x.r_full.split("_");
@@ -13,7 +9,7 @@ namespace Data {
       var series = this.makeSeries(sortByColumns);
       this.hideSeries(series);
 
-      return { series: series, xaxis: { categories: categories } };
+      return { series: series, labels: categories };
     }
   }
 }

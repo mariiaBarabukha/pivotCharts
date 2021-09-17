@@ -10,14 +10,11 @@ namespace Data {
     constructor(data) {
       this._data = data.data;
       this._meta = data.meta;
-    
     }
 
     abstract makeDataSets();
 
-    
-
-    protected riseAllCollapsedSeries(){
+    protected riseAllCollapsedSeries() {
       DataSetsMaker.rows_names = [];
       DataSetsMaker.cols_names = [];
       if (Data.Chart != undefined) {
@@ -40,48 +37,74 @@ namespace Data {
       }
     }
 
-    protected determinateRowsNames(){
+    protected determinateRowsNames() {
       var rows_amount = this._meta.rAmount;
       for (var i = 0; i < rows_amount; i++) {
         DataSetsMaker.rows_names.push(this._meta["r" + i + "Name"]);
       }
     }
 
-    protected determinateColumnsNames(){
+    protected determinateColumnsNames() {
       var cols_amount = this._meta.cAmount;
       for (var i = 0; i < cols_amount; i++) {
         DataSetsMaker.cols_names.push(this._meta["c" + i + "Name"]);
       }
     }
-    protected sortData(): any[]{      
-      
+    protected sortData(): any[] {
       this._data.splice(0, 1);
       this._data.forEach((element) => {
-        
         var keys = Object.entries(element);
+        element.c_full = "";
+        element.r_full = "";
         keys.forEach((key) => {
-          if(key[0][0] == 'c' && key[0].includes('full')){
-            element.c_full =
-            element[key[0]] === undefined
-              ? ""
-              : element[key[0]]
-                  .match(/(?<=\[)[^\][]*(?=])/g)
-                  .map((x) => this.capitalizeFirstLetter(x))
-                  .join("_");
+          if (key[0][0] == "c") {
+            if (key[0].includes("full")) {
+              var a =
+                element[key[0]] === undefined
+                  ? ""
+                  : (element[key[0]]
+                      .match(/(?<=\[)[^\][]*(?=])/g)
+                      .map((x) => this.capitalizeFirstLetter(x))
+                      .join("_"));
+
+              if (!this.includesDespiteCase(element.c_full, a)) {
+                element.c_full += ("_"+a);
+              }
+            } else {
+              var b =
+                element[key[0]] === undefined ? "" : "_" + element[key[0]];
+              if (!this.includesDespiteCase(element.c_full, b)) {
+                element.c_full += b;
+              }
+            }
           }
-          if(key[0][0] == 'r' && key[0].includes('full')){
-          element.r_full =
-            element[key[0]] === undefined
-              ? ""
-              : element[key[0]]
-                  .match(/(?<=\[)[^\][]*(?=])/g)
-                  .map((x) => this.capitalizeFirstLetter(x))
-                  .join("_");
+          if (key[0][0] == "r") {
+            if (key[0].includes("full")) {
+              var a = (element.r_full =
+                element[key[0]] === undefined
+                  ? ""
+                  : element[key[0]]
+                      .match(/(?<=\[)[^\][]*(?=])/g)
+                      .map((x) => this.capitalizeFirstLetter(x))
+                      .join("_"));
+              if (!this.includesDespiteCase(element.r_full, a)) {
+                element.r_full += a;
+              }
+            }else{
+              var b =
+                element[key[0]] === undefined ? "" : "_" + element[key[0]];
+              if (!this.includesDespiteCase(element.r_full, b)) {
+                element.r_full += b;
+              }
+            }
           }
-          if(key[0][0] == 'v' && key[1] != key[1]){
+          if (key[0][0] == "v" && key[1] != key[1]) {
             element[key[0]] = 0;
           }
         });
+
+        element.c_full = this.removeFirstUnderLine(element.c_full);
+        element.r_full = this.removeFirstUnderLine(element.r_full);
 
         Data.Categories.push(element.r_full);
       });
@@ -97,8 +120,22 @@ namespace Data {
       }
       return sortByColumns;
     }
-    
-    protected makeSeries(sortByColumns: any[]): any[]{
+
+    private includesDespiteCase(a: string, b: string): boolean {
+      var _a = a.toLowerCase();
+      var _b = b.toLowerCase();
+      return _a.includes(_b);
+    }
+
+    private removeFirstUnderLine(str: string) : string{
+      var _str = str;
+      if (str[0] == "_") {
+        _str = _str.slice(1);
+      }
+      return _str;
+    }
+
+    protected makeSeries(sortByColumns: any[]): any[] {
       var series = [];
       sortByColumns.forEach((group) => {
         if (group[0].r0 === undefined && group.length > 1) {
@@ -109,6 +146,7 @@ namespace Data {
           name: n[n.length - 1] || "",
           data: group.map((a) => a.v0),
           full_name: group[0].c_full,
+          level: n.length - 1,
         });
       });
       return series;
@@ -119,35 +157,38 @@ namespace Data {
       if (data == undefined) {
         return;
       }
-      return data.series.map(x=>x.full_name);
+      return data.series.map((x) => x.full_name);
     }
-    protected hideSeries(series: any[]){
-      
+    protected hideSeries(series: any[]) {
+      Data.Hiddens = [];
       var old_legends = this.getOldLegends();
-      if(old_legends == undefined){
+      if (old_legends == undefined) {
         return;
       }
       var legends = series.map((x) => x.full_name.toLowerCase());
       for (var i = 0; i < legends.length; i++) {
         for (var j = 1; j < legends.length; j++) {
-          if (legends[i].toLowerCase() != legends[j].toLowerCase()
-           && this.isPrevLegend(legends[i], legends[j])) {
+          if (
+            legends[i].toLowerCase() != legends[j].toLowerCase() &&
+            this.isPrevLegend(legends[i], legends[j])
+          ) {
             var sEl = null;
             var obj = Data.LegendHelper._realIndex(i);
             sEl = obj.seriesEl;
-            Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: j-1 });
+            Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: j - 1 });
+            Data.Hiddens.push(j - 1);
             break;
           }
-        }        
+        }
       }
     }
 
-    private isPrevLegend(old_legend: string, expand_legend: string): boolean{
-      var words_old = old_legend.toLowerCase().split('_'); 
-      var words_new = expand_legend.toLowerCase().split('_'); 
+    private isPrevLegend(old_legend: string, expand_legend: string): boolean {
+      var words_old = old_legend.toLowerCase().split("_");
+      var words_new = expand_legend.toLowerCase().split("_");
       var res = true;
-      for(var i = 0; i < words_old.length; i++){
-        if(words_old[i] != words_new[i]){
+      for (var i = 0; i < words_old.length; i++) {
+        if (words_old[i] != words_new[i]) {
           res = false;
         }
       }

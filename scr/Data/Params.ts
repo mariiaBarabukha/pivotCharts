@@ -18,5 +18,7 @@ namespace Data{
 
         return Data.Model.dataStorage.getVisibleDataSets(type);
     }
+
+    export var BasicSeriesNames = [];
     // export var RawData;
 }
