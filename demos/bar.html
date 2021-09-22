@@ -71,16 +71,7 @@
         },
         slice: {
           rows: [
-            
             {
-              uniqueName: "Order Date",
-            },
-            {
-              uniqueName: "[Measures]",
-            }
-          ],
-          columns: [
-          {
               uniqueName: "Country",
               filter: {
                 members: [
@@ -89,11 +80,18 @@
                   "country.[japan]",
                 ],
               },
-              
             },
             {
               uniqueName: "Status",
-            }
+            },
+          ],
+          columns: [
+            {
+              uniqueName: "Order Date",
+            },
+            {
+              uniqueName: "[Measures]",
+            },
           ],
           measures: [
             {
@@ -120,7 +118,6 @@
             },
           ],
         },
-
         conditions: [
           {
             formula: "#value > 35000",

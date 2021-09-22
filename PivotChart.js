@@ -8,8 +8,6 @@ var Data;
             this._meta = data.meta;
         }
         riseAllCollapsedSeries() {
-            DataSetsMaker.rows_names = [];
-            DataSetsMaker.cols_names = [];
             if (Data.Chart != undefined) {
                 [...Data.Chart.w.globals.collapsedSeries].forEach((i) => {
                     var realIndex = Data.LegendHelper._realIndex(i.index).realIndex;
@@ -30,18 +28,20 @@ var Data;
             }
         }
         determinateRowsNames() {
+            DataSetsMaker.rows_names = [];
             var rows_amount = this._meta.rAmount;
             for (var i = 0; i < rows_amount; i++) {
                 DataSetsMaker.rows_names.push(this._meta["r" + i + "Name"]);
             }
         }
         determinateColumnsNames() {
+            DataSetsMaker.cols_names = [];
             var cols_amount = this._meta.cAmount;
             for (var i = 0; i < cols_amount; i++) {
                 DataSetsMaker.cols_names.push(this._meta["c" + i + "Name"]);
             }
         }
-        sortData() {
+        sortData(sortKey = "c_full") {
             this._data.splice(0, 1);
             this._data.forEach((element) => {
                 var keys = Object.entries(element);
@@ -93,18 +93,32 @@ var Data;
                 });
                 element.c_full = this.removeFirstUnderLine(element.c_full);
                 element.r_full = this.removeFirstUnderLine(element.r_full);
-                Data.Categories.push(element.r_full);
+                var categKey = sortKey == "c_full" ? "r_full" : "c_full";
+                Data.Categories.push(element[categKey]);
             });
-            var sortByColumns = this._regroup(this._data, "c_full");
-            if (sortByColumns.length > 1) {
-                sortByColumns.splice(0, 1);
-                sortByColumns.forEach((group) => {
+            var sortByKey = this._regroup(this._data, sortKey);
+            var min_i = this.findExtraGroup(sortByKey);
+            if (sortByKey.length > 1) {
+                sortByKey.splice(min_i, 1);
+                sortByKey.forEach((group) => {
                     if (group.length > 1) {
                         group.splice(0, 1);
                     }
                 });
             }
-            return sortByColumns;
+            return sortByKey;
+        }
+        findExtraGroup(sortByKey) {
+            var ls = sortByKey.map(x => x.length);
+            var min = ls[0];
+            var min_i = 0;
+            for (var i = 1; i < ls.length; i++) {
+                if (ls[i] < min) {
+                    min = ls[i];
+                    min_i = i;
+                }
+            }
+            return min_i;
         }
         includesDespiteCase(a, b) {
             var _a = a.toLowerCase();
@@ -118,17 +132,17 @@ var Data;
             }
             return _str;
         }
-        makeSeries(sortByColumns) {
+        makeSeries(sortByColumns, key = "c_full") {
             var series = [];
             sortByColumns.forEach((group) => {
                 if (group[0].r0 === undefined && group.length > 1) {
                     group.splice(0, 1);
                 }
-                var n = group[0].c_full.split("_");
+                var n = group[0][key].split("_");
                 series.push({
                     name: n[n.length - 1] || "",
                     data: group.map((a) => a.v0),
-                    full_name: group[0].c_full,
+                    full_name: group[0][key],
                     level: n.length - 1,
                 });
             });
@@ -215,12 +229,14 @@ var Data;
 (function (Data) {
     class OneDimentionalDataSetsMaker extends Data.DataSetsMaker {
         makeDataSets() {
-            var sortByColumns = this.sortData();
-            var categories = sortByColumns[0].map((x) => {
-                var r = x.r_full.split("_");
+            this.determinateRowsNames();
+            this.determinateColumnsNames();
+            var sorted = this.sortData("r_full");
+            var categories = sorted[0].map((x) => {
+                var r = x.c_full.split("_");
                 return this.capitalizeFirstLetter(r[r.length - 1]);
             });
-            var series = this.makeSeries(sortByColumns);
+            var series = this.makeSeries(sorted, "r_full");
             this.hideSeries(series);
             return { series: series, labels: categories };
         }
@@ -229,13 +245,27 @@ var Data;
 })(Data || (Data = {}));
 var Data;
 (function (Data) {
-    class DataSelectotController {
-        constructor(ctx, data, key, type) {
+    // export class DataSelectotController {
+    //   data: any[];
+    //   selectedItem: string;
+    //   outerWrapperName: string = "";
+    //   key: string;
+    //   ctx;
+    //   constructor(ctx:object, data:any[], key:string, type:string) {
+    //     this.ctx = ctx;
+    //     this.data = data;
+    //     this.key = key;
+    //     this.outerWrapperName = type;
+    //   }
+    // }
+    class DataSelector {
+        constructor(ctx, data, key, type, index) {
             this.outerWrapperName = "";
             this.ctx = ctx;
             this.data = data;
             this.key = key;
             this.outerWrapperName = type;
+            this.index = index;
         }
         draw() {
             var options = this.data.map((x) => x[this.key]);
@@ -245,20 +275,54 @@ var Data;
                 dropDown += " <div class='item'>" + option + "</div>";
             });
             dropDown += "</div></div>";
-            var chart = document.getElementById(this.ctx.el);
+            var chart = document.getElementById(this.ctx.el.id);
             chart.insertAdjacentHTML("beforebegin", dropDown);
         }
     }
-    Data.DataSelectotController = DataSelectotController;
+    Data.DataSelector = DataSelector;
 })(Data || (Data = {}));
 var Data;
 (function (Data) {
-    class MeasuresSelectorController extends Data.DataSelectotController {
-        constructor(ctx, data) {
-            super(ctx, data, 'measures', 'v');
+    class RowsSelectorController {
+        constructor() {
+            this.currentRowIndex = 0;
+        }
+        getCurrentRowIndex() {
+            return this.currentRowIndex;
+        }
+        setCurrentRowIndex(i) {
+            this.currentRowIndex = i;
         }
     }
-    Data.MeasuresSelectorController = MeasuresSelectorController;
+    Data.RowsSelectorController = RowsSelectorController;
+    class RowsSelector {
+        constructor(ctx) {
+            this.controller = new RowsSelectorController();
+            this.ctx = ctx;
+            this.isDrawn = false;
+        }
+        draw(names) {
+            var dropDown = "<select id='rows'>";
+            var options = names.map(x => "<option value='" + names.indexOf(x) + "'>" + x + "</option>").join();
+            dropDown += options;
+            dropDown += "</select>";
+            var chart = document.getElementById(this.ctx.el.id);
+            chart.insertAdjacentHTML("beforebegin", dropDown);
+            var select = document.getElementById("rows");
+            select.onchange = () => {
+                var s = document.getElementById("rows");
+                var option = s.options[s.selectedIndex].value;
+                this.controller.setCurrentRowIndex(Number(option));
+                Data.Chart.updateOptions(this.ctx.w.globals.series);
+                ;
+            };
+            this.isDrawn = true;
+        }
+        getCurrentRowIndex() {
+            return this.controller.getCurrentRowIndex();
+        }
+    }
+    Data.RowsSelector = RowsSelector;
 })(Data || (Data = {}));
 var Data;
 (function (Data) {
@@ -405,6 +469,7 @@ var pivotcharts;
                     this.lgCtx.ctx.pie.printDataLabelsInner(seriesEl.members[0].node, dataLabels);
                 }
                 seriesEl.fire("click");
+                seriesEl = seriesEl.members[0].node;
             }
             var name = seriesEl.getAttribute("full_name");
             var names = name.split("_");
@@ -841,6 +906,7 @@ var pivotcharts;
             this.ctx.rangeBar = new apexcharts.RangeBar(this.ctx, xyRatios);
             let radar = new charts.PivotRadar(this.ctx);
             let elGraph = [];
+            // let rowsSelection = new Data.DataSelector(this.ctx, this.w.config.series, "r_full", "rows");
             if (gl.comboCharts) {
                 if (areaSeries.series.length > 0) {
                     elGraph.push(line.draw(areaSeries.series, "area", areaSeries.i));
@@ -943,6 +1009,7 @@ var pivotcharts;
             this.ctx.data = new pivotcharts.PivotData(this.ctx);
             this.ctx.updateHelpers = new pivotcharts.PivotUpdateHelpers(this.ctx);
             this.ctx.theme = new pivotcharts.PivotTheme(this.ctx);
+            this.ctx.rowsSelector = this.ctx.rowsSelector || new Data.RowsSelector(this.ctx);
         }
     }
     pivotcharts.PivotInitCtxVariables = PivotInitCtxVariables;
@@ -1183,7 +1250,7 @@ var pivotcharts;
                     gl.full_name.push(ser[i].full_name);
                 }
                 else {
-                    gl.full_name.push('full_name-' + (i + 1));
+                    gl.full_name.push("full_name-" + (i + 1));
                 }
                 if (ser[i].level !== undefined) {
                     gl.series_levels.push(ser[i].level);
@@ -1196,8 +1263,60 @@ var pivotcharts;
         parseDataNonAxisCharts(ser) {
             super.parseDataNonAxisCharts(ser);
             var gl = this.w.globals;
-            gl.full_name = Object.assign(gl.seriesNames);
+            gl.full_name = Object.assign({}, gl.seriesNames);
+            gl.series_levels = 0;
+            // if (ser.level !== undefined) {
+            //   gl.series_levels.push(ser.level)
+            // } else {
+            //   gl.series_levels.push(0)
+            // }
             return this.w;
+        }
+        parseData(ser) {
+            let w = this.w;
+            let cnf = w.config;
+            let gl = w.globals;
+            this.excludeCollapsedSeriesInYAxis();
+            // If we detected string in X prop of series, we fallback to category x-axis
+            this.fallbackToCategory = false;
+            this.ctx.core.resetGlobals();
+            this.ctx.core.isMultipleY();
+            if (gl.axisCharts) {
+                // axisCharts includes line / area / column / scatter
+                this.parseDataAxisCharts(ser);
+            }
+            else {
+                // non-axis charts are pie / donut
+                var i = this.ctx.rowsSelector.getCurrentRowIndex();
+                this.parseDataNonAxisCharts(ser[i].data);
+            }
+            this.coreUtils.getLargestSeries();
+            // set Null values to 0 in all series when user hides/shows some series
+            if (cnf.chart.type === 'bar' && cnf.chart.stacked) {
+                const series = new apexcharts.Series(this.ctx);
+                gl.series = series.setNullSeriesToZeroValues(gl.series);
+            }
+            this.coreUtils.getSeriesTotals();
+            if (gl.axisCharts) {
+                this.coreUtils.getStackedSeriesTotals();
+            }
+            this.coreUtils.getPercentSeries();
+            if (!gl.dataFormatXNumeric &&
+                (!gl.isXNumeric ||
+                    (cnf.xaxis.type === 'numeric' &&
+                        cnf.labels.length === 0 &&
+                        cnf.xaxis.categories.length === 0))) {
+                // x-axis labels couldn't be detected; hence try searching every option in config
+                this.handleExternalLabelsData(ser);
+            }
+            // check for multiline xaxis
+            const catLabels = this.coreUtils.getCategoryLabels(gl.labels);
+            for (let l = 0; l < catLabels.length; l++) {
+                if (Array.isArray(catLabels[l])) {
+                    gl.isMultiLineX = true;
+                    break;
+                }
+            }
         }
     }
     pivotcharts.PivotData = PivotData;
@@ -1272,7 +1391,7 @@ var pivotcharts;
                 var new_colors = [];
                 if (length == undefined) {
                     for (var i = 0; i < len; i++) {
-                        if (w.globals.series_levels[i] == 0) {
+                        if ((w.globals.series_levels[i] || w.globals.series_levels) == 0) {
                             new_colors.push(cl.shift());
                         }
                         else {
@@ -1560,6 +1679,179 @@ var charts;
             super(ctx);
             // var controller = new PieController();
         }
+        drawArcs(sectorAngleArr, series) {
+            let w = this.w;
+            const filters = new apexcharts.Filters(this.ctx);
+            let graphics = new apexcharts.Graphics(this.ctx);
+            let fill = new apexcharts.Fill(this.ctx);
+            let g = graphics.group({
+                class: 'apexcharts-slices'
+            });
+            let startAngle = this.initialAngle;
+            let prevStartAngle = this.initialAngle;
+            let endAngle = this.initialAngle;
+            let prevEndAngle = this.initialAngle;
+            this.strokeWidth = w.config.stroke.show ? w.config.stroke.width : 0;
+            let full_names = w.globals.full_name;
+            for (let i = 0; i < sectorAngleArr.length; i++) {
+                let elPieArc = graphics.group({
+                    class: `apexcharts-series apexcharts-pie-series`,
+                    seriesName: apexcharts.Utils.escapeString(w.globals.seriesNames[i]),
+                    rel: i + 1,
+                    'data:realIndex': i
+                });
+                g.add(elPieArc);
+                startAngle = endAngle;
+                prevStartAngle = prevEndAngle;
+                endAngle = startAngle + sectorAngleArr[i];
+                prevEndAngle = prevStartAngle + this.prevSectorAngleArr[i];
+                const angle = endAngle < startAngle
+                    ? this.fullAngle + endAngle - startAngle
+                    : endAngle - startAngle;
+                let pathFill = fill.fillPath({
+                    seriesNumber: i,
+                    size: this.sliceSizes[i],
+                    value: series[i]
+                }); // additionally, pass size for gradient drawing in the fillPath function
+                let path = this.getChangedPath(prevStartAngle, prevEndAngle);
+                let elPath = graphics.drawPath({
+                    d: path,
+                    stroke: Array.isArray(this.lineColorArr)
+                        ? this.lineColorArr[i]
+                        : this.lineColorArr,
+                    strokeWidth: 0,
+                    fill: pathFill,
+                    fillOpacity: w.config.fill.opacity,
+                    strokeOpacity: 0,
+                    classes: `apexcharts-pie-area apexcharts-${this.chartType.toLowerCase()}-slice-${i}`,
+                    strokeLinecap: null,
+                    strokeDashArray: null
+                });
+                elPath.attr({
+                    index: 0,
+                    j: i
+                });
+                filters.setSelectionFilter(elPath, 0, i);
+                if (w.config.chart.dropShadow.enabled) {
+                    const shadow = w.config.chart.dropShadow;
+                    filters.dropShadow(elPath, shadow, i);
+                }
+                this.addListeners(elPath, this.donutDataLabels);
+                apexcharts.Graphics.setAttrs(elPath.node, {
+                    'data:angle': angle,
+                    'data:startAngle': startAngle,
+                    'data:strokeWidth': this.strokeWidth,
+                    'data:value': series[i],
+                    'full_name': full_names[i]
+                });
+                let labelPosition = {
+                    x: 0,
+                    y: 0
+                };
+                if (this.chartType === 'pie' || this.chartType === 'polarArea') {
+                    labelPosition = apexcharts.Utils.polarToCartesian(this.centerX, this.centerY, w.globals.radialSize / 1.25 +
+                        w.config.plotOptions.pie.dataLabels.offset, (startAngle + angle / 2) % this.fullAngle);
+                }
+                else if (this.chartType === 'donut') {
+                    labelPosition = apexcharts.Utils.polarToCartesian(this.centerX, this.centerY, (w.globals.radialSize + this.donutSize) / 2 +
+                        w.config.plotOptions.pie.dataLabels.offset, (startAngle + angle / 2) % this.fullAngle);
+                }
+                elPieArc.add(elPath);
+                // Animation code starts
+                let dur = 0;
+                if (this.initialAnim && !w.globals.resized && !w.globals.dataChanged) {
+                    dur = (angle / this.fullAngle) * w.config.chart.animations.speed;
+                    if (dur === 0)
+                        dur = 1;
+                    this.animDur = dur + this.animDur;
+                    this.animBeginArr.push(this.animDur);
+                }
+                else {
+                    this.animBeginArr.push(0);
+                }
+                if (this.dynamicAnim && w.globals.dataChanged) {
+                    this.animatePaths(elPath, {
+                        size: this.sliceSizes[i],
+                        endAngle,
+                        startAngle,
+                        prevStartAngle,
+                        prevEndAngle,
+                        animateStartingPos: true,
+                        i,
+                        animBeginArr: this.animBeginArr,
+                        shouldSetPrevPaths: true,
+                        dur: w.config.chart.animations.dynamicAnimation.speed
+                    });
+                }
+                else {
+                    this.animatePaths(elPath, {
+                        size: this.sliceSizes[i],
+                        endAngle,
+                        startAngle,
+                        i,
+                        totalItems: sectorAngleArr.length - 1,
+                        animBeginArr: this.animBeginArr,
+                        dur
+                    });
+                }
+                // animation code ends
+                if (w.config.plotOptions.pie.expandOnClick &&
+                    this.chartType !== 'polarArea') {
+                    elPath.click(this.pieClicked.bind(this, i));
+                }
+                if (typeof w.globals.selectedDataPoints[0] !== 'undefined' &&
+                    w.globals.selectedDataPoints[0].indexOf(i) > -1) {
+                    this.pieClicked(i);
+                }
+                if (w.config.dataLabels.enabled) {
+                    let xPos = labelPosition.x;
+                    let yPos = labelPosition.y;
+                    let text = (100 * angle) / this.fullAngle + '%';
+                    if (angle !== 0 &&
+                        w.config.plotOptions.pie.dataLabels.minAngleToShowLabel <
+                            sectorAngleArr[i]) {
+                        let formatter = w.config.dataLabels.formatter;
+                        if (formatter !== undefined) {
+                            text = formatter(w.globals.seriesPercent[i][0], {
+                                seriesIndex: i,
+                                w
+                            });
+                        }
+                        let foreColor = w.globals.dataLabels.style.colors[i];
+                        const elPieLabelWrap = graphics.group({
+                            class: `apexcharts-datalabels`
+                        });
+                        let elPieLabel = graphics.drawText({
+                            x: xPos,
+                            y: yPos,
+                            text: text,
+                            textAnchor: 'middle',
+                            fontSize: w.config.dataLabels.style.fontSize,
+                            fontFamily: w.config.dataLabels.style.fontFamily,
+                            fontWeight: w.config.dataLabels.style.fontWeight,
+                            foreColor,
+                            opacity: 1,
+                            cssClass: "",
+                            isPlainText: true
+                        });
+                        elPieLabelWrap.add(elPieLabel);
+                        if (w.config.dataLabels.dropShadow.enabled) {
+                            const textShadow = w.config.dataLabels.dropShadow;
+                            filters.dropShadow(elPieLabel, textShadow);
+                        }
+                        elPieLabel.node.classList.add('apexcharts-pie-label');
+                        if (w.config.chart.animations.animate &&
+                            w.globals.resized === false) {
+                            elPieLabel.node.classList.add('apexcharts-pie-label-delay');
+                            elPieLabel.node.style.animationDelay =
+                                w.config.chart.animations.speed / 940 + 's';
+                        }
+                        this.sliceLabels.push(elPieLabelWrap);
+                    }
+                }
+            }
+            return g;
+        }
     }
     charts.PivotPie = PivotPie;
 })(charts || (charts = {}));
@@ -1753,7 +2045,12 @@ var pivotcharts;
         create(ser, opts) {
             var initCtx = new pivotcharts.PivotInitCtxVariables(this);
             initCtx.initModules();
-            return super.create(ser, opts);
+            var res = super.create(ser, opts);
+            let gl = this.w.globals;
+            if (!gl.axisCharts && ser.length > 1 && !this.ctx.rowsSelector.isDrawn) {
+                this.ctx.rowsSelector.draw(ser.map(x => x.name));
+            }
+            return res;
         }
         mount(graphData = null) {
             var me = this;

@@ -1,6 +1,7 @@
 namespace Data {
   export class AxisDataSetsMaker extends Data.DataSetsMaker {
     makeDataSets() {
+      
       this.riseAllCollapsedSeries();
 
       this.determinateRowsNames();

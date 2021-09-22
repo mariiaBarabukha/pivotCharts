@@ -9,7 +9,8 @@ namespace pivotcharts{
             this.ctx.grid = new PivotGrid(this.ctx);;
             this.ctx.data = new PivotData(this.ctx);
             this.ctx.updateHelpers = new PivotUpdateHelpers(this.ctx);
-            this.ctx.theme = new PivotTheme(this.ctx)
+            this.ctx.theme = new PivotTheme(this.ctx);
+            this.ctx.rowsSelector = this.ctx.rowsSelector || new Data.RowsSelector(this.ctx);
         }
     }  
 

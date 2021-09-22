@@ -22,6 +22,7 @@
 
         "scr/Data/DataControllers/DataControllers.ts",
         "scr/Data/DataControllers/MeasuresSelectorController.ts",
+        "scr/Data/DataControllers/RowsSelectorController.ts",
         
 
         "scr/Data/DataStorage.ts",

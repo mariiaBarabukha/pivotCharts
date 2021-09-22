@@ -108,6 +108,7 @@ declare module apexcharts {
   }
 
   export class Utils{
+    static polarToCartesian(centerX, centerY, radius, angleInDegrees)
     static bind(fn, me);
     static isObject(item);
     static listToArray(list);
@@ -120,7 +121,7 @@ declare module apexcharts {
     static roundToBase(x, base);
     static getBoundingClientRect(element);
     static sanitizeDom(string);
-    static escapeString(str, escapeWith);
+    static escapeString(str, escapeWith?);
     shadeColor(p,color);
   }
 
@@ -160,6 +161,17 @@ declare module apexcharts {
       dashArray,
       strokeWidth
     );
+    drawPath({
+      d,
+      stroke,
+      strokeWidth,
+      fill,
+      fillOpacity,
+      strokeOpacity,
+      classes,
+      strokeLinecap,
+      strokeDashArray
+    })
   }
 
   export class LegendHelpers{
@@ -177,9 +189,19 @@ declare module apexcharts {
 
   export class Data{
     constructor(ctx);
-    parseDataAxisCharts(ser, ctx);
+    parseDataAxisCharts(ser, ctx?);
     parseDataNonAxisCharts(ser);
     w;
+    excludeCollapsedSeriesInYAxis();
+    fallbackToCategory;
+    ctx;
+    coreUtils;
+    handleExternalLabelsData(a);
+  }
+
+  export class Series{
+    constructor(ctx);
+    setNullSeriesToZeroValues(a);
   }
 
   export class XAxis{
@@ -339,6 +361,30 @@ declare module apexcharts {
 
   export class Pie{
     constructor(ctx);
+    drawArcs(sectorAngleArr, series);
+    sliceLabels;
+    fullAngle;
+    pieClicked(l);
+    chartType;
+    animBeginArr;
+    sliceSizes;
+    animatePaths(el, opts);
+    dynamicAnim;
+    animDur;
+    initialAnim;
+    donutSize;
+    centerX;
+    centerY;
+    strokeWidth;
+    donutDataLabels;
+    lineColorArr;
+    addListeners(elPath, donutDataLabels);
+    getChangedPath(prevStartAngle, prevEndAngle);
+    prevSectorAngleArr;
+    initialAngle;
+    ctx;
+    w;
+
   }
 
   export class Radial{
@@ -383,7 +429,8 @@ declare module apexcharts {
 
   export class Filters{
     constructor(ctx);
-    dropShadow(el, attrs, i);
+    dropShadow(el, attrs, i?);
+    setSelectionFilter(el, realIndex, dataPointIndex);
   }
 
   export class Markers{

@@ -143,6 +143,8 @@ namespace pivotcharts {
       let radar = new charts.PivotRadar(this.ctx);
       let elGraph = [];
 
+      // let rowsSelection = new Data.DataSelector(this.ctx, this.w.config.series, "r_full", "rows");
+
       if (gl.comboCharts) {
         if (areaSeries.series.length > 0) {
           elGraph.push(line.draw(areaSeries.series, "area", areaSeries.i));
@@ -223,6 +225,7 @@ namespace pivotcharts {
           case "donut":
           case "polarArea":
             elGraph = this.ctx.pie.draw(gl.series);
+            
             break;
           case "radialBar":
             elGraph = radialBar.draw(gl.series);

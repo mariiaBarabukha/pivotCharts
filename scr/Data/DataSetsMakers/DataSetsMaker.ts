@@ -15,8 +15,7 @@ namespace Data {
     abstract makeDataSets();
 
     protected riseAllCollapsedSeries() {
-      DataSetsMaker.rows_names = [];
-      DataSetsMaker.cols_names = [];
+      
       if (Data.Chart != undefined) {
         [...Data.Chart.w.globals.collapsedSeries].forEach((i) => {
           var realIndex = Data.LegendHelper._realIndex(i.index).realIndex;
@@ -38,6 +37,7 @@ namespace Data {
     }
 
     protected determinateRowsNames() {
+      DataSetsMaker.rows_names = [];
       var rows_amount = this._meta.rAmount;
       for (var i = 0; i < rows_amount; i++) {
         DataSetsMaker.rows_names.push(this._meta["r" + i + "Name"]);
@@ -45,12 +45,14 @@ namespace Data {
     }
 
     protected determinateColumnsNames() {
+      
+      DataSetsMaker.cols_names = [];
       var cols_amount = this._meta.cAmount;
       for (var i = 0; i < cols_amount; i++) {
         DataSetsMaker.cols_names.push(this._meta["c" + i + "Name"]);
       }
     }
-    protected sortData(): any[] {
+    protected sortData(sortKey: string = "c_full"): any[] {
       this._data.splice(0, 1);
       this._data.forEach((element) => {
         var keys = Object.entries(element);
@@ -106,19 +108,35 @@ namespace Data {
         element.c_full = this.removeFirstUnderLine(element.c_full);
         element.r_full = this.removeFirstUnderLine(element.r_full);
 
-        Data.Categories.push(element.r_full);
+        var categKey = sortKey == "c_full" ? "r_full" : "c_full";
+        Data.Categories.push(element[categKey]);
       });
 
-      var sortByColumns = this._regroup(this._data, "c_full");
-      if (sortByColumns.length > 1) {
-        sortByColumns.splice(0, 1);
-        sortByColumns.forEach((group) => {
+      var sortByKey = this._regroup(this._data, sortKey);
+
+      var min_i = this.findExtraGroup(sortByKey);
+      if (sortByKey.length > 1) {
+        sortByKey.splice(min_i, 1);
+        sortByKey.forEach((group) => {
           if (group.length > 1) {
             group.splice(0, 1);
           }
         });
       }
-      return sortByColumns;
+      return sortByKey;
+    }
+
+    private findExtraGroup(sortByKey:any[]) : number{
+      var ls = sortByKey.map(x => x.length);
+      var min = ls[0];
+      var min_i = 0;
+      for(var i = 1; i < ls.length; i++){
+        if(ls[i] < min){
+          min = ls[i];
+          min_i = i;
+        }
+      }
+      return min_i;
     }
 
     private includesDespiteCase(a: string, b: string): boolean {
@@ -135,17 +153,17 @@ namespace Data {
       return _str;
     }
 
-    protected makeSeries(sortByColumns: any[]): any[] {
+    protected makeSeries(sortByColumns: any[], key:string = "c_full"): any[] {
       var series = [];
       sortByColumns.forEach((group) => {
         if (group[0].r0 === undefined && group.length > 1) {
           group.splice(0, 1);
         }
-        var n = group[0].c_full.split("_");
+        var n = group[0][key].split("_");
         series.push({
           name: n[n.length - 1] || "",
           data: group.map((a) => a.v0),
-          full_name: group[0].c_full,
+          full_name: group[0][key],
           level: n.length - 1,
         });
       });

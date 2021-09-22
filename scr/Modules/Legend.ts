@@ -43,6 +43,7 @@ namespace pivotcharts {
         }
 
         seriesEl.fire("click");
+        seriesEl = seriesEl.members[0].node;
       }
       var name = seriesEl.getAttribute("full_name");
       var names = name.split("_");

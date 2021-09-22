@@ -11,7 +11,13 @@ namespace pivotcharts {
     create(ser, opts) {
       var initCtx = new PivotInitCtxVariables(this);
       initCtx.initModules();
-      return super.create(ser, opts);
+      var res = super.create(ser, opts);
+      let gl = this.w.globals
+      if(!gl.axisCharts && ser.length > 1 && !this.ctx.rowsSelector.isDrawn){
+        this.ctx.rowsSelector.draw(ser.map(x => x.name));
+      }
+      
+      return res;
     }
 
     mount(graphData = null) {
