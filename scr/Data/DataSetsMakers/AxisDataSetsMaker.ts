@@ -13,7 +13,7 @@ namespace Data {
       });
       var series = this.makeSeries(sortByColumns);
       this.hideSeries(series);
-
+      console.log(series);
       return { series: series, xaxis: { categories: categories } };
     }
   }

@@ -12,6 +12,7 @@ namespace Data {
       var series = this.makeSeries(sorted, "r_full");
       this.hideSeries(series);
 
+      
       return { series: series, labels: categories };
     }
   }

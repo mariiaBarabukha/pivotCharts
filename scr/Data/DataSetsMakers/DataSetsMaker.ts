@@ -15,7 +15,6 @@ namespace Data {
     abstract makeDataSets();
 
     protected riseAllCollapsedSeries() {
-      
       if (Data.Chart != undefined) {
         [...Data.Chart.w.globals.collapsedSeries].forEach((i) => {
           var realIndex = Data.LegendHelper._realIndex(i.index).realIndex;
@@ -45,7 +44,6 @@ namespace Data {
     }
 
     protected determinateColumnsNames() {
-      
       DataSetsMaker.cols_names = [];
       var cols_amount = this._meta.cAmount;
       for (var i = 0; i < cols_amount; i++) {
@@ -64,19 +62,27 @@ namespace Data {
               var a =
                 element[key[0]] === undefined
                   ? ""
-                  : (element[key[0]]
+                  : element[key[0]]
                       .match(/(?<=\[)[^\][]*(?=])/g)
                       .map((x) => this.capitalizeFirstLetter(x))
-                      .join("_"));
+                      .join("_");
 
-              if (!this.includesDespiteCase(element.c_full, a)) {
-                element.c_full += ("_"+a);
+              if (this.includesDespiteCase(a, element.c_full)) {
+                element.c_full = a;
+              } else {
+                if (!this.includesDespiteCase(element.c_full, a)) {
+                  element.c_full += "_" + a;
+                }
               }
             } else {
               var b =
                 element[key[0]] === undefined ? "" : "_" + element[key[0]];
-              if (!this.includesDespiteCase(element.c_full, b)) {
-                element.c_full += b;
+              if (this.includesDespiteCase(b, element.c_full)) {
+                element.c_full = b;
+              } else {
+                if (!this.includesDespiteCase(element.c_full, b)) {
+                  element.c_full += "_" + b;
+                }
               }
             }
           }
@@ -89,14 +95,22 @@ namespace Data {
                       .match(/(?<=\[)[^\][]*(?=])/g)
                       .map((x) => this.capitalizeFirstLetter(x))
                       .join("_"));
-              if (!this.includesDespiteCase(element.r_full, a)) {
-                element.r_full += a;
+              if (this.includesDespiteCase(a, element.r_full)) {
+                element.r_full = a;
+              } else {
+                if (!this.includesDespiteCase(element.r_full, a)) {
+                  element.r_full += "_" + a;
+                }
               }
-            }else{
+            } else {
               var b =
                 element[key[0]] === undefined ? "" : "_" + element[key[0]];
-              if (!this.includesDespiteCase(element.r_full, b)) {
-                element.r_full += b;
+              if (this.includesDespiteCase(b, element.r_full)) {
+                element.r_full = b;
+              } else {
+                if (!this.includesDespiteCase(element.r_full, b)) {
+                  element.r_full += "_" + b;
+                }
               }
             }
           }
@@ -126,12 +140,12 @@ namespace Data {
       return sortByKey;
     }
 
-    private findExtraGroup(sortByKey:any[]) : number{
-      var ls = sortByKey.map(x => x.length);
+    private findExtraGroup(sortByKey: any[]): number {
+      var ls = sortByKey.map((x) => x.length);
       var min = ls[0];
       var min_i = 0;
-      for(var i = 1; i < ls.length; i++){
-        if(ls[i] < min){
+      for (var i = 1; i < ls.length; i++) {
+        if (ls[i] < min) {
           min = ls[i];
           min_i = i;
         }
@@ -142,10 +156,12 @@ namespace Data {
     private includesDespiteCase(a: string, b: string): boolean {
       var _a = a.toLowerCase();
       var _b = b.toLowerCase();
+      _a = _a[0] == "_" ? _a.slice(1) : _a;
+      _b = _b[0] == "_" ? _b.slice(1) : _b;
       return _a.includes(_b);
     }
 
-    private removeFirstUnderLine(str: string) : string{
+    private removeFirstUnderLine(str: string): string {
       var _str = str;
       if (str[0] == "_") {
         _str = _str.slice(1);
@@ -153,7 +169,7 @@ namespace Data {
       return _str;
     }
 
-    protected makeSeries(sortByColumns: any[], key:string = "c_full"): any[] {
+    protected makeSeries(sortByColumns: any[], key: string = "c_full"): any[] {
       var series = [];
       sortByColumns.forEach((group) => {
         if (group[0].r0 === undefined && group.length > 1) {

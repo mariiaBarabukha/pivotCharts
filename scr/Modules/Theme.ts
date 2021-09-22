@@ -35,13 +35,13 @@ namespace pivotcharts {
 
         if (length == undefined) {
           for (var i = 0; i < len; i++) {
-            if ((w.globals.series_levels[i] || w.globals.series_levels) == 0) {
+            if (w.globals.series_levels[i] == 0) {
               new_colors.push(cl.shift());
             } else {
               new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
             }
           }
-          console.log(new_colors);
+          // console.log(new_colors);
         //   colorSeries = [...new_colors];
         //   colorSeries = JSON.parse(JSON.stringify(new_colors));
         colorSeries.splice(0, colorSeries.length);

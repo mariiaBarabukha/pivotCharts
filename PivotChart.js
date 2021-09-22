@@ -52,18 +52,28 @@ var Data;
                         if (key[0].includes("full")) {
                             var a = element[key[0]] === undefined
                                 ? ""
-                                : (element[key[0]]
+                                : element[key[0]]
                                     .match(/(?<=\[)[^\][]*(?=])/g)
                                     .map((x) => this.capitalizeFirstLetter(x))
-                                    .join("_"));
-                            if (!this.includesDespiteCase(element.c_full, a)) {
-                                element.c_full += ("_" + a);
+                                    .join("_");
+                            if (this.includesDespiteCase(a, element.c_full)) {
+                                element.c_full = a;
+                            }
+                            else {
+                                if (!this.includesDespiteCase(element.c_full, a)) {
+                                    element.c_full += "_" + a;
+                                }
                             }
                         }
                         else {
                             var b = element[key[0]] === undefined ? "" : "_" + element[key[0]];
-                            if (!this.includesDespiteCase(element.c_full, b)) {
-                                element.c_full += b;
+                            if (this.includesDespiteCase(b, element.c_full)) {
+                                element.c_full = b;
+                            }
+                            else {
+                                if (!this.includesDespiteCase(element.c_full, b)) {
+                                    element.c_full += "_" + b;
+                                }
                             }
                         }
                     }
@@ -76,14 +86,24 @@ var Data;
                                         .match(/(?<=\[)[^\][]*(?=])/g)
                                         .map((x) => this.capitalizeFirstLetter(x))
                                         .join("_"));
-                            if (!this.includesDespiteCase(element.r_full, a)) {
-                                element.r_full += a;
+                            if (this.includesDespiteCase(a, element.r_full)) {
+                                element.r_full = a;
+                            }
+                            else {
+                                if (!this.includesDespiteCase(element.r_full, a)) {
+                                    element.r_full += "_" + a;
+                                }
                             }
                         }
                         else {
                             var b = element[key[0]] === undefined ? "" : "_" + element[key[0]];
-                            if (!this.includesDespiteCase(element.r_full, b)) {
-                                element.r_full += b;
+                            if (this.includesDespiteCase(b, element.r_full)) {
+                                element.r_full = b;
+                            }
+                            else {
+                                if (!this.includesDespiteCase(element.r_full, b)) {
+                                    element.r_full += "_" + b;
+                                }
                             }
                         }
                     }
@@ -109,7 +129,7 @@ var Data;
             return sortByKey;
         }
         findExtraGroup(sortByKey) {
-            var ls = sortByKey.map(x => x.length);
+            var ls = sortByKey.map((x) => x.length);
             var min = ls[0];
             var min_i = 0;
             for (var i = 1; i < ls.length; i++) {
@@ -123,6 +143,8 @@ var Data;
         includesDespiteCase(a, b) {
             var _a = a.toLowerCase();
             var _b = b.toLowerCase();
+            _a = _a[0] == "_" ? _a.slice(1) : _a;
+            _b = _b[0] == "_" ? _b.slice(1) : _b;
             return _a.includes(_b);
         }
         removeFirstUnderLine(str) {
@@ -220,6 +242,7 @@ var Data;
             });
             var series = this.makeSeries(sortByColumns);
             this.hideSeries(series);
+            console.log(series);
             return { series: series, xaxis: { categories: categories } };
         }
     }
@@ -1391,14 +1414,14 @@ var pivotcharts;
                 var new_colors = [];
                 if (length == undefined) {
                     for (var i = 0; i < len; i++) {
-                        if ((w.globals.series_levels[i] || w.globals.series_levels) == 0) {
+                        if (w.globals.series_levels[i] == 0) {
                             new_colors.push(cl.shift());
                         }
                         else {
                             new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
                         }
                     }
-                    console.log(new_colors);
+                    // console.log(new_colors);
                     //   colorSeries = [...new_colors];
                     //   colorSeries = JSON.parse(JSON.stringify(new_colors));
                     colorSeries.splice(0, colorSeries.length);
