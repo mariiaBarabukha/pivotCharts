@@ -1,0 +1,13 @@
+/node_modules
+/tests
+/flex/main.js
+/flex/style.css
+/flex/d3js.js
+/flex/flexExample.html
+/flex/flexmonsters.js
+/dist/apexcharts.min.js
+/dist/locales
+/dist/apexcharts.amd.js
+/dist/apexcharts.amd.js.LICENSE.txt
+/dist/apexcharts.common.js
+/dist/apexcharts.esm.js

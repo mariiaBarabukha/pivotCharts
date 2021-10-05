@@ -15,7 +15,7 @@ namespace Data {
         return this.capitalizeFirstLetter(r[r.length - 1]);
       });
 
-      var cat_full: string[] = sorted[0].map(x => x.c_full);
+      var cat_full: string[] = sorted[0]?.map(x => x.c_full);
       Data.OneDCFull = cat_full;
       
       var series = this.makeSeries(sorted);

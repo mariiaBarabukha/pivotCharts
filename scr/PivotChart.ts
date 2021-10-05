@@ -1,6 +1,7 @@
 namespace pivotcharts {
   export class PivotChart extends ApexCharts {
     constructor(el: any, config: any) {
+      
       super(el, config);
       var initCtx = new PivotInitCtxVariables(this);
       initCtx.initModules();

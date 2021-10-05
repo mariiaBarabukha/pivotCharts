@@ -257,6 +257,7 @@ var Data;
             return c;
         }
         makeDataSets() {
+            var _a;
             this.riseAllCollapsedSeries();
             this.determinateRowsNames();
             this.determinateColumnsNames();
@@ -265,7 +266,7 @@ var Data;
                 var r = x.c_full.split("_");
                 return this.capitalizeFirstLetter(r[r.length - 1]);
             });
-            var cat_full = sorted[0].map(x => x.c_full);
+            var cat_full = (_a = sorted[0]) === null || _a === void 0 ? void 0 : _a.map(x => x.c_full);
             Data.OneDCFull = cat_full;
             var series = this.makeSeries(sorted);
             // if(Data.Chart != null) {
@@ -1534,12 +1535,31 @@ var pivotcharts;
                 var new_colors = [];
                 let nn = w.globals.series_levels.filter(x => x == 0).length || 0;
                 if (length == undefined && nn <= cl.length) {
+                    var lev = 0;
+                    let ser_lev = w.globals.series_levels;
                     for (var i = 0; i < len; i++) {
-                        if (w.globals.series_levels[i] == 0) {
+                        if (ser_lev[i] == 0) {
                             new_colors.push(cl.shift());
                         }
                         else {
-                            new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
+                            if (ser_lev[i] >= lev) {
+                                new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
+                                lev = ser_lev[i];
+                            }
+                            else {
+                                for (var j = i - 1; j >= 0; j--) {
+                                    if (ser_lev[i] == ser_lev[j]) {
+                                        break;
+                                    }
+                                }
+                                if (j < 0) {
+                                    new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
+                                }
+                                else {
+                                    new_colors.push(utils.shadeColor(0.1, new_colors[j]));
+                                }
+                                lev = ser_lev[i];
+                            }
                         }
                     }
                     // console.log(new_colors);
