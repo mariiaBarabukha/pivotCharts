@@ -10,6 +10,7 @@ namespace Data{
     export var LegendHelper: pivotcharts.PivotHelper;
     export var Categories = [];
     export var chartType = 'bar';
+    export var OneDCFull = [];
     export function processData(rawData, type?){
         if(type != undefined){
             chartType = type;

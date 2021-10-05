@@ -266,6 +266,7 @@ var Data;
                 return this.capitalizeFirstLetter(r[r.length - 1]);
             });
             var cat_full = sorted[0].map(x => x.c_full);
+            Data.OneDCFull = cat_full;
             var series = this.makeSeries(sorted);
             // if(Data.Chart != null) {
             //   Data.Chart.updateSeries(series);
@@ -495,6 +496,7 @@ var Data;
     Data.visibleDataSets = [];
     Data.Categories = [];
     Data.chartType = 'bar';
+    Data.OneDCFull = [];
     function processData(rawData, type) {
         if (type != undefined) {
             Data.chartType = type;
@@ -518,6 +520,7 @@ var pivotcharts;
         toggleDataSeries(seriesCnt, isHidden) {
             const w = this.w;
             var seriesEl;
+            var names;
             if (w.globals.axisCharts || w.config.chart.type === "radialBar") {
                 w.globals.resized = true; // we don't want initial animations again
                 // let seriesEl = null
@@ -532,6 +535,8 @@ var pivotcharts;
                         Data.visibleDataSets.push(0);
                     });
                 }
+                var name = seriesEl.getAttribute("full_name");
+                names = name.split("_");
                 // var globalIndex = names.indexOf(name);
             }
             else {
@@ -549,9 +554,8 @@ var pivotcharts;
                 // }
                 // seriesEl.fire("click");
                 seriesEl = seriesEl.members[0].node;
+                names = Data.OneDCFull[seriesCnt].split('_');
             }
-            var name = seriesEl.getAttribute("full_name");
-            var names = name.split("_");
             Data.seriesLenght = w.config.series.length;
             if (isHidden) {
                 Data.DataStorage.manipulateChartData(names, Data.Flexmonster.drillUpCell, Data.Flexmonster.collapseCell, "columns");

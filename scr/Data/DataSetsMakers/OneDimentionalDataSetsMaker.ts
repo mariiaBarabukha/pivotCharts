@@ -16,6 +16,8 @@ namespace Data {
       });
 
       var cat_full: string[] = sorted[0].map(x => x.c_full);
+      Data.OneDCFull = cat_full;
+      
       var series = this.makeSeries(sorted);
       
       // if(Data.Chart != null) {

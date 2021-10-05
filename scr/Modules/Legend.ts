@@ -4,6 +4,7 @@ namespace pivotcharts {
     toggleDataSeries(seriesCnt, isHidden) {
       const w = this.w;
       var seriesEl;
+      var names ;
       if (w.globals.axisCharts || w.config.chart.type === "radialBar") {
         w.globals.resized = true; // we don't want initial animations again
 
@@ -22,7 +23,8 @@ namespace pivotcharts {
             Data.visibleDataSets.push(0);
           });
         }
-
+        var name = seriesEl.getAttribute("full_name");
+        names = name.split("_");
         // var globalIndex = names.indexOf(name);
       } else {
         // for non-axis charts i.e pie / donuts
@@ -44,9 +46,9 @@ namespace pivotcharts {
 
         // seriesEl.fire("click");
         seriesEl = seriesEl.members[0].node;
+        names = Data.OneDCFull[seriesCnt].split('_');
       }
-      var name = seriesEl.getAttribute("full_name");
-      var names = name.split("_");
+      
       Data.seriesLenght = w.config.series.length;
       if (isHidden) {
         Data.DataStorage.manipulateChartData(
