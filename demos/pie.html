@@ -173,6 +173,7 @@
       return Data.processData(rawData, type);
     }
 
+
     function drawChart(rawData) {
       var type = "pie";
       let data = prepareDataFunction(rawData, type);
@@ -212,5 +213,11 @@
     function updateChart(rawData) {
       Data.Chart.updateOptions(prepareDataFunction(rawData));
     }
+
+    // let a = 9007199254740999n
+    // let x = Object.is(NaN, NaN);;
+    // let y = true;
+    // let z = "a"/2;
+    // console.log(x == y, y == z, z == x, NaN[1]);
   </script>
 </body>

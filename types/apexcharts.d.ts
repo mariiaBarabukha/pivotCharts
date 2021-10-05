@@ -185,6 +185,7 @@ declare module apexcharts {
     _getSeriesBasedOnCollapsedState(series);
     w;
     lgCtx;
+    _getSeriesBasedOnCollapsedState(series)
   }
 
   export class Data{
@@ -447,6 +448,9 @@ declare module apexcharts {
     constructor(ctx);
     _extendSeries(s, i);
     w;
+    _updateSeries(newSeries, animate, overwriteInitialSeries);
+    ctx;
+
   }
 
   export class Theme{

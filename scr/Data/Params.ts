@@ -9,14 +9,18 @@ namespace Data{
     export var Flexmonster: any;
     export var LegendHelper: pivotcharts.PivotHelper;
     export var Categories = [];
-    export function processData(rawData, type='bar'){
+    export var chartType = 'bar';
+    export function processData(rawData, type?){
+        if(type != undefined){
+            chartType = type;
+        }
         if(Data.Model.dataStorage == undefined){
-            Data.Model.dataStorage = new Data.DataStorage(rawData, type);
+            Data.Model.dataStorage = new Data.DataStorage(rawData, type || chartType);
         }else{
-            Data.Model.dataStorage.setConfigs(rawData, type);
+            Data.Model.dataStorage.setConfigs(rawData, chartType);
         }
 
-        return Data.Model.dataStorage.getVisibleDataSets(type);
+        return Data.Model.dataStorage.getVisibleDataSets(chartType);
     }
 
     export var BasicSeriesNames = [];

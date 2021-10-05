@@ -8,8 +8,8 @@ namespace Data {
     _meta = undefined;
 
     constructor(data) {
-      this._data = data.data;
-      this._meta = data.meta;
+      this._data = data?.data;
+      this._meta = data?.meta;
     }
 
     abstract makeDataSets();
@@ -169,22 +169,7 @@ namespace Data {
       return _str;
     }
 
-    protected makeSeries(sortByColumns: any[], key: string = "c_full"): any[] {
-      var series = [];
-      sortByColumns.forEach((group) => {
-        if (group[0].r0 === undefined && group.length > 1) {
-          group.splice(0, 1);
-        }
-        var n = group[0][key].split("_");
-        series.push({
-          name: n[n.length - 1] || "",
-          data: group.map((a) => a.v0),
-          full_name: group[0][key],
-          level: n.length - 1,
-        });
-      });
-      return series;
-    }
+    abstract makeSeries(sortByColumns: any[]): any[];
 
     protected getOldLegends() {
       var data = Data.Model.dataStorage.getAllData();
@@ -193,13 +178,11 @@ namespace Data {
       }
       return data.series.map((x) => x.full_name);
     }
+
     protected hideSeries(series: any[]) {
       Data.Hiddens = [];
-      var old_legends = this.getOldLegends();
-      if (old_legends == undefined) {
-        return;
-      }
-      var legends = series.map((x) => x.full_name.toLowerCase());
+      
+      let legends = this.formStringsToHide(series);
       for (var i = 0; i < legends.length; i++) {
         for (var j = 1; j < legends.length; j++) {
           if (
@@ -207,7 +190,7 @@ namespace Data {
             this.isPrevLegend(legends[i], legends[j])
           ) {
             var sEl = null;
-            var obj = Data.LegendHelper._realIndex(i);
+            var obj = Data.LegendHelper._realIndex(j-1);
             sEl = obj.seriesEl;
             Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: j - 1 });
             Data.Hiddens.push(j - 1);
@@ -217,7 +200,9 @@ namespace Data {
       }
     }
 
-    private isPrevLegend(old_legend: string, expand_legend: string): boolean {
+    abstract formStringsToHide(series) : string[];
+
+    protected isPrevLegend(old_legend: string, expand_legend: string): boolean {
       var words_old = old_legend.toLowerCase().split("_");
       var words_new = expand_legend.toLowerCase().split("_");
       var res = true;

@@ -33,20 +33,13 @@ namespace pivotcharts {
         var new_colors = [];
 
 
-        if (length == undefined) {
+        let nn = w.globals.series_levels.filter(x => x==0).length || 0;
+        if (length == undefined &&  nn <= cl.length) {
           for (var i = 0; i < len; i++) {
-            if(w.globals.axisCharts){
-              if (w.globals.series_levels[i] == 0) {
-                new_colors.push(cl.shift());
-              } else {
-                new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
-              }
-            }else{
-              if (w.globals.series_levels == 0) {
-                new_colors.push(cl.shift());
-              } else {
-                new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
-              }
+            if (w.globals.series_levels[i] == 0) {
+              new_colors.push(cl.shift());
+            } else {
+              new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
             }
             
           }

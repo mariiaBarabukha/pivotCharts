@@ -31,18 +31,18 @@ namespace pivotcharts {
         );
 
         const type = w.config.chart.type;
-        if (type === "pie" || type === "polarArea" || type === "donut") {
-          let dataLabels = w.config.plotOptions.pie.donut.labels;
+        // if (type === "pie" || type === "polarArea" || type === "donut") {
+        //   let dataLabels = w.config.plotOptions.pie.donut.labels;
 
-          const graphics = new PivotGraphics(this.lgCtx.ctx);
-          graphics.pathMouseDown(seriesEl.members[0], null);
-          this.lgCtx.ctx.pie.printDataLabelsInner(
-            seriesEl.members[0].node,
-            dataLabels
-          );
-        }
+        //   const graphics = new PivotGraphics(this.lgCtx.ctx);
+        //   graphics.pathMouseDown(seriesEl.members[0], null);
+        //   this.lgCtx.ctx.pie.printDataLabelsInner(
+        //     seriesEl.members[0].node,
+        //     dataLabels
+        //   );
+        // }
 
-        seriesEl.fire("click");
+        // seriesEl.fire("click");
         seriesEl = seriesEl.members[0].node;
       }
       var name = seriesEl.getAttribute("full_name");
@@ -124,9 +124,15 @@ namespace pivotcharts {
     hideSeries({ seriesEl, realIndex }) {
       const w = this.w;
 
+      var curr_len;
       let series = apexcharts.Utils.clone(w.config.series);
+      curr_len = series.length;
+      // if(!w.globals.axisCharts){
+      //   let i = this.lgCtx.ctx.rowsSelector.getCurrentRowIndex();
+      //   series = [series[i]];
+      //   curr_len = series.data.length;
+      // }
 
-      var curr_len = series.length;
       if (w.globals.axisCharts) {
         let shouldNotHideYAxis = false;
 
@@ -191,11 +197,35 @@ namespace pivotcharts {
           element.index -= Data.seriesLenght - curr_len;
         }
       });
+
       series = this._getSeriesBasedOnCollapsedState(series);
       this.lgCtx.ctx.updateHelpers._updateSeries(
         series,
         w.config.chart.animations.dynamicAnimation.enabled
       );
+    }
+
+    _getSeriesBasedOnCollapsedState(series) {
+      const w = this.w;
+
+      if (w.globals.axisCharts) {
+        series.forEach((s, sI) => {
+          if (w.globals.collapsedSeriesIndices.indexOf(sI) > -1) {
+            series[sI].data = [];
+          }
+        });
+      } else {
+        series.forEach((s, sI) => {
+          w.globals.collapsedSeriesIndices.forEach((i) => {
+            s.data[i] = 0;
+          });
+          // if (w.globals.collapsedSeriesIndices.indexOf(sI) > -1) {
+          //   s.data[sI] = 0
+          // }
+        });
+      }
+
+      return series;
     }
   }
 

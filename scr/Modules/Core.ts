@@ -82,6 +82,10 @@ namespace pivotcharts {
         i: [],
       };
 
+      if(!gl.axisCharts){
+        let i = this.ctx.rowsSelector.getCurrentRowIndex();
+        ser = ser[i].data;
+      }
       gl.series.map((series, st) => {
         let comboCount = 0;
         // if user has specified a particular type for particular series

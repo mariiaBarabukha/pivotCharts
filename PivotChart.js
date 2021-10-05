@@ -4,8 +4,8 @@ var Data;
         constructor(data) {
             this._data = undefined;
             this._meta = undefined;
-            this._data = data.data;
-            this._meta = data.meta;
+            this._data = data === null || data === void 0 ? void 0 : data.data;
+            this._meta = data === null || data === void 0 ? void 0 : data.meta;
         }
         riseAllCollapsedSeries() {
             if (Data.Chart != undefined) {
@@ -154,22 +154,6 @@ var Data;
             }
             return _str;
         }
-        makeSeries(sortByColumns, key = "c_full") {
-            var series = [];
-            sortByColumns.forEach((group) => {
-                if (group[0].r0 === undefined && group.length > 1) {
-                    group.splice(0, 1);
-                }
-                var n = group[0][key].split("_");
-                series.push({
-                    name: n[n.length - 1] || "",
-                    data: group.map((a) => a.v0),
-                    full_name: group[0][key],
-                    level: n.length - 1,
-                });
-            });
-            return series;
-        }
         getOldLegends() {
             var data = Data.Model.dataStorage.getAllData();
             if (data == undefined) {
@@ -179,17 +163,13 @@ var Data;
         }
         hideSeries(series) {
             Data.Hiddens = [];
-            var old_legends = this.getOldLegends();
-            if (old_legends == undefined) {
-                return;
-            }
-            var legends = series.map((x) => x.full_name.toLowerCase());
+            let legends = this.formStringsToHide(series);
             for (var i = 0; i < legends.length; i++) {
                 for (var j = 1; j < legends.length; j++) {
                     if (legends[i].toLowerCase() != legends[j].toLowerCase() &&
                         this.isPrevLegend(legends[i], legends[j])) {
                         var sEl = null;
-                        var obj = Data.LegendHelper._realIndex(i);
+                        var obj = Data.LegendHelper._realIndex(j - 1);
                         sEl = obj.seriesEl;
                         Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: j - 1 });
                         Data.Hiddens.push(j - 1);
@@ -231,6 +211,9 @@ var Data;
 var Data;
 (function (Data) {
     class AxisDataSetsMaker extends Data.DataSetsMaker {
+        formStringsToHide(series) {
+            return series.map((x) => x.full_name.toLowerCase());
+        }
         makeDataSets() {
             this.riseAllCollapsedSeries();
             this.determinateRowsNames();
@@ -242,8 +225,25 @@ var Data;
             });
             var series = this.makeSeries(sortByColumns);
             this.hideSeries(series);
-            console.log(series);
+            // console.log(series);
             return { series: series, xaxis: { categories: categories } };
+        }
+        makeSeries(sortByColumns) {
+            var key = "c_full";
+            var series = [];
+            sortByColumns.forEach((group) => {
+                if (group[0].r0 === undefined && group.length > 1) {
+                    group.splice(0, 1);
+                }
+                var n = group[0][key].split("_");
+                series.push({
+                    name: n[n.length - 1] || "",
+                    data: group.map((a) => a.v0),
+                    full_name: group[0][key],
+                    level: n.length - 1,
+                });
+            });
+            return series;
         }
     }
     Data.AxisDataSetsMaker = AxisDataSetsMaker;
@@ -251,7 +251,13 @@ var Data;
 var Data;
 (function (Data) {
     class OneDimentionalDataSetsMaker extends Data.DataSetsMaker {
+        formStringsToHide(series) {
+            var c = series[series.length - 1];
+            series.splice(series.length - 1, 1);
+            return c;
+        }
         makeDataSets() {
+            this.riseAllCollapsedSeries();
             this.determinateRowsNames();
             this.determinateColumnsNames();
             var sorted = this.sortData("r_full");
@@ -259,9 +265,52 @@ var Data;
                 var r = x.c_full.split("_");
                 return this.capitalizeFirstLetter(r[r.length - 1]);
             });
-            var series = this.makeSeries(sorted, "r_full");
+            var cat_full = sorted[0].map(x => x.c_full);
+            var series = this.makeSeries(sorted);
+            // if(Data.Chart != null) {
+            //   Data.Chart.updateSeries(series);
+            // }
+            series.push(cat_full);
             this.hideSeries(series);
             return { series: series, labels: categories };
+        }
+        makeSeries(sortByColumns) {
+            var key = "r_full";
+            var series = [];
+            sortByColumns.forEach((group) => {
+                if (group[0].r0 === undefined && group.length > 1) {
+                    group.splice(0, 1);
+                }
+                var n = group[0][key].split("_");
+                var ls = group.map(x => x.c_full.split("_").length - 1);
+                series.push({
+                    name: n[n.length - 1] || "",
+                    data: group.map((a) => a.v0),
+                    full_name: group[0][key],
+                    levels: ls,
+                });
+            });
+            return series;
+        }
+        hideSeries(series) {
+            Data.Hiddens = [];
+            let legends = this.formStringsToHide(series);
+            for (var i = 0; i < legends.length; i++) {
+                for (var j = 1; j < legends.length; j++) {
+                    if (legends[i].toLowerCase() != legends[j].toLowerCase() &&
+                        this.isPrevLegend(legends[i], legends[j])) {
+                        var sEl = null;
+                        var obj = Data.LegendHelper._realIndex(j - 1);
+                        sEl = obj.seriesEl;
+                        Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: j - 1 });
+                        series.forEach(s => {
+                            s.data[i] = 0;
+                        });
+                        Data.Hiddens.push(j - 1);
+                        break;
+                    }
+                }
+            }
         }
     }
     Data.OneDimentionalDataSetsMaker = OneDimentionalDataSetsMaker;
@@ -445,14 +494,18 @@ var Data;
     Data.GridLines = [];
     Data.visibleDataSets = [];
     Data.Categories = [];
-    function processData(rawData, type = 'bar') {
+    Data.chartType = 'bar';
+    function processData(rawData, type) {
+        if (type != undefined) {
+            Data.chartType = type;
+        }
         if (Data.Model.dataStorage == undefined) {
-            Data.Model.dataStorage = new Data.DataStorage(rawData, type);
+            Data.Model.dataStorage = new Data.DataStorage(rawData, type || Data.chartType);
         }
         else {
-            Data.Model.dataStorage.setConfigs(rawData, type);
+            Data.Model.dataStorage.setConfigs(rawData, Data.chartType);
         }
-        return Data.Model.dataStorage.getVisibleDataSets(type);
+        return Data.Model.dataStorage.getVisibleDataSets(Data.chartType);
     }
     Data.processData = processData;
     Data.BasicSeriesNames = [];
@@ -485,13 +538,16 @@ var pivotcharts;
                 // for non-axis charts i.e pie / donuts
                 seriesEl = w.globals.dom.Paper.select(` .apexcharts-series[rel='${seriesCnt + 1}'] path`);
                 const type = w.config.chart.type;
-                if (type === "pie" || type === "polarArea" || type === "donut") {
-                    let dataLabels = w.config.plotOptions.pie.donut.labels;
-                    const graphics = new pivotcharts.PivotGraphics(this.lgCtx.ctx);
-                    graphics.pathMouseDown(seriesEl.members[0], null);
-                    this.lgCtx.ctx.pie.printDataLabelsInner(seriesEl.members[0].node, dataLabels);
-                }
-                seriesEl.fire("click");
+                // if (type === "pie" || type === "polarArea" || type === "donut") {
+                //   let dataLabels = w.config.plotOptions.pie.donut.labels;
+                //   const graphics = new PivotGraphics(this.lgCtx.ctx);
+                //   graphics.pathMouseDown(seriesEl.members[0], null);
+                //   this.lgCtx.ctx.pie.printDataLabelsInner(
+                //     seriesEl.members[0].node,
+                //     dataLabels
+                //   );
+                // }
+                // seriesEl.fire("click");
                 seriesEl = seriesEl.members[0].node;
             }
             var name = seriesEl.getAttribute("full_name");
@@ -552,8 +608,14 @@ var pivotcharts;
         }
         hideSeries({ seriesEl, realIndex }) {
             const w = this.w;
+            var curr_len;
             let series = apexcharts.Utils.clone(w.config.series);
-            var curr_len = series.length;
+            curr_len = series.length;
+            // if(!w.globals.axisCharts){
+            //   let i = this.lgCtx.ctx.rowsSelector.getCurrentRowIndex();
+            //   series = [series[i]];
+            //   curr_len = series.data.length;
+            // }
             if (w.globals.axisCharts) {
                 let shouldNotHideYAxis = false;
                 if (w.config.yaxis[realIndex] &&
@@ -607,6 +669,27 @@ var pivotcharts;
             });
             series = this._getSeriesBasedOnCollapsedState(series);
             this.lgCtx.ctx.updateHelpers._updateSeries(series, w.config.chart.animations.dynamicAnimation.enabled);
+        }
+        _getSeriesBasedOnCollapsedState(series) {
+            const w = this.w;
+            if (w.globals.axisCharts) {
+                series.forEach((s, sI) => {
+                    if (w.globals.collapsedSeriesIndices.indexOf(sI) > -1) {
+                        series[sI].data = [];
+                    }
+                });
+            }
+            else {
+                series.forEach((s, sI) => {
+                    w.globals.collapsedSeriesIndices.forEach((i) => {
+                        s.data[i] = 0;
+                    });
+                    // if (w.globals.collapsedSeriesIndices.indexOf(sI) > -1) {
+                    //   s.data[sI] = 0
+                    // }
+                });
+            }
+            return series;
         }
     }
     pivotcharts.PivotHelper = PivotHelper;
@@ -866,6 +949,10 @@ var pivotcharts;
                 series: [],
                 i: [],
             };
+            if (!gl.axisCharts) {
+                let i = this.ctx.rowsSelector.getCurrentRowIndex();
+                ser = ser[i].data;
+            }
             gl.series.map((series, st) => {
                 let comboCount = 0;
                 // if user has specified a particular type for particular series
@@ -1284,10 +1371,10 @@ var pivotcharts;
             }
         }
         parseDataNonAxisCharts(ser) {
-            super.parseDataNonAxisCharts(ser);
+            super.parseDataNonAxisCharts(ser.data);
             var gl = this.w.globals;
             gl.full_name = Object.assign({}, gl.seriesNames);
-            gl.series_levels = 0;
+            gl.series_levels = ser.levels;
             // if (ser.level !== undefined) {
             //   gl.series_levels.push(ser.level)
             // } else {
@@ -1311,7 +1398,7 @@ var pivotcharts;
             else {
                 // non-axis charts are pie / donut
                 var i = this.ctx.rowsSelector.getCurrentRowIndex();
-                this.parseDataNonAxisCharts(ser[i].data);
+                this.parseDataNonAxisCharts(ser[i]);
             }
             this.coreUtils.getLargestSeries();
             // set Null values to 0 in all series when user hides/shows some series
@@ -1350,7 +1437,36 @@ var pivotcharts;
         _extendSeries(s, i) {
             const w = this.w;
             const ser = w.config.series[i];
-            return Object.assign(Object.assign({}, w.config.series[i]), { name: s.name ? s.name : ser && ser.name, color: s.color ? s.color : ser && ser.color, type: s.type ? s.type : ser && ser.type, data: s.data ? s.data : ser && ser.data, full_name: s.full_name ? s.full_name : ser && ser.full_name, level: s.level != undefined ? s.level : ser && ser.level });
+            return Object.assign(Object.assign({}, w.config.series[i]), { name: s.name ? s.name : ser && ser.name, color: s.color ? s.color : ser && ser.color, type: s.type ? s.type : ser && ser.type, data: s.data ? s.data : ser && ser.data, full_name: s.full_name ? s.full_name : ser && ser.full_name, level: s.level != undefined ? s.level : ser && ser.level, levels: s.levels != undefined ? s.levels : ser && ser.levels });
+        }
+        _updateSeries(newSeries, animate, overwriteInitialSeries = false) {
+            const w = this.w;
+            w.globals.shouldAnimate = animate;
+            w.globals.dataChanged = true;
+            if (animate) {
+                this.ctx.series.getPreviousPaths();
+            }
+            let existingSeries;
+            // axis charts
+            if (w.globals.axisCharts) {
+                existingSeries = newSeries.map((s, i) => {
+                    return this._extendSeries(s, i);
+                });
+                if (existingSeries.length === 0) {
+                    existingSeries = [{ data: [] }];
+                }
+                w.config.series = existingSeries;
+            }
+            else {
+                //   // non-axis chart (pie/radialbar)
+                // if(w.config.series[0] != undefined && typeof w.config.series[0] == 'object') { 
+                // }
+                // w.config.series = newSeries.slice()
+            }
+            if (overwriteInitialSeries) {
+                w.globals.initialSeries = apexcharts.Utils.clone(w.config.series);
+            }
+            return this.ctx.update();
         }
     }
     pivotcharts.PivotUpdateHelpers = PivotUpdateHelpers;
@@ -1412,23 +1528,14 @@ var pivotcharts;
             //   var cl_sr = colorSeries;
             if (cl.length < len) {
                 var new_colors = [];
-                if (length == undefined) {
+                let nn = w.globals.series_levels.filter(x => x == 0).length || 0;
+                if (length == undefined && nn <= cl.length) {
                     for (var i = 0; i < len; i++) {
-                        if (w.globals.axisCharts) {
-                            if (w.globals.series_levels[i] == 0) {
-                                new_colors.push(cl.shift());
-                            }
-                            else {
-                                new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
-                            }
+                        if (w.globals.series_levels[i] == 0) {
+                            new_colors.push(cl.shift());
                         }
                         else {
-                            if (w.globals.series_levels == 0) {
-                                new_colors.push(cl.shift());
-                            }
-                            else {
-                                new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
-                            }
+                            new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
                         }
                     }
                     // console.log(new_colors);

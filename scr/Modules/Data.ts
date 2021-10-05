@@ -24,10 +24,10 @@ namespace pivotcharts {
     }
 
     parseDataNonAxisCharts(ser) {
-      super.parseDataNonAxisCharts(ser);
+      super.parseDataNonAxisCharts(ser.data);
       var gl = this.w.globals;
       gl.full_name = Object.assign({}, gl.seriesNames);
-      gl.series_levels = 0;
+      gl.series_levels = ser.levels;
       // if (ser.level !== undefined) {
       //   gl.series_levels.push(ser.level)
       // } else {
@@ -54,7 +54,7 @@ namespace pivotcharts {
       } else {
         // non-axis charts are pie / donut
         var i = this.ctx.rowsSelector.getCurrentRowIndex();
-        this.parseDataNonAxisCharts(ser[i].data)
+        this.parseDataNonAxisCharts(ser[i])
       }
   
       this.coreUtils.getLargestSeries()
