@@ -2,6 +2,7 @@
   <script src="../flex/flexmonster.js"></script>
   <script src="../dist/apexcharts.js"></script>
   <script src="../PivotChart.js"></script>
+  <!-- <link rel='stylesheet' href='../scr/Modules/Scroll/style.css' /> -->
 
   <div id="pivot-container" style="max-height: 300"></div>
   <div id="chart"></div>
@@ -178,12 +179,28 @@
       let data = prepareDataFunction(rawData, type);
       var options = {
         chart: {
+          zoom: {
+            enabled: true,
+            type: "x",
+            autoScaleYaxis: false,
+            zoomedArea: {
+              fill: {
+                color: "#90CAF9",
+                opacity: 0.4,
+              },
+              stroke: {
+                color: "#0D47A1",
+                opacity: 0.4,
+                width: 1,
+              },
+            },
+          },
           type: type,
           width: 700,
           height: 300,
           toolbar: {
             show: false,
-          }
+          },
         },
         plotOptions: {
           bar: {

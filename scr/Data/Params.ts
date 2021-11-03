@@ -11,6 +11,7 @@ namespace Data{
     export var Categories = [];
     export var chartType = 'bar';
     export var OneDCFull = [];
+    export var BasicSeries:any;
     export function processData(rawData, type?){
         if(type != undefined){
             chartType = type;
@@ -21,7 +22,11 @@ namespace Data{
             Data.Model.dataStorage.setConfigs(rawData, chartType);
         }
 
-        return Data.Model.dataStorage.getVisibleDataSets(chartType);
+        var data = Data.Model.dataStorage.getVisibleDataSets(chartType);
+        if(Data.Model.dataStorage.stateOfUpdate == 0){
+            BasicSeries = JSON.parse(JSON.stringify(data));
+        }
+        return data;
     }
 
     export var BasicSeriesNames = [];

@@ -3,6 +3,7 @@ namespace Data {
     //#queries = undefined;
     res = undefined;
     q: Data.DataSetsMaker = undefined;
+    public stateOfUpdate = 0;
     constructor(data, type) {
       this.setConfigs(data, type);
     }
@@ -16,6 +17,7 @@ namespace Data {
           break;
         case "pie":
         case "donute":
+        case "radialBar":
           this.q = new Data.OneDimentionalDataSetsMaker(data);
       }
     }

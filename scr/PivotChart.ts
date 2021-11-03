@@ -4,9 +4,12 @@ namespace pivotcharts {
       
       super(el, config);
       var initCtx = new PivotInitCtxVariables(this);
+     
       initCtx.initModules();
       Data.Chart = this;
       Data.BasicSeriesNames = config.series.map(x => x.full_name);
+
+      
     }
 
     create(ser, opts) {
@@ -17,7 +20,8 @@ namespace pivotcharts {
       if(!gl.axisCharts && ser.length > 1 && !this.ctx.rowsSelector.isDrawn){
         this.ctx.rowsSelector.draw(ser.map(x => x.name));
       }
-      
+      let a = new pivotcharts.Scroll(this.ctx);
+      a.create();
       return res;
     }
 

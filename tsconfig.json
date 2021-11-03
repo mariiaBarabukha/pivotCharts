@@ -13,6 +13,7 @@
         ]
     },
     "files": [
+       
         "types/apexcharts.d.ts",
         "types/legend.d.ts",
 
@@ -38,6 +39,7 @@
         "scr/Modules/UpdateHelper.ts",
         "scr/Modules/Graphics.ts",
         "scr/Modules/Theme.ts",
+        "scr/Modules/Scroll/Scroll.ts",
         
         "scr/Charts/Bar.ts",
         "scr/Charts/Pie.ts",
