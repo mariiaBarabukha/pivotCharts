@@ -1738,14 +1738,26 @@ var pivotcharts;
             if (document.getElementsByClassName("wrap").length != 0) {
                 return;
             }
-            //document.body.insertAdjacentHTML("beforebegin", "<link rel='stylesheet' href='style.css' />");
+            document.head.innerHTML += "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
             var chart = document.getElementById(this.ctx.el.id);
             //let slider = graphics.group({class: "slider"});
-            let sliderStr = "<div class='wrap' role='group' aria-labelledby='multi-lbl' style='--a: 0; --b: 100; --min: 0; --max: 100'>" +
-                " <label class='sr-only' for='a'>Value A:</label>" +
-                "<input id='a' type='range' min='0' value='0' max='100' /><output" +
-                "for='a' style='--c: var(--a)'></output><label class='sr-only' for='b'>Value B:</label" +
-                "><input id='b' type='range' min='0' value='100' max='100' /><output for='b' style=--c: var(--b)'" +
+            let sliderStr = "<div " +
+                " class='wrap'" +
+                " role='group'" +
+                " aria-labelledby='multi-lbl'" +
+                " style='--a: 0; --b: 100; --min: 0; --max: 100'" +
+                ">" +
+                "<label class='sr-only' for='a'>Value A:</label>" +
+                "<input class='input-range' id='a' type='range' min='0' value='0' max='100' />" +
+                "<output" +
+                " for='a'" +
+                " style='--c: var(--a)'" +
+                "></output>" +
+                "<label class='sr-only' for='b'>Value B:</label>" +
+                "<input class='input-range' id='b' type='range' min='0' value='100' max='100'  />" +
+                "<output" +
+                " for='b'" +
+                " style='--c: var(--b)'" +
                 "></output>" +
                 "</div>";
             //     "<span class='rangeValues'></span>"+
@@ -1753,6 +1765,14 @@ var pivotcharts;
             //     "<input value='1' min='0' max='1' step='0.1' type='range'>"+
             //     "</section></div>";
             chart.insertAdjacentHTML("beforebegin", sliderStr);
+            //(document.getElementsByClassName("wrap")[0] as any).style.width = this.ctx.w.globals.gridWidth;
+            let inps = document.getElementsByClassName("input-range");
+            for (let i = 0; i < inps.length; i++) {
+                inps[i].addEventListener('input', e => {
+                    let _t = e.target;
+                    _t.parentNode.style.setProperty(`--${_t.id}`, +_t.value);
+                }, false);
+            }
             //var series = Data.Chart.w.globals.series;
             let inner = document.getElementsByClassName("apexcharts-inner");
             console.log(inner);
