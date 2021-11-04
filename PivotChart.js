@@ -1712,11 +1712,13 @@ var pivotcharts;
             }
             Data.Model.dataStorage.stateOfUpdate = 1;
             var len = Data.BasicSeries.xaxis.categories.length;
-            var len_new = Math.floor(len * val / 100);
+            var len_new = len * val / 100;
             if (koeff == 1) {
+                len_new = Math.floor(len_new);
                 this.bottom = len_new;
             }
             else {
+                len_new = Math.ceil(len_new);
                 this.top = len_new;
             }
             var cSeries = JSON.parse(JSON.stringify(Data.BasicSeries.series));
