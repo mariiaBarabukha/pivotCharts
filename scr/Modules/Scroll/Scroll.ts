@@ -44,8 +44,14 @@ namespace pivotcharts {
       this.top =Data.BasicSeries.xaxis.categories.length;    
 
       if (document.getElementsByClassName("wrap").length != 0) {
+        // if(Data.DropScroll){
+        //   (document.getElementById("a") as any).value = 0;
+        //   (document.getElementById("b") as any).value = 100;
+        // }
         return;
       }
+
+      
       
       document.head.innerHTML += "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
       var chart = document.getElementById(this.ctx.el.id);
@@ -72,6 +78,7 @@ namespace pivotcharts {
         
 
       chart.insertAdjacentHTML("beforebegin", sliderStr);
+      
       document.getElementById("a").addEventListener("change", (e) => {
         let val = Number((e.target as any).value)
         console.log((e.target as any).value);

@@ -500,6 +500,7 @@ var Data;
     Data.Categories = [];
     Data.chartType = 'bar';
     Data.OneDCFull = [];
+    Data.DropScroll = false;
     function processData(rawData, type) {
         if (type != undefined) {
             Data.chartType = type;
@@ -513,6 +514,10 @@ var Data;
         var data = Data.Model.dataStorage.getVisibleDataSets(Data.chartType);
         if (Data.Model.dataStorage.stateOfUpdate == 0) {
             Data.BasicSeries = JSON.parse(JSON.stringify(data));
+            Data.DropScroll = true;
+        }
+        else {
+            Data.DropScroll = false;
         }
         return data;
     }
@@ -1736,6 +1741,10 @@ var pivotcharts;
         create() {
             this.top = Data.BasicSeries.xaxis.categories.length;
             if (document.getElementsByClassName("wrap").length != 0) {
+                // if(Data.DropScroll){
+                //   (document.getElementById("a") as any).value = 0;
+                //   (document.getElementById("b") as any).value = 100;
+                // }
                 return;
             }
             document.head.innerHTML += "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
