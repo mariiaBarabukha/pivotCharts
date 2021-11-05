@@ -1,31 +1,32 @@
 /* fix too small font-size in both Chrome & Firefox */
-* {
-    font: inherit;
-}
 .wrap {
     --dif: calc(var(--max) - var(--min));
+    --h:20px;
+    --d:calc(var(--h)*0.9);
+    --r:calc(var(--d)*0.5);
     display: grid;
-    grid-template: repeat(2, max-content) 50px/ 1fr 1fr;
+    grid-template: repeat(2, max-content) var(--h)/ 1fr 1fr;
     overflow: hidden;
     position: relative;
-    margin: 1em auto;
-    width: 300px;
-    background: linear-gradient(0deg, #ccc 50px, transparent 0);
-    /* font-family: ubuntu mono, consolas, monaco, monospace; */
+    margin-left: var(--left-margin);
+    width: var(--w);
+    background: linear-gradient(0deg, #ccc var(--h), transparent 0);
+    font-family: ubuntu mono, consolas, monaco, monospace;
 }
 .wrap::before, .wrap::after {
     grid-column: 1/ span 2;
     grid-row: 3;
+    height: 100%;
     background: #95a;
     content: '';
 }
 .wrap::before {
-    margin-left: calc(25px + (var(--a) - var(--min))/var(--dif)*250px);
-    width: calc((var(--b) - var(--a))/var(--dif)*250px);
+    margin-left: calc((var(--a) - var(--min))/var(--dif)*100%);
+    width: calc((var(--b) - var(--a))/var(--dif)*100%);
 }
 .wrap::after {
-    margin-left: calc(25px + (var(--b) - var(--min))/var(--dif)*250px);
-    width: calc((var(--a) - var(--b))/var(--dif)*250px);
+    margin-left: calc((var(--b) - var(--min))/var(--dif)*100%);
+    width: calc((var(--a) - var(--b))/var(--dif)*100%);
 }
 [id='multi-lbl'] {
     grid-column: 1/ span 2;
@@ -64,21 +65,23 @@ input[type='range']::-moz-range-track {
 input[type='range']::-webkit-slider-thumb {
     border: none;
    /* get rid of Firefox thumb border */
-    width: 50px;
-    height: 50px;
+    width: var(--d);
+    height: var(--h);
     border-radius: 0;
    /* get rid of Firefox corner rounding */
-    background: linear-gradient(90deg, #fff 2px, transparent 0) calc(25px - 1px), radial-gradient(circle, var(--col) calc(25px - 1px), transparent 25px);
+    background: linear-gradient(90deg, #fff 2px, transparent 0) calc(var(--r) - 1px),
+     radial-gradient(circle, var(--col) calc(var(--r) - 1px), transparent var(--r));
     pointer-events: auto;
 }
 input[type='range']::-moz-range-thumb {
     border: none;
    /* get rid of Firefox thumb border */
-    width: 50px;
-    height: 50px;
+    width: var(--d);
+    height: var(--h);
     border-radius: 0;
    /* get rid of Firefox corner rounding */
-    background: linear-gradient(90deg, #fff 2px, transparent 0) calc(25px - 1px), radial-gradient(circle, var(--col) calc(25px - 1px), transparent 25px);
+    background: linear-gradient(90deg, #fff 2px, transparent 0) calc(var(--r) - 1px),
+     radial-gradient(circle, var(--col) calc(var(--r) - 1px), transparent var(--r));
     pointer-events: auto;
 }
 input[type='range']:focus {

@@ -1697,14 +1697,13 @@ var pivotcharts;
 var pivotcharts;
 (function (pivotcharts) {
     class Scroll {
-        constructor(ctx, isRight = false) {
+        constructor(ctx) {
             this.ctx = undefined;
             this.min = 0;
             this.max = 100;
             this.top = Data.BasicSeries.xaxis.categories.length;
             this.bottom = 0;
             this.ctx = ctx;
-            this.isRight = isRight;
         }
         removeData(val, koeff = 1) {
             if (this.top == 0) {
@@ -1736,18 +1735,16 @@ var pivotcharts;
         }
         create() {
             this.top = Data.BasicSeries.xaxis.categories.length;
-            var el = document.getElementsByClassName("wrap");
             if (document.getElementsByClassName("wrap").length != 0) {
                 return;
             }
             document.head.innerHTML += "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
             var chart = document.getElementById(this.ctx.el.id);
-            //let slider = graphics.group({class: "slider"});
             let sliderStr = "<div " +
                 " class='wrap'" +
                 " role='group'" +
                 " aria-labelledby='multi-lbl'" +
-                " style='--a: 0; --b: 100; --min: 0; --max: 100'" +
+                " style='--a: 0; --b: 100; --min: 0; --max: 100; --w:500; --left-margin:0'" +
                 ">" +
                 "<label class='sr-only' for='a'>Value A:</label>" +
                 "<input class='input-range' id='a' type='range' min='0' value='0' max='100' />" +
@@ -1762,24 +1759,7 @@ var pivotcharts;
                 " style='--c: var(--b)'" +
                 "></output>" +
                 "</div>";
-            //     "<span class='rangeValues'></span>"+
-            //     "<input value='0' min='0' max='1' step='0.1' type='range'>"+
-            //     "<input value='1' min='0' max='1' step='0.1' type='range'>"+
-            //     "</section></div>";
             chart.insertAdjacentHTML("beforebegin", sliderStr);
-            //(document.getElementsByClassName("wrap")[0] as any).style.width = this.ctx.w.globals.gridWidth;
-            let inps = document.getElementsByClassName("input-range");
-            for (let i = 0; i < inps.length; i++) {
-                inps[i].addEventListener('input', e => {
-                    let _t = e.target;
-                    _t.parentNode.style.setProperty(`--${_t.id}`, +_t.value);
-                }, false);
-            }
-            //var series = Data.Chart.w.globals.series;
-            let inner = document.getElementsByClassName("apexcharts-inner");
-            console.log(inner);
-            let box = inner[0].getAttribute("viewBox");
-            console.log(box);
             document.getElementById("a").addEventListener("change", (e) => {
                 let val = Number(e.target.value);
                 console.log(e.target.value);
@@ -1805,6 +1785,18 @@ var pivotcharts;
                 }
                 this.removeData(this.max, -1);
             });
+            var wrap = document.getElementsByClassName("wrap")[0];
+            document.getElementsByClassName("wrap")[0].style
+                .setProperty('--w', this.ctx.w.globals.gridWidth);
+            document.getElementsByClassName("wrap")[0].style
+                .setProperty('--left-margin', this.ctx.w.globals.translateX);
+            let inps = document.getElementsByClassName("input-range");
+            for (let i = 0; i < inps.length; i++) {
+                inps[i].addEventListener('input', e => {
+                    let _t = e.target;
+                    _t.parentNode.style.setProperty(`--${_t.id}`, +_t.value);
+                }, false);
+            }
         }
     }
     pivotcharts.Scroll = Scroll;
