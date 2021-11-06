@@ -20,10 +20,13 @@ namespace pivotcharts {
       if(!gl.axisCharts && ser.length > 1 && !this.ctx.rowsSelector.isDrawn){
         this.ctx.rowsSelector.draw(ser.map(x => x.name));
       }
-      if(Data.Model.scroll == undefined){
-        Data.Model.scroll =  new pivotcharts.Scroll(this.ctx);
-      }      
-      Data.Model.scroll.create();
+      if(this.ctx.w.config.chart.zoom.enabled){
+        if(Data.Model.scroll == undefined){
+          Data.Model.scroll =  new pivotcharts.Scroll(this.ctx);
+        }      
+        Data.Model.scroll.create();
+      }
+      
       return res;
     }
 

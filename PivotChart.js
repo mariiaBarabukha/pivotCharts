@@ -1712,18 +1712,26 @@ var pivotcharts;
             this.curr_series = JSON.stringify(Data.BasicSeries);
         }
         removeData(val, koeff = 1) {
+            let serLen = Data.BasicSeries.xaxis.categories.length;
             if (this.top == 0) {
-                this.top = Data.BasicSeries.xaxis.categories.length;
+                this.top = serLen;
             }
             Data.Model.dataStorage.stateOfUpdate = 1;
             var len = Data.BasicSeries.xaxis.categories.length;
             var len_new = len * val / 100;
+            len_new = Math.round(len_new);
             if (koeff == 1) {
-                len_new = Math.floor(len_new);
                 this.bottom = len_new;
+                let valnew = Math.floor(len_new * 100 / serLen);
+                document.getElementsByClassName("wrap")[0].style
+                    .setProperty('--a', valnew);
+                document.getElementById("a").value = valnew;
             }
             else {
-                len_new = Math.ceil(len_new);
+                let valnew = Math.ceil(len_new * 100 / serLen);
+                document.getElementsByClassName("wrap")[0].style
+                    .setProperty('--b', valnew);
+                document.getElementById("b").value = valnew;
                 this.top = len_new;
             }
             var cSeries = JSON.parse(JSON.stringify(Data.BasicSeries.series));
@@ -2350,10 +2358,12 @@ var pivotcharts;
             if (!gl.axisCharts && ser.length > 1 && !this.ctx.rowsSelector.isDrawn) {
                 this.ctx.rowsSelector.draw(ser.map(x => x.name));
             }
-            if (Data.Model.scroll == undefined) {
-                Data.Model.scroll = new pivotcharts.Scroll(this.ctx);
+            if (this.ctx.w.config.chart.zoom.enabled) {
+                if (Data.Model.scroll == undefined) {
+                    Data.Model.scroll = new pivotcharts.Scroll(this.ctx);
+                }
+                Data.Model.scroll.create();
             }
-            Data.Model.scroll.create();
             return res;
         }
         mount(graphData = null) {

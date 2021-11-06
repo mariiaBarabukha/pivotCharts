@@ -14,17 +14,26 @@ namespace pivotcharts {
     }
 
     private removeData(val:number, koeff:number = 1):void {
+      let serLen =  Data.BasicSeries.xaxis.categories.length;
       if(this.top == 0){
-        this.top = Data.BasicSeries.xaxis.categories.length;
+        this.top = serLen;
       }
       Data.Model.dataStorage.stateOfUpdate = 1;
       var len  = Data.BasicSeries.xaxis.categories.length;
       var len_new = len * val / 100;
-      if(koeff == 1){
-        len_new = Math.floor(len_new);
+      len_new = Math.round(len_new);
+      
+      if(koeff == 1){        
         this.bottom = len_new;
+        let valnew = Math.floor(len_new * 100/serLen);
+        (document.getElementsByClassName("wrap")[0] as any).style
+              .setProperty('--a', valnew);
+        (document.getElementById("a") as any).value = valnew;
       }else{
-        len_new = Math.ceil(len_new);
+        let valnew = Math.ceil(len_new * 100/serLen);
+        (document.getElementsByClassName("wrap")[0] as any).style
+              .setProperty('--b', valnew);
+        (document.getElementById("b") as any).value = valnew;
         this.top = len_new;
       }
       var cSeries =JSON.parse(JSON.stringify(Data.BasicSeries.series));      
