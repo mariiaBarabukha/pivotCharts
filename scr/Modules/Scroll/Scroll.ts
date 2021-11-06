@@ -6,9 +6,11 @@ namespace pivotcharts {
 
     top:number =Data.BasicSeries.xaxis.categories.length;
     bottom: number = 0;
+    curr_series;
 
     constructor(ctx) {
       this.ctx = ctx;
+      this.curr_series = JSON.stringify(Data.BasicSeries);
     }
 
     private removeData(val:number, koeff:number = 1):void {
@@ -99,13 +101,25 @@ namespace pivotcharts {
       this.top =Data.BasicSeries.xaxis.categories.length;    
 
       if (document.getElementsByClassName("wrap").length != 0) {
+        if(this.curr_series != JSON.stringify(Data.BasicSeries)){
+          this.curr_series = JSON.stringify(Data.BasicSeries);
+          (document.getElementById("a") as any).value = 0;
+          (document.getElementById("b") as any).value = 100;
+          (document.getElementsByClassName("wrap")[0] as any).style
+                .setProperty('--a', 0);
+          (document.getElementsByClassName("wrap")[0] as any).style
+                .setProperty('--b', 100);
+        }        
         return;
-      }      
+      }    
+      
+      
       
       document.head.innerHTML += "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
       var chart = document.getElementById(this.ctx.el.id);            
 
       chart.insertAdjacentHTML("beforebegin", this.createScroll());
+      
       this._addListeners();
       
       

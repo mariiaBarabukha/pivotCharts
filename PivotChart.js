@@ -1709,6 +1709,7 @@ var pivotcharts;
             this.top = Data.BasicSeries.xaxis.categories.length;
             this.bottom = 0;
             this.ctx = ctx;
+            this.curr_series = JSON.stringify(Data.BasicSeries);
         }
         removeData(val, koeff = 1) {
             if (this.top == 0) {
@@ -1793,6 +1794,15 @@ var pivotcharts;
         create() {
             this.top = Data.BasicSeries.xaxis.categories.length;
             if (document.getElementsByClassName("wrap").length != 0) {
+                if (this.curr_series != JSON.stringify(Data.BasicSeries)) {
+                    this.curr_series = JSON.stringify(Data.BasicSeries);
+                    document.getElementById("a").value = 0;
+                    document.getElementById("b").value = 100;
+                    document.getElementsByClassName("wrap")[0].style
+                        .setProperty('--a', 0);
+                    document.getElementsByClassName("wrap")[0].style
+                        .setProperty('--b', 100);
+                }
                 return;
             }
             document.head.innerHTML += "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
@@ -2340,8 +2350,10 @@ var pivotcharts;
             if (!gl.axisCharts && ser.length > 1 && !this.ctx.rowsSelector.isDrawn) {
                 this.ctx.rowsSelector.draw(ser.map(x => x.name));
             }
-            let a = new pivotcharts.Scroll(this.ctx);
-            a.create();
+            if (Data.Model.scroll == undefined) {
+                Data.Model.scroll = new pivotcharts.Scroll(this.ctx);
+            }
+            Data.Model.scroll.create();
             return res;
         }
         mount(graphData = null) {

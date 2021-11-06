@@ -3,5 +3,6 @@ namespace Data {
     static dataStorage = undefined;
     static colorManager = undefined;
     static labelManager = undefined;
+    static scroll;
   }
 }
