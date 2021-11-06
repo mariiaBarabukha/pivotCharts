@@ -1738,18 +1738,8 @@ var pivotcharts;
             Data.Chart.updateOptions({ series: cSeries, labels: cLabels });
             Data.Model.dataStorage.stateOfUpdate = 0;
         }
-        create() {
-            this.top = Data.BasicSeries.xaxis.categories.length;
-            if (document.getElementsByClassName("wrap").length != 0) {
-                // if(Data.DropScroll){
-                //   (document.getElementById("a") as any).value = 0;
-                //   (document.getElementById("b") as any).value = 100;
-                // }
-                return;
-            }
-            document.head.innerHTML += "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
-            var chart = document.getElementById(this.ctx.el.id);
-            let sliderStr = "<div " +
+        createScroll() {
+            return "<div " +
                 " class='wrap'" +
                 " role='group'" +
                 " aria-labelledby='multi-lbl'" +
@@ -1768,12 +1758,15 @@ var pivotcharts;
                 " style='--c: var(--b)'" +
                 "></output>" +
                 "</div>";
-            chart.insertAdjacentHTML("beforebegin", sliderStr);
+        }
+        _addListeners() {
             document.getElementById("a").addEventListener("change", (e) => {
                 let val = Number(e.target.value);
                 console.log(e.target.value);
                 if (val >= this.max) {
                     e.target.value = this.min;
+                    document.getElementsByClassName("wrap")[0].style
+                        .setProperty('--a', this.min);
                     return;
                 }
                 else {
@@ -1787,6 +1780,8 @@ var pivotcharts;
                 console.log(e.target.value);
                 if (val <= this.min) {
                     e.target.value = this.max;
+                    document.getElementsByClassName("wrap")[0].style
+                        .setProperty('--b', this.max);
                     return;
                 }
                 else {
@@ -1794,7 +1789,16 @@ var pivotcharts;
                 }
                 this.removeData(this.max, -1);
             });
-            var wrap = document.getElementsByClassName("wrap")[0];
+        }
+        create() {
+            this.top = Data.BasicSeries.xaxis.categories.length;
+            if (document.getElementsByClassName("wrap").length != 0) {
+                return;
+            }
+            document.head.innerHTML += "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
+            var chart = document.getElementById(this.ctx.el.id);
+            chart.insertAdjacentHTML("beforebegin", this.createScroll());
+            this._addListeners();
             document.getElementsByClassName("wrap")[0].style
                 .setProperty('--w', this.ctx.w.globals.gridWidth);
             document.getElementsByClassName("wrap")[0].style
