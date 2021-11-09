@@ -13,16 +13,26 @@
     background: linear-gradient(0deg, #ccc var(--h), transparent 0);
     font-family: ubuntu mono, consolas, monaco, monospace;
 }
-.wrap::before, .wrap::after {
+.wrap::before, .wrap::after, #scroller{
     grid-column: 1/ span 2;
     grid-row: 3;
     height: 100%;
     background: #95a;
     content: '';
 }
+
+#scroller{
+    height:20px;
+    background: #95a;
+    margin-left: calc((var(--a) - var(--min))/var(--dif)*100%);
+    margin-right: calc((var(--max) - var(--b))/var(--dif)*100%);
+    width: calc(var(--diff));
+    cursor : grab;
+}
 .wrap::before {
     margin-left: calc((var(--a) - var(--min))/var(--dif)*100%);
     width: calc((var(--b) - var(--a))/var(--dif)*100%);
+    
 }
 .wrap::after {
     margin-left: calc((var(--b) - var(--min))/var(--dif)*100%);

@@ -20,7 +20,12 @@ namespace pivotcharts {
       if(!gl.axisCharts && ser.length > 1 && !this.ctx.rowsSelector.isDrawn){
         this.ctx.rowsSelector.draw(ser.map(x => x.name));
       }
-      if(this.ctx.w.config.chart.zoom.enabled){
+      let w = this.w
+      if (
+        w.config.chart.zoom.enabled ||
+        (w.config.chart.selection && w.config.chart.selection.enabled) ||
+        (w.config.chart.pan && w.config.chart.pan.enabled)
+      ){
         if(Data.Model.scroll == undefined){
           Data.Model.scroll =  new pivotcharts.Scroll(this.ctx);
         }      

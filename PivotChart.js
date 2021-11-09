@@ -1718,24 +1718,24 @@ var pivotcharts;
             }
             Data.Model.dataStorage.stateOfUpdate = 1;
             var len = Data.BasicSeries.xaxis.categories.length;
-            var len_new = len * val / 100;
+            var len_new = (len * val) / 100;
             len_new = Math.round(len_new);
             if (koeff == 1) {
                 this.bottom = len_new;
-                let valnew = Math.floor(len_new * 100 / serLen);
-                document.getElementsByClassName("wrap")[0].style
-                    .setProperty('--a', valnew);
+                let valnew = Math.floor((len_new * 100) / serLen);
+                document.getElementsByClassName("wrap")[0].style.setProperty("--a", valnew);
                 document.getElementById("a").value = valnew;
+                this.min = valnew;
             }
             else {
-                let valnew = Math.ceil(len_new * 100 / serLen);
-                document.getElementsByClassName("wrap")[0].style
-                    .setProperty('--b', valnew);
+                let valnew = Math.floor((len_new * 100) / serLen);
+                document.getElementsByClassName("wrap")[0].style.setProperty("--b", valnew);
                 document.getElementById("b").value = valnew;
                 this.top = len_new;
+                this.max = valnew;
             }
             var cSeries = JSON.parse(JSON.stringify(Data.BasicSeries.series));
-            cSeries = cSeries.map(x => {
+            cSeries = cSeries.map((x) => {
                 x.data = x.data.slice(this.bottom, this.top);
                 //x.data = koeff == 1 ? x.data.slice(len_new) :x.data.slice(0,len_new);
                 return x;
@@ -1748,7 +1748,7 @@ var pivotcharts;
             Data.Model.dataStorage.stateOfUpdate = 0;
         }
         createScroll() {
-            return "<div " +
+            return ("<div " +
                 " class='wrap'" +
                 " role='group'" +
                 " aria-labelledby='multi-lbl'" +
@@ -1766,7 +1766,8 @@ var pivotcharts;
                 " for='b'" +
                 " style='--c: var(--b)'" +
                 "></output>" +
-                "</div>";
+                "<div id='scroller'><div>" +
+                "</div>");
         }
         _addListeners() {
             document.getElementById("a").addEventListener("change", (e) => {
@@ -1774,14 +1775,16 @@ var pivotcharts;
                 console.log(e.target.value);
                 if (val >= this.max) {
                     e.target.value = this.min;
-                    document.getElementsByClassName("wrap")[0].style
-                        .setProperty('--a', this.min);
+                    document.getElementsByClassName("wrap")[0].style.setProperty("--a", this.min);
                     return;
                 }
                 else {
                     this.min = val;
                 }
                 this.removeData(this.min);
+                // setTimeout(() => {
+                //   console.log("World!");
+                // }, 500);
             });
             document.getElementById("b").addEventListener("change", (e) => {
                 let val = Number(e.target.value);
@@ -1789,45 +1792,150 @@ var pivotcharts;
                 console.log(e.target.value);
                 if (val <= this.min) {
                     e.target.value = this.max;
-                    document.getElementsByClassName("wrap")[0].style
-                        .setProperty('--b', this.max);
+                    document.getElementsByClassName("wrap")[0].style.setProperty("--b", this.max);
                     return;
                 }
                 else {
                     this.max = val;
                 }
                 this.removeData(this.max, -1);
+                // setTimeout(() => {
+                //   console.log("World!");
+                // }, 500);
             });
+            let isDown = false;
+            var x;
+            var scroller = document.getElementById("scroller");
+            let scrollPressed = false;
+            scroller.addEventListener("mousedown", (e) => {
+                var coords = this.getCoords(scroller);
+                var shiftX = e.pageX - coords.left;
+                x = e.pageX - shiftX;
+                isDown = true;
+                scrollPressed = true;
+                document.onmousemove = (e) => {
+                    if (!scrollPressed) {
+                        return;
+                    }
+                    var coords2 = this.getCoords(scroller);
+                    var shiftX2 = e.pageX - coords2.left;
+                    var box = scroller.getBoundingClientRect();
+                    let a = e.x - shiftX;
+                    //e.x - shiftX + this.ctx.w.globals.translateX;
+                    scroller.offsetWidth;
+                    let wrap = document.getElementsByClassName("wrap")[0];
+                    let move = Math.floor(a / (this.ctx.w.globals.gridWidth / 100) / 2);
+                    let extra = Math.floor(box.x / (this.ctx.w.globals.gridWidth / 100) / 2);
+                    //console.log(window.getComputedStyle(wrap))
+                    let diff = this.max - this.min;
+                    if (move < 0) {
+                        this.min = 0;
+                        this.max = this.min + diff;
+                    }
+                    else {
+                        if (move > 100 - diff) {
+                            this.max = 100;
+                            this.min = 100 - diff;
+                        }
+                        else {
+                            this.min = move;
+                            this.max = this.min + diff;
+                        }
+                    }
+                    // this.min = move;
+                    // if (this.min - move < 0 && !(this.max - move > 100)) {
+                    //   this.min = 0;
+                    //   this.max = diff;
+                    // } else {
+                    //   if (this.max - move > 100) {
+                    //     this.max = 100;
+                    //     this.min = 100 - diff;
+                    //   }else{
+                    //     this.min -= move;
+                    //     this.max = this.min + diff;
+                    //   }
+                    // }
+                    document.getElementById("a").value = this.min;
+                    document.getElementById("b").value = this.max;
+                    wrap.style.setProperty("--a", this.min);
+                    wrap.style.setProperty("--b", this.max);
+                };
+                document.onmouseup = (e) => {
+                    // if (!scrollPressed) {
+                    //   return;
+                    // }
+                    // let a = x - e.x;
+                    // let move = a / (this.ctx.w.globals.gridWidth / 100);
+                    // if(a > 15){
+                    //   console.log(">15");
+                    // }
+                    // if(a > 30){
+                    //   console.log(">30");
+                    // }
+                    // var len = Data.BasicSeries.xaxis.categories.length;
+                    // if(move > 100/len || move < -100/len){
+                    //   let diff = this.max - this.min;
+                    //   if(this.min - move < 0 && !(this.max - move > 100)){
+                    //     this.min = 0;
+                    //     this.max = diff;
+                    //     this.removeData(this.min);
+                    //     this.removeData(this.max, -1);
+                    //   }else{
+                    //     if(this.max - move > 100){
+                    //       this.max = 100;
+                    //       this.min = 100- diff;
+                    //
+                    //     }else{
+                    //       this.removeData(this.max - move, -1);
+                    //       this.removeData(this.min - move)
+                    //     }
+                    //   }
+                    // }
+                    this.removeData(this.min);
+                    this.removeData(this.max, -1);
+                    isDown = false;
+                    scrollPressed = false;
+                    document.onmousemove = null;
+                    document.onmouseup = null;
+                };
+            });
+            scroller.ondragstart = function () {
+                return false;
+            };
         }
         create() {
-            this.top = Data.BasicSeries.xaxis.categories.length;
+            //  this.top =Data.BasicSeries.xaxis.categories.length;
             if (document.getElementsByClassName("wrap").length != 0) {
                 if (this.curr_series != JSON.stringify(Data.BasicSeries)) {
                     this.curr_series = JSON.stringify(Data.BasicSeries);
                     document.getElementById("a").value = 0;
                     document.getElementById("b").value = 100;
-                    document.getElementsByClassName("wrap")[0].style
-                        .setProperty('--a', 0);
-                    document.getElementsByClassName("wrap")[0].style
-                        .setProperty('--b', 100);
+                    document.getElementsByClassName("wrap")[0].style.setProperty("--a", 0);
+                    document.getElementsByClassName("wrap")[0].style.setProperty("--b", 100);
                 }
                 return;
             }
-            document.head.innerHTML += "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
+            document.head.innerHTML +=
+                "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
             var chart = document.getElementById(this.ctx.el.id);
             chart.insertAdjacentHTML("beforebegin", this.createScroll());
             this._addListeners();
-            document.getElementsByClassName("wrap")[0].style
-                .setProperty('--w', this.ctx.w.globals.gridWidth);
-            document.getElementsByClassName("wrap")[0].style
-                .setProperty('--left-margin', this.ctx.w.globals.translateX);
+            document.getElementsByClassName("wrap")[0].style.setProperty("--w", this.ctx.w.globals.gridWidth);
+            document.getElementsByClassName("wrap")[0].style.setProperty("--left-margin", this.ctx.w.globals.translateX);
             let inps = document.getElementsByClassName("input-range");
             for (let i = 0; i < inps.length; i++) {
-                inps[i].addEventListener('input', e => {
+                inps[i].addEventListener("input", (e) => {
                     let _t = e.target;
                     _t.parentNode.style.setProperty(`--${_t.id}`, +_t.value);
                 }, false);
             }
+        }
+        getCoords(elem) {
+            var box = elem.getBoundingClientRect();
+            return {
+                top: box.top + pageYOffset,
+                left: box.left + pageXOffset
+            };
         }
     }
     pivotcharts.Scroll = Scroll;
@@ -2358,7 +2466,10 @@ var pivotcharts;
             if (!gl.axisCharts && ser.length > 1 && !this.ctx.rowsSelector.isDrawn) {
                 this.ctx.rowsSelector.draw(ser.map(x => x.name));
             }
-            if (this.ctx.w.config.chart.zoom.enabled) {
+            let w = this.w;
+            if (w.config.chart.zoom.enabled ||
+                (w.config.chart.selection && w.config.chart.selection.enabled) ||
+                (w.config.chart.pan && w.config.chart.pan.enabled)) {
                 if (Data.Model.scroll == undefined) {
                     Data.Model.scroll = new pivotcharts.Scroll(this.ctx);
                 }
