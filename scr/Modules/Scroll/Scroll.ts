@@ -97,9 +97,6 @@ namespace pivotcharts {
           this.min = val;
         }
         this.removeData(this.min);
-        // setTimeout(() => {
-        //   console.log("World!");
-        // }, 500);
       });
 
       document.getElementById("b").addEventListener("change", (e) => {
@@ -118,9 +115,6 @@ namespace pivotcharts {
         }
 
         this.removeData(this.max, -1);
-        // setTimeout(() => {
-        //   console.log("World!");
-        // }, 500);
       });
       let isDown = false;
       var x;
@@ -130,24 +124,19 @@ namespace pivotcharts {
       scroller.addEventListener("mousedown", (e) => {
         var coords = this.getCoords(scroller);
         var shiftX = e.pageX - coords.left;
-        x = e.pageX - shiftX;
+        x = e.pageX;
+        //x = e.pageX + shiftX;
         isDown = true;
         scrollPressed = true;
 
         document.onmousemove = (e) => {
           if (!scrollPressed) {
             return;
-          }
-          var coords2 = this.getCoords(scroller);
-          var shiftX2 = e.pageX - coords2.left;
-          var box = scroller.getBoundingClientRect();
-          let a = e.x - shiftX;
-          //e.x - shiftX + this.ctx.w.globals.translateX;
-          scroller.offsetWidth;
+          }          
+          // let a = e.pageX - shiftX;
+          let a = e.pageX - x;
           let wrap = document.getElementsByClassName("wrap")[0] as any;
-          let move = Math.floor(a / (this.ctx.w.globals.gridWidth / 100)/2);
-          let extra = Math.floor(box.x / (this.ctx.w.globals.gridWidth / 100)/2);
-          //console.log(window.getComputedStyle(wrap))
+          let move = Math.floor(a / (this.ctx.w.globals.gridWidth / 100));
           let diff = this.max - this.min;
           if(move < 0){
             this.min = 0;
@@ -161,21 +150,7 @@ namespace pivotcharts {
               this.max = this.min + diff;
             }
             
-          }
-          // this.min = move;
-          
-          // if (this.min - move < 0 && !(this.max - move > 100)) {
-          //   this.min = 0;
-          //   this.max = diff;
-          // } else {
-          //   if (this.max - move > 100) {
-          //     this.max = 100;
-          //     this.min = 100 - diff;
-          //   }else{
-          //     this.min -= move;
-          //     this.max = this.min + diff;
-          //   }
-          // }
+          }         
   
           (document.getElementById("a") as any).value = this.min;
           (document.getElementById("b") as any).value = this.max;
@@ -183,40 +158,7 @@ namespace pivotcharts {
           wrap.style.setProperty("--b", this.max);
         };
 
-        document.onmouseup = (e) => {
-          // if (!scrollPressed) {
-          //   return;
-          // }
-          // let a = x - e.x;
-  
-          // let move = a / (this.ctx.w.globals.gridWidth / 100);
-          // if(a > 15){
-          //   console.log(">15");
-          // }
-          // if(a > 30){
-          //   console.log(">30");
-          // }
-          // var len = Data.BasicSeries.xaxis.categories.length;
-          // if(move > 100/len || move < -100/len){
-          //   let diff = this.max - this.min;
-          //   if(this.min - move < 0 && !(this.max - move > 100)){
-          //     this.min = 0;
-          //     this.max = diff;
-          //     this.removeData(this.min);
-          //     this.removeData(this.max, -1);
-          //   }else{
-          //     if(this.max - move > 100){
-          //       this.max = 100;
-          //       this.min = 100- diff;
-          //
-          //     }else{
-          //       this.removeData(this.max - move, -1);
-          //       this.removeData(this.min - move)
-          //     }
-  
-          //   }
-          // }
-  
+        document.onmouseup = (e) => {          
           this.removeData(this.min);
           this.removeData(this.max, -1);
           isDown = false;
