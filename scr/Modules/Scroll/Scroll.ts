@@ -121,6 +121,9 @@ namespace pivotcharts {
       var scroller = document.getElementById("scroller");
       let scrollPressed = false;
 
+      let temp_min;
+      let temp_max;
+
       scroller.addEventListener("mousedown", (e) => {
         var coords = this.getCoords(scroller);
         var shiftX = e.pageX - coords.left;
@@ -138,29 +141,69 @@ namespace pivotcharts {
           let wrap = document.getElementsByClassName("wrap")[0] as any;
           let move = Math.floor(a / (this.ctx.w.globals.gridWidth / 100));
           let diff = this.max - this.min;
-          if(move < 0){
-            this.min = 0;
-            this.max = this.min + diff;
-          }else{
-            if(move > 100 - diff){
-              this.max = 100;
-              this.min = 100 - diff;
-            }else{
-              this.min = move;
-              this.max = this.min + diff;
-            }
+          
+          // if(move + diff > 100){
+          //   temp_min = 0;
+          //   temp_max = temp_min + diff;
+          // }else{
+          //   if(move > 100 - diff){
+          //     temp_max = 100;
+          //     temp_min = 100 - diff;
+          //   }else{
+          //     temp_min = move;
+          //     temp_max = temp_min + diff;
+          //   }
             
-          }         
+          // }   
+
+          
+          
+          if(this.min + move > 100 - diff){
+            temp_max = 100;
+            temp_min = 100 - diff;
+          }else{
+            if(this.min + move < 0){
+              // temp_min = 100 - diff + move;
+              // temp_max = temp_min + diff;
+              // if(temp_min < 0){
+              //   temp_min = 0;
+              //   temp_max = diff;
+              // }
+              temp_min = 0;
+              temp_max = diff;
+            }else{
+              temp_min = this.min + move;
+              temp_max = temp_min + diff;
+            }
+          }
+
+          // if(move + diff > 100){
+          //   temp_min = 0;
+          //   //   temp_max = temp_min + diff;
+          // }
+          
+          // if(move > 100 - diff){
+          //   temp_max = 100;
+          //   temp_min = 100 - diff;
+          // }else{
+          //   temp_min = this.min+ move;
+          //   temp_max = temp_min + diff;
+          // }
+          
   
-          (document.getElementById("a") as any).value = this.min;
-          (document.getElementById("b") as any).value = this.max;
-          wrap.style.setProperty("--a", this.min);
-          wrap.style.setProperty("--b", this.max);
+          (document.getElementById("a") as any).value = temp_min;
+          (document.getElementById("b") as any).value = temp_max;
+          wrap.style.setProperty("--a", temp_min);
+          wrap.style.setProperty("--b", temp_max);
+          
         };
 
-        document.onmouseup = (e) => {          
-          this.removeData(this.min);
-          this.removeData(this.max, -1);
+        document.onmouseup = (e) => { 
+          this.max = temp_max;
+          this.min = temp_min;
+               
+          this.removeData(temp_min);
+          this.removeData(temp_max, -1);
           isDown = false;
           scrollPressed = false;
           document.onmousemove = null;
