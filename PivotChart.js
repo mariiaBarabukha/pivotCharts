@@ -1709,10 +1709,12 @@ var pivotcharts;
             this.top = Data.BasicSeries.xaxis.categories.length;
             this.bottom = 0;
             this.segment_value = 0;
+            this.isScrolling = false;
             this.ctx = ctx;
             this.curr_series = JSON.stringify(Data.BasicSeries);
         }
         removeData(val, koeff = 1) {
+            //let diff = this.top - this.bottom;
             let serLen = Data.BasicSeries.xaxis.categories.length;
             var len = Data.BasicSeries.xaxis.categories.length;
             var len_new = (len * val) / 100;
@@ -1728,6 +1730,9 @@ var pivotcharts;
                 document.getElementById("a").value = valnew;
                 //console.log(valnew);
                 this.min = valnew;
+                // if(this.isScrolling){
+                //   this.top = this.bottom+diff;
+                // }
             }
             else {
                 if (len_new == this.top) {
@@ -1738,6 +1743,9 @@ var pivotcharts;
                 document.getElementById("b").value = valnew;
                 this.top = len_new;
                 this.max = valnew;
+                // if(this.isScrolling){
+                //   this.bottom = this.top-diff;
+                // }
             }
             var cSeries = JSON.parse(JSON.stringify(Data.BasicSeries.series));
             cSeries = cSeries.map((x) => {
@@ -1831,16 +1839,15 @@ var pivotcharts;
                             temp_max = temp_min + diff;
                         }
                     }
-                    if (move % this.segment_value == 0) {
-                        this.removeData(temp_min);
-                        this.removeData(temp_max, -1);
-                        //this.max = temp_max;
-                        //this.min = temp_min;
-                        // setTimeout(() => {console.log("a") }, 2000);
-                    }
-                    else {
-                        console.log("no" + move);
-                    }
+                    // if(move % this.segment_value == 0){
+                    //   this.removeData(temp_min);
+                    //   this.removeData(temp_max, -1);
+                    //   //this.max = temp_max;
+                    //   //this.min = temp_min;
+                    //  // setTimeout(() => {console.log("a") }, 2000);
+                    // }else{
+                    //   console.log("no"+move)
+                    // }
                     // this.removeData(temp_min);
                     // this.removeData(temp_max, -1);
                     // this.min = temp_min;
@@ -1877,8 +1884,11 @@ var pivotcharts;
                 document.onmouseup = (e) => {
                     this.max = temp_max;
                     this.min = temp_min;
+                    let diff = this.max - this.min;
+                    this.isScrolling = true;
                     this.removeData(temp_min);
-                    this.removeData(temp_max, -1);
+                    this.removeData(this.min + diff, -1);
+                    this.isScrolling = false;
                     isDown = false;
                     scrollPressed = false;
                     document.onmousemove = null;
@@ -1899,7 +1909,7 @@ var pivotcharts;
                     document.getElementsByClassName("wrap")[0].style.setProperty("--b", 100);
                     this.top = Data.BasicSeries.xaxis.categories.length;
                 }
-                this.curr_series = JSON.stringify(Data.BasicSeries);
+                //this.curr_series = JSON.stringify(Data.BasicSeries);
                 this.segment_value = Math.round(100 / this.top);
                 return;
             }

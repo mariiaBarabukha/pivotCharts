@@ -8,6 +8,7 @@ namespace pivotcharts {
     bottom: number = 0;
     curr_series;
     segment_value: number = 0;
+    isScrolling: boolean = false;
 
     constructor(ctx) {
       this.ctx = ctx;
@@ -15,11 +16,12 @@ namespace pivotcharts {
     }
 
     private removeData(val: number, koeff: number = 1): void {
-      
+      //let diff = this.top - this.bottom;
       let serLen = Data.BasicSeries.xaxis.categories.length;
       
       var len = Data.BasicSeries.xaxis.categories.length;
       var len_new = (len * val) / 100;
+      
       len_new = Math.round(len_new);
       
       if (koeff == 1) {
@@ -37,6 +39,9 @@ namespace pivotcharts {
         (document.getElementById("a") as any).value = valnew;
         //console.log(valnew);
         this.min = valnew;
+        // if(this.isScrolling){
+        //   this.top = this.bottom+diff;
+        // }
       } else {
         if(len_new == this.top){
           return;
@@ -49,9 +54,12 @@ namespace pivotcharts {
         (document.getElementById("b") as any).value = valnew;
         this.top = len_new;
         this.max = valnew;
+        // if(this.isScrolling){
+        //   this.bottom = this.top-diff;
+        // }
       }
       var cSeries = JSON.parse(JSON.stringify(Data.BasicSeries.series));
-
+     
       cSeries = cSeries.map((x) => {
         x.data = x.data.slice(this.bottom, this.top);
         return x;
@@ -161,16 +169,16 @@ namespace pivotcharts {
               temp_max = temp_min + diff;
             }
           }
-          if(move % this.segment_value == 0){
+          // if(move % this.segment_value == 0){
             
-            this.removeData(temp_min);
-            this.removeData(temp_max, -1);
-            //this.max = temp_max;
-            //this.min = temp_min;
-           // setTimeout(() => {console.log("a") }, 2000);
-          }else{
-            console.log("no"+move)
-          }
+          //   this.removeData(temp_min);
+          //   this.removeData(temp_max, -1);
+          //   //this.max = temp_max;
+          //   //this.min = temp_min;
+          //  // setTimeout(() => {console.log("a") }, 2000);
+          // }else{
+          //   console.log("no"+move)
+          // }
           
 
           // this.removeData(temp_min);
@@ -213,9 +221,12 @@ namespace pivotcharts {
         document.onmouseup = (e) => {
           this.max = temp_max;
           this.min = temp_min;
+          let diff = this.max - this.min;
 
+          this.isScrolling = true;
           this.removeData(temp_min);
-          this.removeData(temp_max, -1);
+          this.removeData(this.min + diff, -1);
+          this.isScrolling = false;
           isDown = false;
           scrollPressed = false;
           document.onmousemove = null;
@@ -245,7 +256,7 @@ namespace pivotcharts {
           this.top = Data.BasicSeries.xaxis.categories.length;
           
         }
-        this.curr_series = JSON.stringify(Data.BasicSeries);
+        //this.curr_series = JSON.stringify(Data.BasicSeries);
         this.segment_value = Math.round(100 / this.top);
         return;
       }
