@@ -1708,26 +1708,31 @@ var pivotcharts;
             this.max = 100;
             this.top = Data.BasicSeries.xaxis.categories.length;
             this.bottom = 0;
+            this.segment_value = 0;
             this.ctx = ctx;
             this.curr_series = JSON.stringify(Data.BasicSeries);
         }
         removeData(val, koeff = 1) {
             let serLen = Data.BasicSeries.xaxis.categories.length;
-            if (this.top == 0) {
-                this.top = serLen;
-            }
-            Data.Model.dataStorage.stateOfUpdate = 1;
             var len = Data.BasicSeries.xaxis.categories.length;
             var len_new = (len * val) / 100;
             len_new = Math.round(len_new);
             if (koeff == 1) {
+                if (len_new == this.bottom) {
+                    return;
+                }
+                // console.log(val)
                 this.bottom = len_new;
                 let valnew = Math.floor((len_new * 100) / serLen);
                 document.getElementsByClassName("wrap")[0].style.setProperty("--a", valnew);
                 document.getElementById("a").value = valnew;
+                //console.log(valnew);
                 this.min = valnew;
             }
             else {
+                if (len_new == this.top) {
+                    return;
+                }
                 let valnew = Math.floor((len_new * 100) / serLen);
                 document.getElementsByClassName("wrap")[0].style.setProperty("--b", valnew);
                 document.getElementById("b").value = valnew;
@@ -1737,15 +1742,14 @@ var pivotcharts;
             var cSeries = JSON.parse(JSON.stringify(Data.BasicSeries.series));
             cSeries = cSeries.map((x) => {
                 x.data = x.data.slice(this.bottom, this.top);
-                //x.data = koeff == 1 ? x.data.slice(len_new) :x.data.slice(0,len_new);
                 return x;
             });
             var cLabels = [...Data.BasicSeries.xaxis.categories];
             cLabels = cLabels.slice(this.bottom, this.top);
-            //cLabels = koeff == 1 ? cLabels.slice(len_new) : cLabels.slice(0, len_new);
-            // Data.Flexmonster.getData();
-            Data.Chart.updateOptions({ series: cSeries, labels: cLabels });
+            Data.Model.dataStorage.stateOfUpdate = 1;
+            Data.Chart.updateOptions({ series: cSeries, labels: cLabels }, false, false);
             Data.Model.dataStorage.stateOfUpdate = 0;
+            //console.log(this.min)
         }
         createScroll() {
             return ("<div " +
@@ -1772,7 +1776,7 @@ var pivotcharts;
         _addListeners() {
             document.getElementById("a").addEventListener("change", (e) => {
                 let val = Number(e.target.value);
-                console.log(e.target.value);
+                //console.log((e.target as any).value);
                 if (val >= this.max) {
                     e.target.value = this.min;
                     document.getElementsByClassName("wrap")[0].style.setProperty("--a", this.min);
@@ -1782,14 +1786,9 @@ var pivotcharts;
                     this.min = val;
                 }
                 this.removeData(this.min);
-                // setTimeout(() => {
-                //   console.log("World!");
-                // }, 500);
             });
             document.getElementById("b").addEventListener("change", (e) => {
                 let val = Number(e.target.value);
-                console.log(val);
-                console.log(e.target.value);
                 if (val <= this.min) {
                     e.target.value = this.max;
                     document.getElementsByClassName("wrap")[0].style.setProperty("--b", this.max);
@@ -1799,100 +1798,87 @@ var pivotcharts;
                     this.max = val;
                 }
                 this.removeData(this.max, -1);
-                // setTimeout(() => {
-                //   console.log("World!");
-                // }, 500);
             });
             let isDown = false;
             var x;
             var scroller = document.getElementById("scroller");
             let scrollPressed = false;
+            let temp_min;
+            let temp_max;
             scroller.addEventListener("mousedown", (e) => {
-                var coords = this.getCoords(scroller);
-                var shiftX = e.pageX - coords.left;
-                x = e.pageX - shiftX;
+                x = e.pageX;
                 isDown = true;
                 scrollPressed = true;
                 document.onmousemove = (e) => {
                     if (!scrollPressed) {
                         return;
                     }
-                    var coords2 = this.getCoords(scroller);
-                    var shiftX2 = e.pageX - coords2.left;
-                    var box = scroller.getBoundingClientRect();
-                    let a = e.x - shiftX;
-                    //e.x - shiftX + this.ctx.w.globals.translateX;
-                    scroller.offsetWidth;
+                    let a = e.pageX - x;
                     let wrap = document.getElementsByClassName("wrap")[0];
-                    let move = Math.floor(a / (this.ctx.w.globals.gridWidth / 100) / 2);
-                    let extra = Math.floor(box.x / (this.ctx.w.globals.gridWidth / 100) / 2);
-                    //console.log(window.getComputedStyle(wrap))
+                    let move = Math.floor(a / (this.ctx.w.globals.gridWidth / 100));
                     let diff = this.max - this.min;
-                    if (move < 0) {
-                        this.min = 0;
-                        this.max = this.min + diff;
+                    if (this.min + move > 100 - diff) {
+                        temp_max = 100;
+                        temp_min = 100 - diff;
                     }
                     else {
-                        if (move > 100 - diff) {
-                            this.max = 100;
-                            this.min = 100 - diff;
+                        if (this.min + move < 0) {
+                            temp_min = 0;
+                            temp_max = diff;
                         }
                         else {
-                            this.min = move;
-                            this.max = this.min + diff;
+                            temp_min = this.min + move;
+                            temp_max = temp_min + diff;
                         }
                     }
-                    // this.min = move;
-                    // if (this.min - move < 0 && !(this.max - move > 100)) {
-                    //   this.min = 0;
-                    //   this.max = diff;
-                    // } else {
-                    //   if (this.max - move > 100) {
-                    //     this.max = 100;
-                    //     this.min = 100 - diff;
-                    //   }else{
-                    //     this.min -= move;
-                    //     this.max = this.min + diff;
-                    //   }
+                    if (move % this.segment_value == 0) {
+                        this.removeData(temp_min);
+                        this.removeData(temp_max, -1);
+                        //this.max = temp_max;
+                        //this.min = temp_min;
+                        // setTimeout(() => {console.log("a") }, 2000);
+                    }
+                    else {
+                        console.log("no" + move);
+                    }
+                    // this.removeData(temp_min);
+                    // this.removeData(temp_max, -1);
+                    // this.min = temp_min;
+                    // this.max = temp_max;
+                    // if (temp_min % this.segment_value == (this.segment_value/2)) {
+                    //   this.removeData(temp_min);
+                    //   this.removeData(temp_max, -1);
+                    //   this.min = temp_min;
+                    //   this.max = temp_max;
                     // }
-                    document.getElementById("a").value = this.min;
-                    document.getElementById("b").value = this.max;
-                    wrap.style.setProperty("--a", this.min);
-                    wrap.style.setProperty("--b", this.max);
+                    // this.removeData(temp_min);
+                    // this.removeData(temp_min + diff, -1);
+                    // (document.getElementById("a") as any).value = temp_min;
+                    // (document.getElementById("b") as any).value = temp_max;
+                    // wrap.style.setProperty("--a", temp_min);
+                    // wrap.style.setProperty("--b", temp_max);
+                    // let len = Data.BasicSeries.xaxis.categories.length;
+                    // let len_new = (len * temp_min) / 100;
+                    // //let serLen = Data.BasicSeries.xaxis.categories.length;
+                    // let valnew = Math.round(len_new * 100)/len;
+                    // if (temp_min == valnew) {
+                    //   this.removeData(temp_min);
+                    //   this.removeData(temp_max, -1);
+                    //   this.min = temp_min;
+                    //   this.max = temp_max;
+                    // }else{
+                    //   var i  = 0;
+                    // }
+                    document.getElementById("a").value = temp_min;
+                    document.getElementById("b").value = temp_max;
+                    wrap.style.setProperty("--a", temp_min);
+                    wrap.style.setProperty("--b", temp_max);
                 };
                 document.onmouseup = (e) => {
-                    // if (!scrollPressed) {
-                    //   return;
-                    // }
-                    // let a = x - e.x;
-                    // let move = a / (this.ctx.w.globals.gridWidth / 100);
-                    // if(a > 15){
-                    //   console.log(">15");
-                    // }
-                    // if(a > 30){
-                    //   console.log(">30");
-                    // }
-                    // var len = Data.BasicSeries.xaxis.categories.length;
-                    // if(move > 100/len || move < -100/len){
-                    //   let diff = this.max - this.min;
-                    //   if(this.min - move < 0 && !(this.max - move > 100)){
-                    //     this.min = 0;
-                    //     this.max = diff;
-                    //     this.removeData(this.min);
-                    //     this.removeData(this.max, -1);
-                    //   }else{
-                    //     if(this.max - move > 100){
-                    //       this.max = 100;
-                    //       this.min = 100- diff;
-                    //
-                    //     }else{
-                    //       this.removeData(this.max - move, -1);
-                    //       this.removeData(this.min - move)
-                    //     }
-                    //   }
-                    // }
-                    this.removeData(this.min);
-                    this.removeData(this.max, -1);
+                    this.max = temp_max;
+                    this.min = temp_min;
+                    this.removeData(temp_min);
+                    this.removeData(temp_max, -1);
                     isDown = false;
                     scrollPressed = false;
                     document.onmousemove = null;
@@ -1904,7 +1890,6 @@ var pivotcharts;
             };
         }
         create() {
-            //  this.top =Data.BasicSeries.xaxis.categories.length;
             if (document.getElementsByClassName("wrap").length != 0) {
                 if (this.curr_series != JSON.stringify(Data.BasicSeries)) {
                     this.curr_series = JSON.stringify(Data.BasicSeries);
@@ -1912,7 +1897,10 @@ var pivotcharts;
                     document.getElementById("b").value = 100;
                     document.getElementsByClassName("wrap")[0].style.setProperty("--a", 0);
                     document.getElementsByClassName("wrap")[0].style.setProperty("--b", 100);
+                    this.top = Data.BasicSeries.xaxis.categories.length;
                 }
+                this.curr_series = JSON.stringify(Data.BasicSeries);
+                this.segment_value = Math.round(100 / this.top);
                 return;
             }
             document.head.innerHTML +=
@@ -1931,10 +1919,11 @@ var pivotcharts;
             }
         }
         getCoords(elem) {
+            // кроме IE8-
             var box = elem.getBoundingClientRect();
             return {
                 top: box.top + pageYOffset,
-                left: box.left + pageXOffset
+                left: box.left + pageXOffset,
             };
         }
     }

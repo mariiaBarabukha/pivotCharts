@@ -29115,7 +29115,9 @@
       };
 
       // add drag and end events to window
-      SVG.on(window, 'mousemove.drag', function(e){ _this.drag(e); });
+      SVG.on(window, 'mousemove.drag', function(e){
+         _this.drag(e); 
+        });
       SVG.on(window, 'touchmove.drag', function(e){ _this.drag(e); });
       SVG.on(window, 'mouseup.drag', function(e){ _this.end(e); });
       SVG.on(window, 'touchend.drag', function(e){ _this.end(e); });
