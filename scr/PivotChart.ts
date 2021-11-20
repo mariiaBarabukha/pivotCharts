@@ -13,6 +13,9 @@ namespace pivotcharts {
     }
 
     create(ser, opts) {
+      if(Data.Model.dataStorage.stateOfUpdate == 0){
+        this.w.config.yaxis.max = Math.max(...ser.map(x=>x.data).flat(2));
+      }
       var initCtx = new PivotInitCtxVariables(this);
       initCtx.initModules();
       var res = super.create(ser, opts);

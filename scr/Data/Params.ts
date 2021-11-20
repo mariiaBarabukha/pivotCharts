@@ -30,7 +30,9 @@ namespace Data{
             DropScroll = true;
         }else{
             DropScroll = false;
+
         }
+        //Chart.w.globals.yaxis;
         return data;
     }
 
