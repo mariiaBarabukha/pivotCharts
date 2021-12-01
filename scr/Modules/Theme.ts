@@ -46,7 +46,7 @@ namespace pivotcharts {
                 lev = ser_lev[i];
               } else{
                 for(var j = i - 1; j >= 0; j--) {
-                  if(ser_lev[i] == ser_lev[j]){
+                  if(ser_lev[i] != ser_lev[j]){
                       break;
                   }
                 }
