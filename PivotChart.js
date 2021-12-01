@@ -501,6 +501,7 @@ var Data;
     Data.chartType = 'bar';
     Data.OneDCFull = [];
     Data.DropScroll = false;
+    Data.ChartName = "";
     function processData(rawData, type) {
         if (type != undefined) {
             Data.chartType = type;
@@ -713,6 +714,7 @@ var pivotcharts;
     class PivotLegend extends apexcharts.Legend {
         constructor(ctx, opts) {
             super(ctx, opts);
+            this.needToResize = false;
             this.onLegendClick = this.onLegendClick.bind(this);
             this.legendHelpers = new PivotHelper(this);
             Data.LegendHelper = this.legendHelpers;
@@ -741,6 +743,7 @@ var pivotcharts;
             }
             let legendFormatter = w.globals.legendFormatter;
             let isLegendInversed = w.config.legend.inverseOrder;
+            let new_height = w.config.chart.height;
             for (let i = isLegendInversed ? legendNames.length - 1 : 0; isLegendInversed ? i >= 0 : i <= legendNames.length - 1; isLegendInversed ? i-- : i++) {
                 let text = legendFormatter(legendNames[i], { seriesIndex: i, w });
                 let collapsedSeries = false;
@@ -815,6 +818,17 @@ var pivotcharts;
                         elMarker.innerHTML = w.config.legend.markers.customHTML();
                     }
                 }
+                // if(w.globals.series_levels[i]!=0){
+                //   var a = "translateX(5px)";
+                //   mStyle.transform = a;
+                //   let legend = document.getElementsByClassName("apexcharts-legend")[0];
+                //  //!  let h =  Number((legend as any).style.height.replace("px", "")) + (i+1)*20 ;
+                //  //!  (legend as any).style.minHeight = h
+                //  //! let chart = document.getElementById(Data.ChartName);
+                //  //! w.config.chart.height += h;
+                // }
+                //mStyle.minHeight = h
+                //w.globals.dom.elWrap.style.minHeight = h;
                 apexcharts.Graphics.setAttrs(elMarker, {
                     rel: i + 1,
                     "data:collapsed": collapsedSeries || ancillaryCollapsedSeries,
@@ -845,6 +859,51 @@ var pivotcharts;
                     "data:default-text": encodeURIComponent(text),
                     "data:collapsed": collapsedSeries || ancillaryCollapsedSeries,
                 });
+                let wrapLegendSet;
+                if (w.globals.series_levels[i] == 0) {
+                    wrapLegendSet = document.createElement("div");
+                    wrapLegendSet.id = "legend-set-" + i;
+                    wrapLegendSet.appendChild(elLegend);
+                    wrapLegendSet.style.display = "flex";
+                    wrapLegendSet.style.flexDirection = "column";
+                    let arr = [...w.globals.series_levels].slice(0, i);
+                    if (i != 0 && w.globals.series_levels[i] == 0 && arr.includes(1)) {
+                        this.needToResize = false;
+                    }
+                    else {
+                        if (w.globals.series_levels[i] != 0) {
+                            this.needToResize = true;
+                        }
+                    }
+                }
+                else {
+                    let c = 1;
+                    let curr = w.globals.series_levels[i];
+                    let prev = w.globals.series_levels[i - c];
+                    if (curr != 0) {
+                        while (curr != 0) {
+                            curr = w.globals.series_levels[i - c];
+                            c++;
+                        }
+                    }
+                    let wId = "legend-set-" + (i - c + 1);
+                    for (let j = 0; j < w.globals.dom.elLegendWrap.childNodes.length; j++) {
+                        if (w.globals.dom.elLegendWrap.childNodes[j].id == wId) {
+                            wrapLegendSet = w.globals.dom.elLegendWrap.childNodes[j];
+                            break;
+                        }
+                    }
+                    //wrapLegendSet = w.globals.dom.elLegendWrap.childNodes.item(wId);
+                    wrapLegendSet.appendChild(elLegend);
+                }
+                let maxLenDown = Math.max(...w.globals.series_levels.join('').split('0').map(x => x.length)) + 1;
+                if (this.needToResize && new_height < w.config.chart.height
+                    + (Number(mStyle.height.replace("px", "")) + 5)
+                        * maxLenDown) {
+                    new_height += Number(mStyle.height.replace("px", "")) + 5;
+                }
+                mStyle.transform = "translateX(" + 5 * w.globals.series_levels[i] + "px)";
+                elLegendText.style.transform = mStyle.transform;
                 elLegend.appendChild(elMarker);
                 elLegend.appendChild(elLegendText);
                 const coreUtils = new apexcharts.CoreUtils(this.ctx);
@@ -865,7 +924,7 @@ var pivotcharts;
                         elLegend.classList.add("apexcharts-hidden-null-series");
                     }
                 }
-                w.globals.dom.elLegendWrap.appendChild(elLegend);
+                w.globals.dom.elLegendWrap.appendChild(wrapLegendSet);
                 w.globals.dom.elLegendWrap.classList.add(`apexcharts-align-${w.config.legend.horizontalAlign}`);
                 w.globals.dom.elLegendWrap.classList.add("position-" + w.config.legend.position);
                 elLegend.classList.add("apexcharts-legend-series");
@@ -889,6 +948,7 @@ var pivotcharts;
                     elLegend.classList.add("apexcharts-no-click");
                 }
             }
+            w.config.chart.height = new_height;
             w.globals.dom.elWrap.addEventListener("click", self.onLegendClick, true);
             if (w.config.legend.onItemHover.highlightDataSeries &&
                 w.config.legend.customLegendItems.length === 0) {
@@ -2414,6 +2474,7 @@ var pivotcharts;
 (function (pivotcharts) {
     class PivotChart extends ApexCharts {
         constructor(el, config) {
+            Data.ChartName = el.id;
             super(el, config);
             var initCtx = new pivotcharts.PivotInitCtxVariables(this);
             initCtx.initModules();

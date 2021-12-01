@@ -13,6 +13,7 @@ namespace Data{
     export var OneDCFull = [];
     export var BasicSeries:any;
     export var DropScroll = false;
+    export var ChartName = "";
     
     export function processData(rawData, type?){
         if(type != undefined){
