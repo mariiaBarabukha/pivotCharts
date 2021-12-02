@@ -108,6 +108,72 @@ namespace pivotcharts {
         this.removeData(this.min);
       });
 
+      document.getElementById("a").addEventListener("mousedown", (e) => {
+        x = e.pageX;
+        let m = this.min;
+        document.onmousemove = (e) => {
+          
+          let a = e.pageX - x;
+          let wrap = document.getElementsByClassName("wrap")[0] as any;
+          let move = Math.floor(a / (this.ctx.w.globals.gridWidth / 100));
+          
+          if (m + move > this.max) {
+            this.min = this.max;
+          } else {
+            if (m + move < 0) {
+              this.min = 0;
+            } else {
+              this.min = m + move;
+            }
+          }
+
+          if(Math.abs(move) % this.segment_value == 0){
+            this.removeData(this.min);
+          }else{
+            (document.getElementById("a") as any).value = this.min;
+            wrap.style.setProperty("--a", this.min);
+          }
+        };
+
+        document.onmouseup = (e) => {         
+          document.onmousemove = null;
+          document.onmouseup = null;
+        };
+      });
+
+      document.getElementById("b").addEventListener("mousedown", (e) => {
+        x = e.pageX;
+        let m = this.max;
+        document.onmousemove = (e) => {
+          
+          let a = e.pageX - x;
+          let wrap = document.getElementsByClassName("wrap")[0] as any;
+          let move = Math.floor(a / (this.ctx.w.globals.gridWidth / 100));          
+          
+          if (m + move < this.min) {
+            this.max = this.min;
+          } else {
+            if (m + move > 100) {
+              this.max = 100;
+            } else {
+              this.max = m + move;
+            }
+          }
+
+          if(Math.abs(move) % this.segment_value == 0){
+            this.removeData(this.max, -1);
+          }else{
+            (document.getElementById("b") as any).value = this.max;
+            wrap.style.setProperty("--b", this.max);
+          }
+        };
+
+        document.onmouseup = (e) => {         
+          document.onmousemove = null;
+          document.onmouseup = null;
+        };
+      });
+
       document.getElementById("b").addEventListener("change", (e) => {
         let val = Number((e.target as any).value);
         if (val <= this.min) {
