@@ -174,6 +174,13 @@ declare module apexcharts {
     })
   }
 
+  export class ZoomPanSelection{
+    ctx;
+    constructor(ctx);
+    updateScrolledChart(options, xLowestValue, xHighestValue);
+    selectionDrawn({ context, zoomtype });
+  }
+
   export class LegendHelpers{
     constructor(lgCtx);
     getLegendStyles();

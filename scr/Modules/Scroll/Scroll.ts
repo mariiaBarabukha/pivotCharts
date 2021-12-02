@@ -7,7 +7,7 @@ namespace pivotcharts {
     top: number = Data.BasicSeries.xaxis.categories.length;
     bottom: number = 0;
     curr_series;
-    segment_value: number = 0;
+    public segment_value: number = 0;
     isScrolling: boolean = false;
     globMove = 0;
 
@@ -16,7 +16,7 @@ namespace pivotcharts {
       this.curr_series = JSON.stringify(Data.BasicSeries);
     }
 
-    private removeData(val: number, koeff: number = 1): void {
+    public removeData(val: number, koeff: number = 1): void {
       var len = Data.BasicSeries.xaxis.categories.length;
       var len_new = (len * val) / 100;
       
@@ -194,20 +194,24 @@ namespace pivotcharts {
       };
     }
 
+    public dropScroll(){
+      (document.getElementsByClassName("wrap")[0] as any).style.setProperty(
+        "--a",
+        0
+      );
+      (document.getElementsByClassName("wrap")[0] as any).style.setProperty(
+        "--b",
+        100
+      );
+      (document.getElementById("a") as any).value = 0;
+      (document.getElementById("b") as any).value = 100;
+    }
+
     public create() {
       if (document.getElementsByClassName("wrap").length != 0) {
         if (this.curr_series != JSON.stringify(Data.BasicSeries)) {
-          this.curr_series = JSON.stringify(Data.BasicSeries);
-          (document.getElementById("a") as any).value = 0;
-          (document.getElementById("b") as any).value = 100;
-          (document.getElementsByClassName("wrap")[0] as any).style.setProperty(
-            "--a",
-            0
-          );
-          (document.getElementsByClassName("wrap")[0] as any).style.setProperty(
-            "--b",
-            100
-          );
+          this.curr_series = JSON.stringify(Data.BasicSeries);          
+          this.dropScroll();
           this.top = Data.BasicSeries.xaxis.categories.length;
           this.segment_value = Math.round(100 / this.top);
         }
@@ -242,6 +246,8 @@ namespace pivotcharts {
           false
         );
       }
+
+      Data.Scroll = this;
     }
 
     getCoords(elem) {

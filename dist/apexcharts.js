@@ -31261,6 +31261,7 @@
   window.apexcharts.Markers = Markers;
   window.apexcharts.Filters = Filters;
   window.apexcharts.DataLabels = DataLabels;
+  window.apexcharts.ZoomPanSelection = ZoomPanSelection;
 
   window.apexcharts.Theme = Theme;
   return ApexCharts$1;

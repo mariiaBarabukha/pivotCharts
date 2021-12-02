@@ -9,7 +9,7 @@ namespace pivotcharts {
       Data.Chart = this;
       Data.BasicSeriesNames = config.series.map(x => x.full_name);
 
-      
+      Data.ChartHeight =this.w.config.chart.height;
     }
 
     create(ser, opts) {

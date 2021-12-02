@@ -14,6 +14,10 @@ namespace Data{
     export var BasicSeries:any;
     export var DropScroll = false;
     export var ChartName = "";
+    export var ChartHeight: number;
+    export var NeedToChangeHeight: boolean = false;
+    export var GlobalNeedToChangeHeight: number = 0;
+    export var Scroll: pivotcharts.Scroll;
     
     export function processData(rawData, type?){
         if(type != undefined){

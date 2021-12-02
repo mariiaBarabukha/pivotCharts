@@ -39,12 +39,15 @@
         "scr/Modules/UpdateHelper.ts",
         "scr/Modules/Graphics.ts",
         "scr/Modules/Theme.ts",
+        "scr/Modules/ZoomPanSelection.ts",
         "scr/Modules/Scroll/Scroll.ts",
         
         "scr/Charts/Bar.ts",
         "scr/Charts/Pie.ts",
         "scr/Charts/Radar.ts",
         "scr/Charts/Line.ts",
+
+        
 
         "scr/PivotChart.ts"
     ]

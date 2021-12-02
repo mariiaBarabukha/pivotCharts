@@ -241,15 +241,17 @@ namespace pivotcharts {
 
     needToResize: boolean = false;
 
-    drawLegends() {
+    drawLegends() {      
       let self = this;
       let w = this.w;
-
+      w.config.chart.height = Data.ChartHeight || w.config.chart.height;
       let fontFamily = w.config.legend.fontFamily;
 
       let legendNames = w.globals.seriesNames;
       let full_names = w.globals.full_name;
       let fillcolor = w.globals.colors.slice();
+
+      let markerHeight = 0;
 
       if (w.config.chart.type === "heatmap") {
         const ranges = w.config.plotOptions.heatmap.colorScale.ranges;
@@ -270,6 +272,7 @@ namespace pivotcharts {
 
       let isLegendInversed = w.config.legend.inverseOrder;
       let new_height = w.config.chart.height;
+      
       for (
         let i = isLegendInversed ? legendNames.length - 1 : 0;
         isLegendInversed ? i >= 0 : i <= legendNames.length - 1;
@@ -365,6 +368,7 @@ namespace pivotcharts {
           }
         }
         
+        markerHeight = Number(mStyle.height.replace("px", ""));
         
         // if(w.globals.series_levels[i]!=0){
         //   var a = "translateX(5px)";
@@ -426,15 +430,11 @@ namespace pivotcharts {
           wrapLegendSet.appendChild(elLegend);
           wrapLegendSet.style.display = "flex";
           wrapLegendSet.style.flexDirection = "column"
-          let arr:number[] = [...w.globals.series_levels].slice(0,i);
-          if(i!=0 && w.globals.series_levels[i] == 0 && arr.includes(1)){
-            this.needToResize = false;
-          }else{
-            
-            if(w.globals.series_levels[i] != 0){
-              this.needToResize = true;
-            }
-          }
+          //let arr:number[] = [...w.globals.series_levels].slice(0,i);
+
+          // if(arr.includes(1)){
+          //   this.needToResize = false;
+          // }
         }else{
           let c = 1;
           let curr = w.globals.series_levels[i]
@@ -453,15 +453,31 @@ namespace pivotcharts {
               break;
             }
           }
+
+          // if(i!= 0 && w.globals.series_levels.slice(0,i - c + 1).includes(1)){
+          //   Data.NeedToChangeHeight = false;
+          // }else{
+          //   Data.NeedToChangeHeight = true;
+          // }
+          // let arr:number[] = [...w.globals.series_levels].slice(0,i-c+1); //check if there was another expand before
+          // if(arr.includes(1)){
+
+          // }
+          // else{
+            
+          //   if(w.globals.series_levels[i] != 0){
+          //     this.needToResize = true;
+          //   }
+          // }
           //wrapLegendSet = w.globals.dom.elLegendWrap.childNodes.item(wId);
           wrapLegendSet.appendChild(elLegend);
         }
-        let maxLenDown = Math.max(...w.globals.series_levels.join('').split('0').map(x=>x.length))+1;
-        if(this.needToResize && new_height < w.config.chart.height
-          +(Number(mStyle.height.replace("px", ""))+5)
-          *maxLenDown){           
-            new_height+=Number(mStyle.height.replace("px", ""))+5;
-        }
+        // let maxLenDown = Math.max(...w.globals.series_levels.join('').split('0').map(x=>x.length))+1;
+        // if(this.needToResize && new_height < w.config.chart.height
+        //   +(Number(mStyle.height.replace("px", ""))+10)
+        //   *maxLenDown){           
+        //     new_height+=Number(mStyle.height.replace("px", ""))+10;
+        // }
         mStyle.transform = "translateX("+5*w.globals.series_levels[i]+"px)";
         elLegendText.style.transform = mStyle.transform;
         elLegend.appendChild(elMarker);
@@ -524,7 +540,24 @@ namespace pivotcharts {
           elLegend.classList.add("apexcharts-no-click");
         }
       }
-      w.config.chart.height = new_height;
+      // let legendContainer = (document.getElementsByClassName("apexcharts-legend")[0] as any);
+      // let legendHeightOld = legendContainer ? legendContainer.clientHeight : 0;  
+      // let splitedArr = w.globals.series_levels.join("").split("0");
+      // let lens = splitedArr.map(x => x.length);
+      
+      //new_height = Math.max(...lens)*(markerHeight+10);
+      //let chartHeight = legendHeightOld + w.config.chart.height;
+     // w.config.chart.height = chartHeight;
+      // if(chartHeight != w.config.chart.height && Data.NeedToChangeHeight && Data.GlobalNeedToChangeHeight == 0){
+      //   w.config.chart.height = chartHeight;
+      //   Data.NeedToChangeHeight = false;
+      //   Data.GlobalNeedToChangeHeight ++;
+      //   Data.Chart.updateOptions({height: chartHeight});
+      //   Data.GlobalNeedToChangeHeight = 0;  
+      //   Data.NeedToChangeHeight = false;
+      // }else{
+      //   Data.GlobalNeedToChangeHeight = 0;
+      // }
       w.globals.dom.elWrap.addEventListener("click", self.onLegendClick, true);
 
       if (
