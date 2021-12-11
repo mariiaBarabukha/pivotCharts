@@ -1,8 +1,5 @@
 namespace Data{
-    export var labelsCoordinates = [];
-    export var FullChartArea = [];
     export var Hiddens = [];
-    export var GridLines = [];
     export var visibleDataSets = [];
     export var seriesLenght: number;
     export var Chart: pivotcharts.PivotChart;
@@ -13,11 +10,10 @@ namespace Data{
     export var OneDCFull = [];
     export var BasicSeries:any;
     export var DropScroll = false;
-    export var ChartName = "";
-    export var ChartHeight: number;
-    export var NeedToChangeHeight: boolean = false;
-    export var GlobalNeedToChangeHeight: number = 0;
     export var Scroll: pivotcharts.Scroll;
+    export var LegendHeightZero = 0;
+    export var updateLegend = false;
+    export var originalChartHeight: number;
     
     export function processData(rawData, type?){
         if(type != undefined){
@@ -37,10 +33,8 @@ namespace Data{
             DropScroll = false;
 
         }
-        //Chart.w.globals.yaxis;
         return data;
     }
 
-    export var BasicSeriesNames = [];
-    // export var RawData;
+    
 }

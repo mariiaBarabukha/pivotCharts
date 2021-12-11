@@ -4,7 +4,7 @@ namespace pivotcharts {
     toggleDataSeries(seriesCnt, isHidden) {
       const w = this.w;
       var seriesEl;
-      var names ;
+      var names;
       if (w.globals.axisCharts || w.config.chart.type === "radialBar") {
         w.globals.resized = true; // we don't want initial animations again
 
@@ -46,9 +46,9 @@ namespace pivotcharts {
 
         // seriesEl.fire("click");
         seriesEl = seriesEl.members[0].node;
-        names = Data.OneDCFull[seriesCnt].split('_');
+        names = Data.OneDCFull[seriesCnt].split("_");
       }
-      
+
       Data.seriesLenght = w.config.series.length;
       if (isHidden) {
         Data.DataStorage.manipulateChartData(
@@ -241,10 +241,51 @@ namespace pivotcharts {
 
     needToResize: boolean = false;
 
-    drawLegends() {      
+    init() {
+      super.init();
+      let legendHeight = (
+        document.getElementsByClassName("apexcharts-legend")[0] as any
+      ).clientHeight;
+      let canvas = (
+        document.getElementsByClassName("apexcharts-svg") as any
+      )[0];
+      if (
+        Math.max(...this.w.globals.series_levels) == 0 &&
+        (Data.originalChartHeight == null ||
+          Data.originalChartHeight == canvas.clientHeight)
+      ) {
+        Data.LegendHeightZero = legendHeight;
+        Data.originalChartHeight = canvas.clientHeight;
+      }
+
+      let predictableChartHeight =
+        Data.originalChartHeight + (legendHeight - Data.LegendHeightZero);
+
+      if (
+        (Math.abs(Data.LegendHeightZero - legendHeight) > 1 ||
+          Math.abs(predictableChartHeight - canvas.clientHeight) > 1) &&
+        !Data.updateLegend
+      ) {
+        Data.updateLegend = true;
+        Data.Chart.updateOptions({
+          chart: {
+            height:
+            Data.originalChartHeight + (legendHeight - Data.LegendHeightZero),
+          },
+        });
+
+        // //canvas.setAttribute("height", legendHeight)
+        // canvas.height.baseVal.value=+(legendHeight - Data.LegendHeightZero);
+        // console.log(canvas.clientHeight);
+      } else {
+        Data.updateLegend = false;
+      }
+    }
+
+    drawLegends() {
       let self = this;
       let w = this.w;
-      w.config.chart.height = Data.ChartHeight || w.config.chart.height;
+      //w.config.chart.height = Data.ChartHeight || w.config.chart.height;
       let fontFamily = w.config.legend.fontFamily;
 
       let legendNames = w.globals.seriesNames;
@@ -272,7 +313,7 @@ namespace pivotcharts {
 
       let isLegendInversed = w.config.legend.inverseOrder;
       let new_height = w.config.chart.height;
-      
+
       for (
         let i = isLegendInversed ? legendNames.length - 1 : 0;
         isLegendInversed ? i >= 0 : i <= legendNames.length - 1;
@@ -301,7 +342,6 @@ namespace pivotcharts {
             }
           }
         }
-        
 
         let elMarker = document.createElement("span");
         elMarker.classList.add("apexcharts-legend-marker");
@@ -367,23 +407,9 @@ namespace pivotcharts {
             elMarker.innerHTML = w.config.legend.markers.customHTML();
           }
         }
-        
-        markerHeight = Number(mStyle.height.replace("px", ""));
-        
-        // if(w.globals.series_levels[i]!=0){
-        //   var a = "translateX(5px)";
-        //   mStyle.transform = a;
-        //   let legend = document.getElementsByClassName("apexcharts-legend")[0];
-        //  //!  let h =  Number((legend as any).style.height.replace("px", "")) + (i+1)*20 ;
-        //  //!  (legend as any).style.minHeight = h
-        //  //! let chart = document.getElementById(Data.ChartName);
-        //  //! w.config.chart.height += h;
-        // }
-        
-        //mStyle.minHeight = h
 
-        
-        //w.globals.dom.elWrap.style.minHeight = h;
+        markerHeight = Number(mStyle.height.replace("px", ""));
+
         apexcharts.Graphics.setAttrs(elMarker, {
           rel: i + 1,
           "data:collapsed": collapsedSeries || ancillaryCollapsedSeries,
@@ -422,33 +448,37 @@ namespace pivotcharts {
           "data:default-text": encodeURIComponent(text),
           "data:collapsed": collapsedSeries || ancillaryCollapsedSeries,
         });
-        
+
         let wrapLegendSet;
-        if(w.globals.series_levels[i]==0){
+        if (w.globals.series_levels[i] == 0) {
           wrapLegendSet = document.createElement("div");
-          wrapLegendSet.id = "legend-set-"+i;
+          wrapLegendSet.id = "legend-set-" + i;
           wrapLegendSet.appendChild(elLegend);
           wrapLegendSet.style.display = "flex";
-          wrapLegendSet.style.flexDirection = "column"
+          wrapLegendSet.style.flexDirection = "column";
           //let arr:number[] = [...w.globals.series_levels].slice(0,i);
 
           // if(arr.includes(1)){
           //   this.needToResize = false;
           // }
-        }else{
+        } else {
           let c = 1;
-          let curr = w.globals.series_levels[i]
-          let prev = w.globals.series_levels[i-c]
-          if (curr != 0){
-            while(curr != 0){
-              curr = w.globals.series_levels[i-c];
+          let curr = w.globals.series_levels[i];
+          let prev = w.globals.series_levels[i - c];
+          if (curr != 0) {
+            while (curr != 0) {
+              curr = w.globals.series_levels[i - c];
               c++;
             }
           }
-         
-          let wId = "legend-set-"+(i-c+1);
-          for(let j = 0; j<  w.globals.dom.elLegendWrap.childNodes.length; j++) {
-            if( w.globals.dom.elLegendWrap.childNodes[j].id == wId){
+
+          let wId = "legend-set-" + (i - c + 1);
+          for (
+            let j = 0;
+            j < w.globals.dom.elLegendWrap.childNodes.length;
+            j++
+          ) {
+            if (w.globals.dom.elLegendWrap.childNodes[j].id == wId) {
               wrapLegendSet = w.globals.dom.elLegendWrap.childNodes[j];
               break;
             }
@@ -464,7 +494,7 @@ namespace pivotcharts {
 
           // }
           // else{
-            
+
           //   if(w.globals.series_levels[i] != 0){
           //     this.needToResize = true;
           //   }
@@ -475,10 +505,11 @@ namespace pivotcharts {
         // let maxLenDown = Math.max(...w.globals.series_levels.join('').split('0').map(x=>x.length))+1;
         // if(this.needToResize && new_height < w.config.chart.height
         //   +(Number(mStyle.height.replace("px", ""))+10)
-        //   *maxLenDown){           
+        //   *maxLenDown){
         //     new_height+=Number(mStyle.height.replace("px", ""))+10;
         // }
-        mStyle.transform = "translateX("+5*w.globals.series_levels[i]+"px)";
+        mStyle.transform =
+          "translateX(" + 5 * w.globals.series_levels[i] + "px)";
         elLegendText.style.transform = mStyle.transform;
         elLegend.appendChild(elMarker);
         elLegend.appendChild(elLegendText);
@@ -540,24 +571,6 @@ namespace pivotcharts {
           elLegend.classList.add("apexcharts-no-click");
         }
       }
-      // let legendContainer = (document.getElementsByClassName("apexcharts-legend")[0] as any);
-      // let legendHeightOld = legendContainer ? legendContainer.clientHeight : 0;  
-      // let splitedArr = w.globals.series_levels.join("").split("0");
-      // let lens = splitedArr.map(x => x.length);
-      
-      //new_height = Math.max(...lens)*(markerHeight+10);
-      //let chartHeight = legendHeightOld + w.config.chart.height;
-     // w.config.chart.height = chartHeight;
-      // if(chartHeight != w.config.chart.height && Data.NeedToChangeHeight && Data.GlobalNeedToChangeHeight == 0){
-      //   w.config.chart.height = chartHeight;
-      //   Data.NeedToChangeHeight = false;
-      //   Data.GlobalNeedToChangeHeight ++;
-      //   Data.Chart.updateOptions({height: chartHeight});
-      //   Data.GlobalNeedToChangeHeight = 0;  
-      //   Data.NeedToChangeHeight = false;
-      // }else{
-      //   Data.GlobalNeedToChangeHeight = 0;
-      // }
       w.globals.dom.elWrap.addEventListener("click", self.onLegendClick, true);
 
       if (

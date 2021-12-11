@@ -196,15 +196,5 @@ namespace pivotcharts {
       this.pushExtraColors(w.globals.markers.colors, -2);
       // w.globals.markers.colors = w.globals.colors;
     }
-    // predefined() {
-    //   return super
-    //     .predefined()
-    //     .slice(
-    //       0,
-    //       this.colors.length >= Data.BasicSeriesNames.length
-    //         ? Data.BasicSeriesNames.length
-    //         : this.colors.length
-    //     );
-    // }
   }
 }
