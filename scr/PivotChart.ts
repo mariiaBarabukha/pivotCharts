@@ -8,13 +8,14 @@ namespace pivotcharts {
       Data.Chart = this;
     }
 
+
     create(ser, opts) {
       if(Data.Model.dataStorage.stateOfUpdate == 0){
         this.w.config.yaxis.max = Math.max(...ser.map(x=>x.data).flat(2));
       }
       var initCtx = new PivotInitCtxVariables(this);
       initCtx.initModules();
-      var res = super.create(ser, opts);
+      var res = super.create(ser,opts)
       let gl = this.w.globals
       if(!gl.axisCharts && ser.length > 1 && !this.ctx.rowsSelector.isDrawn){
         this.ctx.rowsSelector.draw(ser.map(x => x.name));
@@ -30,6 +31,8 @@ namespace pivotcharts {
         }      
         Data.Model.scroll.create();
       }
+
+      
       
       return res;
     }
@@ -164,5 +167,11 @@ namespace pivotcharts {
         resolve(me);
       });
     }
+
+    update(options: any) {
+      super.update(options);
+      this.ctx.legend.setCorrectHeight();
+    }
+    
   }
 }

@@ -67,7 +67,14 @@ declare class ApexCharts {
   zoomPanSelection;
   toolbar;
   core;
-  
+  dimensions;
+  formatters;
+  legend;
+  titleSubtitle;
+  theme;
+  data;
+  events;
+  responsive;
 }
 declare module apexcharts {
   export class Legend {
@@ -132,6 +139,12 @@ declare module apexcharts {
     isSeriesNull(i);
     getLogSeries(series);
     getLogYRatios(yRatio);
+    static checkComboSeries(ser);
+  }
+
+  export class Defaults{
+    constructor(conf);
+    convertCatToNumericXaxis(config, ctx);
   }
 
   export class Graphics{
@@ -444,10 +457,13 @@ declare module apexcharts {
   export class Markers{
     constructor(ctx);
     getMarkerConfig(cssClass, seriesIndex, dataPointIndex);
+    setGlobalMarkerSize();
   }
 
   export class DataLabels{
     constructor(ctx);
+    bringForward();
+    dataLabelsBackground();
     plotDataLabelsText(opts);
   }
 

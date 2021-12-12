@@ -243,6 +243,10 @@ namespace pivotcharts {
 
     init() {
       super.init();
+      
+    }
+
+    setCorrectHeight(){
       let legendHeight = (
         document.getElementsByClassName("apexcharts-legend")[0] as any
       ).clientHeight;

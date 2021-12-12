@@ -716,6 +716,8 @@ var pivotcharts;
         }
         init() {
             super.init();
+        }
+        setCorrectHeight() {
             let legendHeight = document.getElementsByClassName("apexcharts-legend")[0].clientHeight;
             let canvas = document.getElementsByClassName("apexcharts-svg")[0];
             var x = canvas.getBoundingClientRect();
@@ -2724,6 +2726,10 @@ var pivotcharts;
                 }
                 resolve(me);
             });
+        }
+        update(options) {
+            super.update(options);
+            this.ctx.legend.setCorrectHeight();
         }
     }
     pivotcharts.PivotChart = PivotChart;
