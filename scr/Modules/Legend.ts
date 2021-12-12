@@ -249,6 +249,15 @@ namespace pivotcharts {
       let canvas = (
         document.getElementsByClassName("apexcharts-svg") as any
       )[0];
+
+      var x = canvas.getBoundingClientRect();
+      if(x.top+x.height > window.innerHeight && !Data.updateLegend){
+        Data.Chart.updateOptions({
+          chart: {
+            height: window.innerHeight - x.top
+          },
+        });
+      }
       if (
         Math.max(...this.w.globals.series_levels) == 0 &&
         (Data.originalChartHeight == null ||
@@ -261,28 +270,29 @@ namespace pivotcharts {
       let predictableChartHeight =
         Data.originalChartHeight + (legendHeight - Data.LegendHeightZero);
 
+
       if (
         (Math.abs(Data.LegendHeightZero - legendHeight) > 1 ||
           Math.abs(predictableChartHeight - canvas.clientHeight) > 1) &&
         !Data.updateLegend
       ) {
         Data.updateLegend = true;
+       //Data.Chart.destroy();
         Data.Chart.updateOptions({
           chart: {
             height:
             Data.originalChartHeight + (legendHeight - Data.LegendHeightZero),
           },
         });
+        
 
-        // //canvas.setAttribute("height", legendHeight)
-        // canvas.height.baseVal.value=+(legendHeight - Data.LegendHeightZero);
-        // console.log(canvas.clientHeight);
       } else {
         Data.updateLegend = false;
       }
     }
 
     drawLegends() {
+      
       let self = this;
       let w = this.w;
       //w.config.chart.height = Data.ChartHeight || w.config.chart.height;

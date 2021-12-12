@@ -718,6 +718,14 @@ var pivotcharts;
             super.init();
             let legendHeight = document.getElementsByClassName("apexcharts-legend")[0].clientHeight;
             let canvas = document.getElementsByClassName("apexcharts-svg")[0];
+            var x = canvas.getBoundingClientRect();
+            if (x.top + x.height > window.innerHeight && !Data.updateLegend) {
+                Data.Chart.updateOptions({
+                    chart: {
+                        height: window.innerHeight - x.top
+                    },
+                });
+            }
             if (Math.max(...this.w.globals.series_levels) == 0 &&
                 (Data.originalChartHeight == null ||
                     Data.originalChartHeight == canvas.clientHeight)) {
@@ -729,14 +737,12 @@ var pivotcharts;
                 Math.abs(predictableChartHeight - canvas.clientHeight) > 1) &&
                 !Data.updateLegend) {
                 Data.updateLegend = true;
+                //Data.Chart.destroy();
                 Data.Chart.updateOptions({
                     chart: {
                         height: Data.originalChartHeight + (legendHeight - Data.LegendHeightZero),
                     },
                 });
-                // //canvas.setAttribute("height", legendHeight)
-                // canvas.height.baseVal.value=+(legendHeight - Data.LegendHeightZero);
-                // console.log(canvas.clientHeight);
             }
             else {
                 Data.updateLegend = false;
@@ -1229,6 +1235,7 @@ var pivotcharts;
 (function (pivotcharts) {
     class PivotXAxis extends apexcharts.XAxis {
         drawXaxis() {
+            let aa = document.getElementsByClassName("apexcharts-xaxis");
             // var graphics = new PivotGraphics(this.ctx);
             var _this = this;
             var w = this.w;
@@ -1241,6 +1248,9 @@ var pivotcharts;
                 class: 'apexcharts-xaxis-texts-g',
                 transform: "translate(".concat(w.globals.translateXAxisX, ", ").concat(w.globals.translateXAxisY, ")")
             });
+            // if(document.getElementsByClassName("apexcharts-xaxis").length == 0){
+            //   //return;
+            // }
             elXaxis.add(elXaxisTexts);
             var colWidth; // initial x Position (keep adding column width in the loop)
             var xPos = w.globals.padHorizontal;

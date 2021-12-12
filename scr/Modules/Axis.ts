@@ -2,6 +2,8 @@ namespace pivotcharts{
     
     export class PivotXAxis extends apexcharts.XAxis{
         drawXaxis(){
+           let aa = document.getElementsByClassName("apexcharts-xaxis");
+          
           // var graphics = new PivotGraphics(this.ctx);
           var _this = this;
   
@@ -15,6 +17,11 @@ namespace pivotcharts{
             class: 'apexcharts-xaxis-texts-g',
             transform: "translate(".concat(w.globals.translateXAxisX, ", ").concat(w.globals.translateXAxisY, ")")
           });
+
+          // if(document.getElementsByClassName("apexcharts-xaxis").length == 0){
+            
+          //   //return;
+          // }
           elXaxis.add(elXaxisTexts);
           var colWidth; // initial x Position (keep adding column width in the loop)
   
