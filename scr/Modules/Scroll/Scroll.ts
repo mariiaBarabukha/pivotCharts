@@ -19,11 +19,11 @@ namespace pivotcharts {
     public removeData(val: number, koeff: number = 1): void {
       var len = Data.BasicSeries.xaxis.categories.length;
       var len_new = (len * val) / 100;
-      
+
       len_new = Math.round(len_new);
-      
+
       if (koeff == 1) {
-        if(len_new == this.bottom){
+        if (len_new == this.bottom) {
           return;
         }
         this.bottom = len_new;
@@ -35,7 +35,7 @@ namespace pivotcharts {
         (document.getElementById("a") as any).value = valnew;
         this.min = valnew;
       } else {
-        if(len_new == this.top){
+        if (len_new == this.top) {
           return;
         }
         let valnew = Math.floor((len_new * 100) / len);
@@ -48,7 +48,17 @@ namespace pivotcharts {
         this.max = valnew;
       }
       var cSeries = JSON.parse(JSON.stringify(Data.BasicSeries.series));
-      let ymax = Math.max(...cSeries.map(x => x.data).flat(2))
+      let a = this.ctx.w.globals.collapsedSeriesIndices;
+      let uniqueArray = a.filter(function (item, pos) {
+        return a.indexOf(item) == pos;
+      });
+      let newArr = [...cSeries];
+      uniqueArray.forEach((element) => {
+        newArr[element].data = [0];
+      });
+      let m = Math.max(...newArr.map((x) => x.data).flat(2));
+
+      //let ymax = Math.max(...cSeries.map((x) => x.data).flat(2));
       cSeries = cSeries.map((x) => {
         x.data = x.data.slice(this.bottom, this.top);
         return x;
@@ -56,10 +66,12 @@ namespace pivotcharts {
       var cLabels = [...Data.BasicSeries.xaxis.categories];
       cLabels = cLabels.slice(this.bottom, this.top);
       Data.Model.dataStorage.stateOfUpdate = 1;
-      
+
       Data.Chart.updateOptions(
-        { series: cSeries, labels: cLabels, 
-          yaxis: {max: ymax, forceNiceScale:true}
+        {
+          series: cSeries,
+          labels: cLabels,
+          yaxis: { max: m, forceNiceScale: true },
         },
         false,
         false
@@ -114,11 +126,10 @@ namespace pivotcharts {
         x = e.pageX;
         let m = this.min;
         document.onmousemove = (e) => {
-          
           let a = e.pageX - x;
           let wrap = document.getElementsByClassName("wrap")[0] as any;
           let move = Math.floor(a / (this.ctx.w.globals.gridWidth / 100));
-          
+
           if (m + move > this.max) {
             this.min = this.max;
           } else {
@@ -129,15 +140,15 @@ namespace pivotcharts {
             }
           }
 
-          if(Math.abs(move) % this.segment_value == 0){
+          if (Math.abs(move) % this.segment_value == 0) {
             this.removeData(this.min);
-          }else{
+          } else {
             (document.getElementById("a") as any).value = this.min;
             wrap.style.setProperty("--a", this.min);
           }
         };
 
-        document.onmouseup = (e) => {         
+        document.onmouseup = (e) => {
           document.onmousemove = null;
           document.onmouseup = null;
         };
@@ -147,11 +158,10 @@ namespace pivotcharts {
         x = e.pageX;
         let m = this.max;
         document.onmousemove = (e) => {
-          
           let a = e.pageX - x;
           let wrap = document.getElementsByClassName("wrap")[0] as any;
-          let move = Math.floor(a / (this.ctx.w.globals.gridWidth / 100));          
-          
+          let move = Math.floor(a / (this.ctx.w.globals.gridWidth / 100));
+
           if (m + move < this.min) {
             this.max = this.min;
           } else {
@@ -162,15 +172,15 @@ namespace pivotcharts {
             }
           }
 
-          if(Math.abs(move) % this.segment_value == 0){
+          if (Math.abs(move) % this.segment_value == 0) {
             this.removeData(this.max, -1);
-          }else{
+          } else {
             (document.getElementById("b") as any).value = this.max;
             wrap.style.setProperty("--b", this.max);
           }
         };
 
-        document.onmouseup = (e) => {         
+        document.onmouseup = (e) => {
           document.onmousemove = null;
           document.onmouseup = null;
         };
@@ -212,8 +222,7 @@ namespace pivotcharts {
           let wrap = document.getElementsByClassName("wrap")[0] as any;
           let move = Math.floor(a / (this.ctx.w.globals.gridWidth / 100));
           let diff = this.max - this.min;
-          
-          
+
           if (m + move > 100 - diff) {
             temp_max = 100;
             temp_min = 100 - diff;
@@ -227,17 +236,17 @@ namespace pivotcharts {
             }
           }
 
-          if(Math.abs(move) % this.segment_value == 0){
+          if (Math.abs(move) % this.segment_value == 0) {
             this.removeData(temp_min);
             this.removeData(temp_max, -1);
-          }else{
+          } else {
             this.inerval = move;
             (document.getElementById("a") as any).value = temp_min;
             (document.getElementById("b") as any).value = temp_max;
             wrap.style.setProperty("--a", temp_min);
             wrap.style.setProperty("--b", temp_max);
           }
-         
+
           this.globMove = move;
         };
 
@@ -262,7 +271,7 @@ namespace pivotcharts {
       };
     }
 
-    public dropScroll(){
+    public dropScroll() {
       (document.getElementsByClassName("wrap")[0] as any).style.setProperty(
         "--a",
         0
@@ -278,7 +287,7 @@ namespace pivotcharts {
     public create() {
       if (document.getElementsByClassName("wrap").length != 0) {
         if (this.curr_series != JSON.stringify(Data.BasicSeries)) {
-          this.curr_series = JSON.stringify(Data.BasicSeries);          
+          this.curr_series = JSON.stringify(Data.BasicSeries);
           this.dropScroll();
           this.top = Data.BasicSeries.xaxis.categories.length;
           this.segment_value = Math.round(100 / this.top);

@@ -1895,7 +1895,16 @@ var pivotcharts;
                 this.max = valnew;
             }
             var cSeries = JSON.parse(JSON.stringify(Data.BasicSeries.series));
-            let ymax = Math.max(...cSeries.map(x => x.data).flat(2));
+            let a = this.ctx.w.globals.collapsedSeriesIndices;
+            let uniqueArray = a.filter(function (item, pos) {
+                return a.indexOf(item) == pos;
+            });
+            let newArr = [...cSeries];
+            uniqueArray.forEach((element) => {
+                newArr[element].data = [0];
+            });
+            let m = Math.max(...newArr.map((x) => x.data).flat(2));
+            //let ymax = Math.max(...cSeries.map((x) => x.data).flat(2));
             cSeries = cSeries.map((x) => {
                 x.data = x.data.slice(this.bottom, this.top);
                 return x;
@@ -1903,8 +1912,10 @@ var pivotcharts;
             var cLabels = [...Data.BasicSeries.xaxis.categories];
             cLabels = cLabels.slice(this.bottom, this.top);
             Data.Model.dataStorage.stateOfUpdate = 1;
-            Data.Chart.updateOptions({ series: cSeries, labels: cLabels,
-                yaxis: { max: ymax, forceNiceScale: true }
+            Data.Chart.updateOptions({
+                series: cSeries,
+                labels: cLabels,
+                yaxis: { max: m, forceNiceScale: true },
             }, false, false);
             Data.Model.dataStorage.stateOfUpdate = 0;
         }
@@ -2652,7 +2663,7 @@ var pivotcharts;
         // }
         updateOptions(options, redraw = false, animate = true, updateSyncedCharts = true, overwriteInitialConfig = true) {
             const w = this.w;
-            if (options.series != null) {
+            if (options.series != null && Data.Model.dataStorage.stateOfUpdate != 1) {
                 //Data.Hiddens;
                 let a = w.globals.collapsedSeriesIndices;
                 let uniqueArray = a.filter(function (item, pos) {

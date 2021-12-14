@@ -26,7 +26,7 @@ namespace pivotcharts {
     ) {
       const w = this.w
       
-      if(options.series!=null){
+      if(options.series!=null && Data.Model.dataStorage.stateOfUpdate != 1){
 
         //Data.Hiddens;
         let a = w.globals.collapsedSeriesIndices
