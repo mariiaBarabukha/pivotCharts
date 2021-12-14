@@ -168,11 +168,13 @@ var Data;
                 for (var j = 1; j < legends.length; j++) {
                     if (legends[i].toLowerCase() != legends[j].toLowerCase() &&
                         this.isPrevLegend(legends[i], legends[j])) {
+                        Data.Hiddens.push(j - 1);
                         var sEl = null;
                         var obj = Data.LegendHelper._realIndex(j - 1);
+                        if (obj == null)
+                            return;
                         sEl = obj.seriesEl;
                         Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: j - 1 });
-                        Data.Hiddens.push(j - 1);
                         break;
                     }
                 }
@@ -526,6 +528,11 @@ var pivotcharts;
 (function (pivotcharts) {
     class PivotHelper extends apexcharts.LegendHelpers {
         //visibleDataSets = [];
+        getLegendStyles() {
+            let a = super.getLegendStyles();
+            a.innerHTML += ".apexcharts-legend {" + "overflow: visible !important";
+            return a;
+        }
         toggleDataSeries(seriesCnt, isHidden) {
             const w = this.w;
             var seriesEl;
@@ -581,11 +588,21 @@ var pivotcharts;
             var realIndex = null;
             if (w.globals.axisCharts) {
                 seriesEl = w.globals.dom.baseEl.querySelector(`.apexcharts-series[data\\:realIndex='${seriesCnt}']`);
-                realIndex = parseInt(seriesEl.getAttribute("data:realIndex"), 10);
+                try {
+                    realIndex = parseInt(seriesEl.getAttribute("data:realIndex"), 10);
+                }
+                catch (e) {
+                    return null;
+                }
             }
             else {
                 seriesEl = w.globals.dom.baseEl.querySelector(`.apexcharts-series[rel='${seriesCnt + 1}']`);
-                realIndex = parseInt(seriesEl.getAttribute("rel"), 10) - 1;
+                try {
+                    realIndex = parseInt(seriesEl.getAttribute("rel"), 10) - 1;
+                }
+                catch (e) {
+                    return null;
+                }
             }
             return { seriesEl, realIndex };
         }
@@ -717,17 +734,46 @@ var pivotcharts;
         init() {
             super.init();
         }
+        _theBiggestHeight(arr) {
+            let m = arr[1];
+            for (let i = 1; i < arr.length; i++) {
+                m = arr[i].clientHeight > m.clientHeight ? arr[i] : m;
+            }
+            return m;
+        }
         setCorrectHeight() {
-            let legendHeight = document.getElementsByClassName("apexcharts-legend")[0].clientHeight;
+            let legends = document.getElementsByClassName("legend-set");
+            //const reducer = (prevV, newxtV) => prevV.clientHeight > newxtV.clientHeight ? prevV : newxtV;
+            let legend = this._theBiggestHeight(legends);
+            let legendHeight = legend.clientHeight;
             let canvas = document.getElementsByClassName("apexcharts-svg")[0];
             var x = canvas.getBoundingClientRect();
             if (x.top + x.height > window.innerHeight && !Data.updateLegend) {
+                Data.updateLegend = true;
                 Data.Chart.updateOptions({
                     chart: {
-                        height: window.innerHeight - x.top
+                        height: window.innerHeight - x.top,
                     },
                 });
+                return;
             }
+            // if (legend.scrollHeight > legendHeight && !Data.updateLegend) {
+            //   Data.updateLegend = true;
+            //   let h = document
+            //     .getElementsByClassName("apexcharts-inner")[0]
+            //     .getClientRects()[0] as any;
+            //   Data.Chart.updateOptions({
+            //     chart: {
+            //       height:
+            //         Data.originalChartHeight +
+            //         -Data.LegendHeightZero +
+            //         legendHeight +
+            //         (Data.originalChartHeight - Data.LegendHeightZero - h.height),
+            //       //  + (h.height-legendHeight)
+            //     },
+            //   });
+            //   return;
+            // }
             if (Math.max(...this.w.globals.series_levels) == 0 &&
                 (Data.originalChartHeight == null ||
                     Data.originalChartHeight == canvas.clientHeight)) {
@@ -886,6 +932,7 @@ var pivotcharts;
                 if (w.globals.series_levels[i] == 0) {
                     wrapLegendSet = document.createElement("div");
                     wrapLegendSet.id = "legend-set-" + i;
+                    wrapLegendSet.classList.add("legend-set");
                     wrapLegendSet.appendChild(elLegend);
                     wrapLegendSet.style.display = "flex";
                     wrapLegendSet.style.flexDirection = "column";
@@ -1861,7 +1908,9 @@ var pivotcharts;
             var cLabels = [...Data.BasicSeries.xaxis.categories];
             cLabels = cLabels.slice(this.bottom, this.top);
             Data.Model.dataStorage.stateOfUpdate = 1;
-            Data.Chart.updateOptions({ series: cSeries, labels: cLabels, yaxis: { max: ymax, forceNiceScale: true } }, false, false);
+            Data.Chart.updateOptions({ series: cSeries, labels: cLabels,
+                yaxis: { max: ymax, forceNiceScale: true }
+            }, false, false);
             Data.Model.dataStorage.stateOfUpdate = 0;
         }
         createScroll() {
@@ -2599,14 +2648,14 @@ var pivotcharts;
         }
         create(ser, opts) {
             if (Data.Model.dataStorage.stateOfUpdate == 0) {
-                this.w.config.yaxis.max = Math.max(...ser.map(x => x.data).flat(2));
+                this.w.config.yaxis.max = Math.max(...ser.map((x) => x.data).flat(2));
             }
             var initCtx = new pivotcharts.PivotInitCtxVariables(this);
             initCtx.initModules();
             var res = super.create(ser, opts);
             let gl = this.w.globals;
             if (!gl.axisCharts && ser.length > 1 && !this.ctx.rowsSelector.isDrawn) {
-                this.ctx.rowsSelector.draw(ser.map(x => x.name));
+                this.ctx.rowsSelector.draw(ser.map((x) => x.name));
             }
             let w = this.w;
             if (w.config.chart.zoom.enabled ||
@@ -2729,6 +2778,14 @@ var pivotcharts;
         }
         update(options) {
             super.update(options);
+            Data.Hiddens.forEach((e) => {
+                var sEl = null;
+                var obj = Data.LegendHelper._realIndex(e);
+                sEl = obj.seriesEl;
+                let ee = e;
+                Data.Hiddens.shift();
+                Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: ee });
+            });
             this.ctx.legend.setCorrectHeight();
         }
     }

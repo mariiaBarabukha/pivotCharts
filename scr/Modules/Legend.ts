@@ -1,6 +1,11 @@
 namespace pivotcharts {
   export class PivotHelper extends apexcharts.LegendHelpers {
     //visibleDataSets = [];
+    getLegendStyles() {
+      let a = super.getLegendStyles();
+      a.innerHTML += ".apexcharts-legend {" + "overflow: visible !important";
+      return a;
+    }
     toggleDataSeries(seriesCnt, isHidden) {
       const w = this.w;
       var seriesEl;
@@ -78,12 +83,20 @@ namespace pivotcharts {
         seriesEl = w.globals.dom.baseEl.querySelector(
           `.apexcharts-series[data\\:realIndex='${seriesCnt}']`
         );
-        realIndex = parseInt(seriesEl.getAttribute("data:realIndex"), 10);
+        try {
+          realIndex = parseInt(seriesEl.getAttribute("data:realIndex"), 10);
+        } catch (e) {
+          return null;
+        }
       } else {
         seriesEl = w.globals.dom.baseEl.querySelector(
           `.apexcharts-series[rel='${seriesCnt + 1}']`
         );
-        realIndex = parseInt(seriesEl.getAttribute("rel"), 10) - 1;
+        try {
+          realIndex = parseInt(seriesEl.getAttribute("rel"), 10) - 1;
+        } catch (e) {
+          return null;
+        }
       }
       return { seriesEl, realIndex };
     }
@@ -243,25 +256,51 @@ namespace pivotcharts {
 
     init() {
       super.init();
-      
     }
 
-    setCorrectHeight(){
-      let legendHeight = (
-        document.getElementsByClassName("apexcharts-legend")[0] as any
-      ).clientHeight;
+    _theBiggestHeight(arr) {
+      let m = arr[1];
+      for (let i = 1; i < arr.length; i++) {
+        m = arr[i].clientHeight > m.clientHeight ? arr[i] : m;
+      }
+      return m;
+    }
+    setCorrectHeight() {
+      let legends = document.getElementsByClassName("legend-set") as any;
+      //const reducer = (prevV, newxtV) => prevV.clientHeight > newxtV.clientHeight ? prevV : newxtV;
+      let legend = this._theBiggestHeight(legends);
+      let legendHeight = legend.clientHeight;
       let canvas = (
         document.getElementsByClassName("apexcharts-svg") as any
       )[0];
 
       var x = canvas.getBoundingClientRect();
-      if(x.top+x.height > window.innerHeight && !Data.updateLegend){
+      if (x.top + x.height > window.innerHeight && !Data.updateLegend) {
+        Data.updateLegend = true;
         Data.Chart.updateOptions({
           chart: {
-            height: window.innerHeight - x.top
+            height: window.innerHeight - x.top,
           },
         });
+        return;
       }
+      // if (legend.scrollHeight > legendHeight && !Data.updateLegend) {
+      //   Data.updateLegend = true;
+      //   let h = document
+      //     .getElementsByClassName("apexcharts-inner")[0]
+      //     .getClientRects()[0] as any;
+      //   Data.Chart.updateOptions({
+      //     chart: {
+      //       height:
+      //         Data.originalChartHeight +
+      //         -Data.LegendHeightZero +
+      //         legendHeight +
+      //         (Data.originalChartHeight - Data.LegendHeightZero - h.height),
+      //       //  + (h.height-legendHeight)
+      //     },
+      //   });
+      //   return;
+      // }
       if (
         Math.max(...this.w.globals.series_levels) == 0 &&
         (Data.originalChartHeight == null ||
@@ -274,29 +313,25 @@ namespace pivotcharts {
       let predictableChartHeight =
         Data.originalChartHeight + (legendHeight - Data.LegendHeightZero);
 
-
       if (
         (Math.abs(Data.LegendHeightZero - legendHeight) > 1 ||
           Math.abs(predictableChartHeight - canvas.clientHeight) > 1) &&
         !Data.updateLegend
       ) {
         Data.updateLegend = true;
-       //Data.Chart.destroy();
+        //Data.Chart.destroy();
         Data.Chart.updateOptions({
           chart: {
             height:
-            Data.originalChartHeight + (legendHeight - Data.LegendHeightZero),
+              Data.originalChartHeight + (legendHeight - Data.LegendHeightZero),
           },
         });
-        
-
       } else {
         Data.updateLegend = false;
       }
     }
 
     drawLegends() {
-      
       let self = this;
       let w = this.w;
       //w.config.chart.height = Data.ChartHeight || w.config.chart.height;
@@ -467,6 +502,7 @@ namespace pivotcharts {
         if (w.globals.series_levels[i] == 0) {
           wrapLegendSet = document.createElement("div");
           wrapLegendSet.id = "legend-set-" + i;
+          wrapLegendSet.classList.add("legend-set");
           wrapLegendSet.appendChild(elLegend);
           wrapLegendSet.style.display = "flex";
           wrapLegendSet.style.flexDirection = "column";

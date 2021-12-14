@@ -58,7 +58,9 @@ namespace pivotcharts {
       Data.Model.dataStorage.stateOfUpdate = 1;
       
       Data.Chart.updateOptions(
-        { series: cSeries, labels: cLabels, yaxis: {max: ymax, forceNiceScale:true} },
+        { series: cSeries, labels: cLabels, 
+          yaxis: {max: ymax, forceNiceScale:true}
+        },
         false,
         false
       );

@@ -14,6 +14,8 @@ namespace Data{
     export var LegendHeightZero = 0;
     export var updateLegend = false;
     export var originalChartHeight: number;
+    export var gridObjHeight;
+    export var OldSeries;
     
     export function processData(rawData, type?){
         if(type != undefined){

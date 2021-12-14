@@ -197,6 +197,7 @@ declare module apexcharts {
   export class LegendHelpers{
     constructor(lgCtx);
     getLegendStyles();
+    getLegendStyles();
     getLegendBBox();
     appendToForeignObject();
     toggleDataSeries(seriesCnt, isHidden);

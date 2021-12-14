@@ -189,11 +189,13 @@ namespace Data {
             legends[i].toLowerCase() != legends[j].toLowerCase() &&
             this.isPrevLegend(legends[i], legends[j])
           ) {
+            Data.Hiddens.push(j - 1);
             var sEl = null;
             var obj = Data.LegendHelper._realIndex(j-1);
+            if (obj == null) return;
             sEl = obj.seriesEl;
             Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: j - 1 });
-            Data.Hiddens.push(j - 1);
+            
             break;
           }
         }

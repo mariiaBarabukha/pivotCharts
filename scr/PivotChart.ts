@@ -3,37 +3,34 @@ namespace pivotcharts {
     constructor(el: any, config: any) {
       super(el, config);
       var initCtx = new PivotInitCtxVariables(this);
-     
+
       initCtx.initModules();
       Data.Chart = this;
     }
 
-
     create(ser, opts) {
-      if(Data.Model.dataStorage.stateOfUpdate == 0){
-        this.w.config.yaxis.max = Math.max(...ser.map(x=>x.data).flat(2));
+      if (Data.Model.dataStorage.stateOfUpdate == 0) {
+        this.w.config.yaxis.max = Math.max(...ser.map((x) => x.data).flat(2));
       }
       var initCtx = new PivotInitCtxVariables(this);
       initCtx.initModules();
-      var res = super.create(ser,opts)
-      let gl = this.w.globals
-      if(!gl.axisCharts && ser.length > 1 && !this.ctx.rowsSelector.isDrawn){
-        this.ctx.rowsSelector.draw(ser.map(x => x.name));
+      var res = super.create(ser, opts);
+      let gl = this.w.globals;
+      if (!gl.axisCharts && ser.length > 1 && !this.ctx.rowsSelector.isDrawn) {
+        this.ctx.rowsSelector.draw(ser.map((x) => x.name));
       }
-      let w = this.w
+      let w = this.w;
       if (
         w.config.chart.zoom.enabled ||
         (w.config.chart.selection && w.config.chart.selection.enabled) ||
         (w.config.chart.pan && w.config.chart.pan.enabled)
-      ){
-        if(Data.Model.scroll == undefined){
-          Data.Model.scroll =  new pivotcharts.Scroll(this.ctx);
-        }      
+      ) {
+        if (Data.Model.scroll == undefined) {
+          Data.Model.scroll = new pivotcharts.Scroll(this.ctx);
+        }
         Data.Model.scroll.create();
       }
 
-      
-      
       return res;
     }
 
@@ -169,9 +166,20 @@ namespace pivotcharts {
     }
 
     update(options: any) {
-      super.update(options);
+      super.update(options);   
+      Data.Hiddens.forEach((e) => {
+        var sEl = null;
+        var obj = Data.LegendHelper._realIndex(e);
+        sEl = obj.seriesEl;
+        let ee = e;
+        Data.Hiddens.shift();
+        Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: ee });
+       
+      });   
       this.ctx.legend.setCorrectHeight();
+      
+      
+
     }
-    
   }
 }
