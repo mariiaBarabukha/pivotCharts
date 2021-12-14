@@ -142,12 +142,6 @@ namespace pivotcharts {
       var curr_len;
       let series = apexcharts.Utils.clone(w.config.series);
       curr_len = series.length;
-      // if(!w.globals.axisCharts){
-      //   let i = this.lgCtx.ctx.rowsSelector.getCurrentRowIndex();
-      //   series = [series[i]];
-      //   curr_len = series.data.length;
-      // }
-
       if (w.globals.axisCharts) {
         let shouldNotHideYAxis = false;
 

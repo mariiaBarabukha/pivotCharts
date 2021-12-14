@@ -641,11 +641,6 @@ var pivotcharts;
             var curr_len;
             let series = apexcharts.Utils.clone(w.config.series);
             curr_len = series.length;
-            // if(!w.globals.axisCharts){
-            //   let i = this.lgCtx.ctx.rowsSelector.getCurrentRowIndex();
-            //   series = [series[i]];
-            //   curr_len = series.data.length;
-            // }
             if (w.globals.axisCharts) {
                 let shouldNotHideYAxis = false;
                 if (w.config.yaxis[realIndex] &&
@@ -2645,6 +2640,66 @@ var pivotcharts;
             var initCtx = new pivotcharts.PivotInitCtxVariables(this);
             initCtx.initModules();
             Data.Chart = this;
+        }
+        // updateSeries(newSeries = [], animate = true, overwriteInitialSeries = true) {
+        //   this.series.resetSeries(false)
+        //   this.updateHelpers.revertDefaultAxisMinMax()
+        //   return this.updateHelpers._updateSeries(
+        //     newSeries,
+        //     animate,
+        //     overwriteInitialSeries
+        //   )
+        // }
+        updateOptions(options, redraw = false, animate = true, updateSyncedCharts = true, overwriteInitialConfig = true) {
+            const w = this.w;
+            if (options.series != null) {
+                //Data.Hiddens;
+                let a = w.globals.collapsedSeriesIndices;
+                let uniqueArray = a.filter(function (item, pos) {
+                    return a.indexOf(item) == pos;
+                });
+                let newArr = [...options.series];
+                uniqueArray.forEach(element => {
+                    newArr[element].data = [0];
+                });
+                let m = Math.max(...newArr.map(x => x.data).flat(2));
+                if (options.yaxis == null) {
+                    options.yaxis = { max: m };
+                }
+                else {
+                    options.yaxis.max = m;
+                }
+                options.yaxis.forceNiceScale = true;
+            }
+            // when called externally, clear some global variables
+            // fixes apexcharts.js#1488
+            w.globals.selection = undefined;
+            if (options.series) {
+                this.series.resetSeries(false, true, false);
+                if (options.series.length && options.series[0].data) {
+                    options.series = options.series.map((s, i) => {
+                        return this.updateHelpers._extendSeries(s, i);
+                    });
+                }
+                // user updated the series via updateOptions() function.
+                // Hence, we need to reset axis min/max to avoid zooming issues
+                this.updateHelpers.revertDefaultAxisMinMax();
+            }
+            // user has set x-axis min/max externally - hence we need to forcefully set the xaxis min/max
+            if (options.xaxis) {
+                options = this.updateHelpers.forceXAxisUpdate(options);
+            }
+            if (options.yaxis) {
+                options = this.updateHelpers.forceYAxisUpdate(options);
+            }
+            if (w.globals.collapsedSeriesIndices.length > 0) {
+                this.series.clearPreviousPaths();
+            }
+            /* update theme mode#459 */
+            if (options.theme) {
+                options = this.theme.updateThemeOptions(options);
+            }
+            return this.updateHelpers._updateOptions(options, redraw, animate, updateSyncedCharts, overwriteInitialConfig);
         }
         create(ser, opts) {
             if (Data.Model.dataStorage.stateOfUpdate == 0) {

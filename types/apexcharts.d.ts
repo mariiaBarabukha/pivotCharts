@@ -10,7 +10,15 @@
 
 declare class ApexCharts {
   constructor(el: any, options: any)
-  render(): Promise<void>
+  render(): Promise<void>;
+  updateHelpers;
+  updateOptions(
+    options,
+    redraw?,
+    animate?,
+    updateSyncedCharts?,
+    overwriteInitialConfig?
+  ) 
   updateOptions(
     options: any,
     redrawPaths?: boolean,
