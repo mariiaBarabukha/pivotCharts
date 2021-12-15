@@ -56,8 +56,8 @@ namespace pivotcharts {
       uniqueArray.forEach((element) => {
         newArr[element].data = [0];
       });
-      let m = Math.max(...newArr.map((x) => x.data).flat(2));
-
+      let max = Math.max(...newArr.map((x) => x.data).flat(2));
+      let min = Math.min(...newArr.map((x) => x.data).flat(2));
       //let ymax = Math.max(...cSeries.map((x) => x.data).flat(2));
       cSeries = cSeries.map((x) => {
         x.data = x.data.slice(this.bottom, this.top);
@@ -71,7 +71,7 @@ namespace pivotcharts {
         {
           series: cSeries,
           labels: cLabels,
-          yaxis: { max: m, forceNiceScale: true },
+          yaxis: { max: max, min: min, forceNiceScale: true },
         },
         false,
         false

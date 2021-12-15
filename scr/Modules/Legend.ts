@@ -1,11 +1,11 @@
 namespace pivotcharts {
   export class PivotHelper extends apexcharts.LegendHelpers {
     //visibleDataSets = [];
-    getLegendStyles() {
-      let a = super.getLegendStyles();
-      a.innerHTML += ".apexcharts-legend {" + "overflow: visible !important";
-      return a;
-    }
+    // getLegendStyles() {
+    //   let a = super.getLegendStyles();
+    //   a.innerHTML += ".apexcharts-legend {" + "overflow: visible !important";
+    //   return a;
+    // }
     toggleDataSeries(seriesCnt, isHidden) {
       const w = this.w;
       var seriesEl;
