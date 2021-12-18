@@ -190,6 +190,7 @@
             horizontal: false,
             columnWidth: "55%",
             endingShape: "rounded",
+            borderRadius: 4
           },
         },
         dataLabels: {
@@ -199,6 +200,10 @@
           show: true,
           width: 2,
           curve: "straight",
+        },
+        legend:{
+          horizontalAlign: 'left',
+          offsetX: 60
         },
         series: data.series,
         xaxis: data.xaxis,

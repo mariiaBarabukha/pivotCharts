@@ -495,6 +495,7 @@ declare module apexcharts {
     isColorFn;
     colors;
     predefined();
+    updateThemeOptions(options);
   }
 
  

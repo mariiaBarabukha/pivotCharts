@@ -3170,7 +3170,7 @@
               brushScrolled: undefined
             },
             foreColor: '#373d3f',
-            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontFamily: 'Open Sans',
             height: 'auto',
             parentHeightOffset: 15,
             redrawOnParentResize: true,
@@ -3400,7 +3400,7 @@
                 value: {
                   show: true,
                   fontSize: '14px',
-                  fontFamily: undefined,
+                  fontFamily: 'Open Sans',
                   fontWeight: 400,
                   color: undefined,
                   offsetY: 16,
@@ -3413,7 +3413,7 @@
                   label: 'Total',
                   fontSize: '16px',
                   fontWeight: 600,
-                  fontFamily: undefined,
+                  fontFamily: 'Open Sans',
                   color: undefined,
                   formatter: function formatter(w) {
                     return w.globals.seriesTotals.reduce(function (a, b) {
@@ -3445,7 +3445,7 @@
                   name: {
                     show: true,
                     fontSize: '16px',
-                    fontFamily: undefined,
+                    fontFamily: 'Open Sans',
                     fontWeight: 600,
                     color: undefined,
                     offsetY: -10,
@@ -3456,7 +3456,7 @@
                   value: {
                     show: true,
                     fontSize: '20px',
-                    fontFamily: undefined,
+                    fontFamily: 'Open Sans',
                     fontWeight: 400,
                     color: undefined,
                     offsetY: 10,
@@ -3470,7 +3470,7 @@
                     label: 'Total',
                     fontSize: '16px',
                     fontWeight: 400,
-                    fontFamily: undefined,
+                    fontFamily: 'Open Sans',
                     color: undefined,
                     formatter: function formatter(w) {
                       return w.globals.seriesTotals.reduce(function (a, b) {
@@ -3519,7 +3519,7 @@
             offsetY: 0,
             style: {
               fontSize: '12px',
-              fontFamily: undefined,
+              fontFamily: 'Open Sans',
               fontWeight: 600,
               colors: undefined
             },
@@ -3626,7 +3626,7 @@
             // when position top/bottom, you can specify whether to align legends left, right or center
             inverseOrder: false,
             fontSize: '12px',
-            fontFamily: undefined,
+            fontFamily: 'Open Sans',
             fontWeight: 400,
             width: undefined,
             height: undefined,
@@ -3697,7 +3697,7 @@
             style: {
               color: undefined,
               fontSize: '14px',
-              fontFamily: undefined
+              fontFamily: 'Open Sans'
             }
           },
           responsive: [],
@@ -3734,7 +3734,7 @@
             style: {
               fontSize: '14px',
               fontWeight: 900,
-              fontFamily: undefined,
+              fontFamily: 'Open Sans',
               color: undefined
             }
           },
@@ -3748,7 +3748,7 @@
             style: {
               fontSize: '12px',
               fontWeight: 400,
-              fontFamily: undefined,
+              fontFamily: 'Open Sans',
               color: undefined
             }
           },
@@ -3778,7 +3778,7 @@
             theme: 'light',
             style: {
               fontSize: '12px',
-              fontFamily: undefined
+              fontFamily: 'Open Sans'
             },
             onDatasetHover: {
               highlightDataSeries: false
@@ -3839,7 +3839,7 @@
                 colors: [],
                 fontSize: '12px',
                 fontWeight: 400,
-                fontFamily: undefined,
+                fontFamily: 'Open Sans',
                 cssClass: ''
               },
               offsetX: 0,
@@ -3888,7 +3888,7 @@
                 color: undefined,
                 fontSize: '12px',
                 fontWeight: 900,
-                fontFamily: undefined,
+                fontFamily: 'Open Sans',
                 cssClass: ''
               }
             },
@@ -3929,14 +3929,14 @@
               formatter: undefined,
               style: {
                 fontSize: '12px',
-                fontFamily: undefined
+                fontFamily: 'Open Sans'
               }
             }
           },
           yaxis: this.yAxis,
           theme: {
             mode: 'light',
-            palette: 'palette1',
+            palette: 'palette0',
             // If defined, it will overwrite globals.colors variable
             monochrome: {
               // monochrome allows you to select just 1 color and fill out the rest with light/dark shade (intensity can be selected)
@@ -13365,7 +13365,7 @@
       value: function predefined() {
         var palette = this.w.config.theme.palette; // D6E3F8, FCEFEF, DCE0D9, A5978B, EDDDD4, D6E3F8, FEF5EF
 
-        switch (palette) {
+        switch (palette) {        
           case 'palette1':
             this.colors = ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0'];
             break;
