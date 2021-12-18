@@ -10,20 +10,24 @@ var Data;
         riseAllCollapsedSeries() {
             if (Data.Chart != undefined) {
                 [...Data.Chart.w.globals.collapsedSeries].forEach((i) => {
-                    var realIndex = Data.LegendHelper._realIndex(i.index).realIndex;
-                    const seriesToMakeVisible = [
-                        {
-                            cs: Data.Chart.w.globals.collapsedSeries,
-                            csi: Data.Chart.w.globals.collapsedSeriesIndices,
-                        },
-                        {
-                            cs: Data.Chart.w.globals.ancillaryCollapsedSeries,
-                            csi: Data.Chart.w.globals.ancillaryCollapsedSeriesIndices,
-                        },
-                    ];
-                    seriesToMakeVisible.forEach((r) => {
-                        Data.LegendHelper.riseCollapsedSeries(r.cs, r.csi, realIndex);
-                    });
+                    let realObj = Data.LegendHelper._realIndex(i.index);
+                    var realIndex;
+                    if (realObj != null) {
+                        realIndex = realObj.realIndex;
+                        const seriesToMakeVisible = [
+                            {
+                                cs: Data.Chart.w.globals.collapsedSeries,
+                                csi: Data.Chart.w.globals.collapsedSeriesIndices,
+                            },
+                            {
+                                cs: Data.Chart.w.globals.ancillaryCollapsedSeries,
+                                csi: Data.Chart.w.globals.ancillaryCollapsedSeriesIndices,
+                            },
+                        ];
+                        seriesToMakeVisible.forEach((r) => {
+                            Data.LegendHelper.riseCollapsedSeries(r.cs, r.csi, realIndex);
+                        });
+                    }
                 });
             }
         }
@@ -975,11 +979,12 @@ var pivotcharts;
                 //   *maxLenDown){
                 //     new_height+=Number(mStyle.height.replace("px", ""))+10;
                 // }
-                mStyle.transform =
-                    "translateX(" + 5 * w.globals.series_levels[i] + "px)";
-                elLegendText.style.transform = mStyle.transform;
+                // mStyle.transform =
+                //   "translateX(" + 5 * w.globals.series_levels[i] + "px)";
+                // elLegendText.style.transform = mStyle.transform;
                 elLegend.appendChild(elMarker);
                 elLegend.appendChild(elLegendText);
+                elLegend.style.transform = "translateX(" + 5 * w.globals.series_levels[i] + "px)";
                 const coreUtils = new apexcharts.CoreUtils(this.ctx);
                 if (!w.config.legend.showForZeroSeries) {
                     const total = coreUtils.getSeriesTotalByIndex(i);

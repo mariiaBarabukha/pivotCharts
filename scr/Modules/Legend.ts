@@ -552,11 +552,12 @@ namespace pivotcharts {
         //   *maxLenDown){
         //     new_height+=Number(mStyle.height.replace("px", ""))+10;
         // }
-        mStyle.transform =
-          "translateX(" + 5 * w.globals.series_levels[i] + "px)";
-        elLegendText.style.transform = mStyle.transform;
+        // mStyle.transform =
+        //   "translateX(" + 5 * w.globals.series_levels[i] + "px)";
+        // elLegendText.style.transform = mStyle.transform;
         elLegend.appendChild(elMarker);
         elLegend.appendChild(elLegendText);
+        elLegend.style.transform = "translateX(" + 5 * w.globals.series_levels[i] + "px)";
 
         const coreUtils = new apexcharts.CoreUtils(this.ctx);
         if (!w.config.legend.showForZeroSeries) {
