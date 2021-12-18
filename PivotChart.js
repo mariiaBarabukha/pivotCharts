@@ -1686,52 +1686,52 @@ var pivotcharts;
             //   }
             var cl = JSON.parse(JSON.stringify(colorSeries));
             //   var cl_sr = colorSeries;
-            if (cl.length < len) {
-                var new_colors = [];
-                let nn = w.globals.series_levels.filter(x => x == 0).length || 0;
-                if (length == undefined && nn <= cl.length) {
-                    var lev = 0;
-                    let ser_lev = w.globals.series_levels;
-                    for (var i = 0; i < len; i++) {
-                        if (ser_lev[i] == 0) {
-                            new_colors.push(cl.shift());
+            //if (cl.length < len || ) {
+            var new_colors = [];
+            let nn = w.globals.series_levels.filter(x => x == 0).length || 0;
+            if (length == undefined && (nn <= cl.length || nn != w.globals.series_levels.length)) {
+                var lev = 0;
+                let ser_lev = w.globals.series_levels;
+                for (var i = 0; i < len; i++) {
+                    if (ser_lev[i] == 0) {
+                        new_colors.push(cl.shift());
+                    }
+                    else {
+                        if (ser_lev[i] >= lev) {
+                            new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
+                            lev = ser_lev[i];
                         }
                         else {
-                            if (ser_lev[i] >= lev) {
+                            for (var j = i - 1; j >= 0; j--) {
+                                if (ser_lev[i] != ser_lev[j]) {
+                                    break;
+                                }
+                            }
+                            if (j < 0) {
                                 new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
-                                lev = ser_lev[i];
                             }
                             else {
-                                for (var j = i - 1; j >= 0; j--) {
-                                    if (ser_lev[i] != ser_lev[j]) {
-                                        break;
-                                    }
-                                }
-                                if (j < 0) {
-                                    new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
-                                }
-                                else {
-                                    new_colors.push(utils.shadeColor(0.1, new_colors[j]));
-                                }
-                                lev = ser_lev[i];
+                                new_colors.push(utils.shadeColor(0.1, new_colors[j]));
                             }
+                            lev = ser_lev[i];
                         }
                     }
-                    // console.log(new_colors);
-                    //   colorSeries = [...new_colors];
-                    //   colorSeries = JSON.parse(JSON.stringify(new_colors));
-                    colorSeries.splice(0, colorSeries.length);
-                    new_colors.forEach(c => {
-                        colorSeries.push(c);
-                    });
                 }
-                else {
-                    let diff = len - colorSeries.length;
-                    for (let i = 0; i < diff; i++) {
-                        colorSeries.push(colorSeries[i]);
-                    }
+                // console.log(new_colors);
+                //   colorSeries = [...new_colors];
+                //   colorSeries = JSON.parse(JSON.stringify(new_colors));
+                colorSeries.splice(0, colorSeries.length);
+                new_colors.forEach(c => {
+                    colorSeries.push(c);
+                });
+            }
+            else {
+                let diff = len - colorSeries.length;
+                for (let i = 0; i < diff; i++) {
+                    colorSeries.push(colorSeries[i]);
                 }
             }
+            // }
         }
         setDefaultColors() {
             let w = this.w;

@@ -29,12 +29,12 @@ namespace pivotcharts {
       var cl = JSON.parse(JSON.stringify(colorSeries));
     //   var cl_sr = colorSeries;
 
-      if (cl.length < len) {
+      //if (cl.length < len || ) {
         var new_colors = [];
 
 
         let nn = w.globals.series_levels.filter(x => x==0).length || 0;
-        if (length == undefined &&  nn <= cl.length) {
+        if (length == undefined && (nn <= cl.length || nn != w.globals.series_levels.length)) {
           var lev = 0;
           let ser_lev = w.globals.series_levels;
           for (var i = 0; i < len; i++) {
@@ -75,7 +75,7 @@ namespace pivotcharts {
             colorSeries.push(colorSeries[i]);
           }
         }
-      }
+      // }
     }
 
     setDefaultColors() {
