@@ -2006,7 +2006,8 @@ var pivotcharts;
                 " for='b'" +
                 " style='--c: var(--b)'" +
                 "></output>" +
-                "<div id='scroller'><div>" +
+                "<div id='backSideScroll'></div>" +
+                "<div id='scroller'></div>" +
                 // "<img src='../scr/Modules/Scroll/scrollThumb.svg' id='thumb_min'>"+
                 "</div>");
         }
