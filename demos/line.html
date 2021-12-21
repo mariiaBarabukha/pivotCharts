@@ -1,5 +1,4 @@
-<head>
-</head>
+<head> </head>
 <body>
   <script src="../flex/flexmonster.js"></script>
   <script src="../dist/apexcharts.js"></script>
@@ -196,7 +195,9 @@
                 width: 1,
               },
             },
+            
           },
+          
           type: type,
           width: 700,
           height: 300,
@@ -223,10 +224,10 @@
         xaxis: {
           categories: data.xaxis.categories,
         },
-        yaxis:{
-         // max:70000,
-          forceNiceScale:true
-        }
+        yaxis: {
+          // max:70000,
+          forceNiceScale: true,
+        },
       };
 
       var chart = new pivotcharts.PivotChart(
@@ -240,5 +241,4 @@
       Data.Chart.updateOptions(prepareDataFunction(rawData));
     }
   </script>
-
 </body>

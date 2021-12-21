@@ -9,7 +9,7 @@ namespace pivotcharts{
             name: s.name ? s.name : ser && ser.name,
             color: s.color ? s.color : ser && ser.color,
             type: s.type ? s.type : ser && ser.type,
-            data: s.data ? s.data : ser && ser.data,
+            data: s.data!= undefined? s.data : ser && ser.data,
             full_name: s.full_name ? s.full_name : ser && ser.full_name,
             level : s.level != undefined ? s.level : ser && ser.level,
             levels : s.levels != undefined ? s.levels : ser && ser.levels

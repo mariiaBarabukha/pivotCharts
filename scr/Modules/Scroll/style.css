@@ -108,6 +108,8 @@ input[type='range']::-webkit-slider-thumb {
      radial-gradient(circle, var(--col) calc(var(--r) - 1px), transparent var(--r)); */
     pointer-events: auto;
 }
+
+
 input[type='range']::-moz-range-thumb {
     border: none;
    /* get rid of Firefox thumb border */
@@ -115,8 +117,11 @@ input[type='range']::-moz-range-thumb {
     height: var(--h);
     /* border-radius: 0; */
    /* get rid of Firefox corner rounding */
-    background: linear-gradient(90deg, transparent 2px, transparent 0) calc(var(--r) - 1px),
-     radial-gradient(circle, var(--col) calc(var(--r) - 1px), transparent var(--r));
+   background-image: url('scrollThumb.svg');
+   background-repeat: no-repeat;
+   background-position:center;
+    /* background: linear-gradient(90deg, transparent 2px, transparent 0) calc(var(--r) - 1px),
+     radial-gradient(circle, var(--col) calc(var(--r) - 1px), transparent var(--r)); */
     pointer-events: auto;
 }
 input[type='range']:focus {
@@ -126,12 +131,15 @@ input[type='range']:focus {
 input[type='range']:focus, input[type='range']:focus + output {
     --col: darkorange;
 }
+
 output {
     grid-row: 2;
     color: var(--col);
+    
 }
 output:last-child {
     text-align: right;
+    
 }
 output::after {
     counter-reset: c var(--c);

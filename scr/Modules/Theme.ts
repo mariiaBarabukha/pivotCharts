@@ -5,7 +5,7 @@ namespace pivotcharts {
       let utils = new apexcharts.Utils();
 
       let len =
-        length == undefined || length == -2 ? w.globals.series.length : length;
+        length == undefined || length == -2 || length == -3 ? w.globals.series.length : length;
 
       if (distributed === null) {
         distributed =
@@ -20,62 +20,56 @@ namespace pivotcharts {
           w.globals.series[w.globals.maxValsInArrayIndex].length *
           w.globals.series.length;
       }
-      //   if (colorSeries.length < len) {
-      //     let diff = len - colorSeries.length;
-      //     for (let i = 0; i < diff; i++) {
-      //       colorSeries.push(colorSeries[i]);
-      //     }
-      //   }
-      var cl = JSON.parse(JSON.stringify(colorSeries));
-    //   var cl_sr = colorSeries;
 
-      //if (cl.length < len || ) {
+      var cl = JSON.parse(JSON.stringify(colorSeries));
+      //!Cause error
+      if (cl.length < len || length == -2 || length == -3) {
         var new_colors = [];
 
-
-        let nn = w.globals.series_levels.filter(x => x==0).length || 0;
-        if (length == undefined && (nn <= cl.length || nn != w.globals.series_levels.length)) {
+        let nn = w.globals.series_levels.filter((x) => x == 0).length || 0;
+        if (
+          (length == undefined || length == -2 || length == -3)&&
+          (nn <= cl.length || nn != w.globals.series_levels.length)
+        ) {
           var lev = 0;
           let ser_lev = w.globals.series_levels;
           for (var i = 0; i < len; i++) {
             if (ser_lev[i] == 0) {
               new_colors.push(cl.shift());
             } else {
-              if(ser_lev[i] >= lev){
+              if (ser_lev[i] >= lev) {
                 new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
                 lev = ser_lev[i];
-              } else{
-                for(var j = i - 1; j >= 0; j--) {
-                  if(ser_lev[i] != ser_lev[j]){
-                      break;
+              } else {
+                for (var j = i - 1; j >= 0; j--) {
+                  if (ser_lev[i] != ser_lev[j]) {
+                    break;
                   }
                 }
-                if(j < 0){
+                if (j < 0) {
                   new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
-                }else{
+                } else {
                   new_colors.push(utils.shadeColor(0.1, new_colors[j]));
                 }
                 lev = ser_lev[i];
               }
-              
             }
-            
           }
           // console.log(new_colors);
-        //   colorSeries = [...new_colors];
-        //   colorSeries = JSON.parse(JSON.stringify(new_colors));
-        colorSeries.splice(0, colorSeries.length);
+          //   colorSeries = [...new_colors];
+          //   colorSeries = JSON.parse(JSON.stringify(new_colors));
+          colorSeries.splice(0, colorSeries.length);
 
-        new_colors.forEach(c => {
+          new_colors.forEach((c) => {
             colorSeries.push(c);
-        });
+          });
         } else {
           let diff = len - colorSeries.length;
           for (let i = 0; i < diff; i++) {
             colorSeries.push(colorSeries[i]);
           }
         }
-      // }
+      }
     }
 
     setDefaultColors() {
@@ -155,7 +149,7 @@ namespace pivotcharts {
       const defaultColors = w.globals.colors.slice();
 
       // if user specified fewer colors than no. of series, push the same colors again
-      this.pushExtraColors(w.globals.colors, undefined);
+      this.pushExtraColors(w.globals.colors, -3);
 
       const colorTypes = ["fill", "stroke"];
       colorTypes.forEach((c) => {
@@ -164,16 +158,17 @@ namespace pivotcharts {
             ? w.config.colors
             : defaultColors;
         } else {
-          w.globals[c].colors = w.config[c].colors.slice();
+          w.globals[c].colors = [...w.config[c].colors.slice()];
         }
-        this.pushExtraColors(w.globals[c].colors, undefined);
+        let ii = c == "stroke" ? undefined : -2;
+        this.pushExtraColors(w.globals[c].colors, ii);
       });
 
       if (w.config.dataLabels.style.colors === undefined) {
-        w.globals.dataLabels.style.colors = defaultColors;
+        w.globals.dataLabels.style.colors = [...defaultColors];
       } else {
         w.globals.dataLabels.style.colors =
-          w.config.dataLabels.style.colors.slice();
+          [...w.config.dataLabels.style.colors.slice()];
       }
       this.pushExtraColors(w.globals.dataLabels.style.colors, 50);
 
@@ -183,85 +178,94 @@ namespace pivotcharts {
         ];
       } else {
         w.globals.radarPolygons.fill.colors =
-          w.config.plotOptions.radar.polygons.fill.colors.slice();
+        [...w.config.plotOptions.radar.polygons.fill.colors.slice()];
       }
       this.pushExtraColors(w.globals.radarPolygons.fill.colors, 20);
 
       // The point colors
       if (w.config.markers.colors === undefined) {
-        w.globals.markers.colors = defaultColors;
+        w.globals.markers.colors = [...defaultColors];
       } else {
-        w.globals.markers.colors = w.config.markers.colors.slice();
+        [...w.globals.markers.colors = w.config.markers.colors.slice()];
       }
       this.pushExtraColors(w.globals.markers.colors, -2);
       // w.globals.markers.colors = w.globals.colors;
     }
 
     updateThemeOptions(options) {
-      options.chart = options.chart || {}
-      options.tooltip = options.tooltip || {}
-      const mode = options.theme.mode || 'light'
+      options.chart = options.chart || {};
+      options.tooltip = options.tooltip || {};
+      const mode = options.theme.mode || "light";
       const palette = options.theme.palette
         ? options.theme.palette
-        : mode === 'dark'
-        ? 'palette4'
-        : 'palette0'
+        : mode === "dark"
+        ? "palette4"
+        : "palette0";
       const foreColor = options.chart.foreColor
         ? options.chart.foreColor
-        : mode === 'dark'
-        ? '#f6f7f8'
-        : '#373d3f'
-  
-      options.tooltip.theme = mode
-      options.chart.foreColor = foreColor
-      options.theme.palette = palette
-  
-      return options
+        : mode === "dark"
+        ? "#f6f7f8"
+        : "#373d3f";
+
+      options.tooltip.theme = mode;
+      options.chart.foreColor = foreColor;
+      options.theme.palette = palette;
+
+      return options;
     }
-  
+
     predefined() {
-      let palette = this.w.config.theme.palette
-  
+      let palette = this.w.config.theme.palette;
+
       // D6E3F8, FCEFEF, DCE0D9, A5978B, EDDDD4, D6E3F8, FEF5EF
       switch (palette) {
-        case 'palette0':
-          this.colors = ['#6FEFD0', '#FFDA7A', '#D6A87D', '#95EEA8', '#7CC7FE', '#FF8E8E', '#FFA1D9', '#A1A1FF']
-          break
-        case 'palette1':
-          this.colors = ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0']
-          break
-        case 'palette2':
-          this.colors = ['#3f51b5', '#03a9f4', '#4caf50', '#f9ce1d', '#FF9800']
-          break
-        case 'palette3':
-          this.colors = ['#33b2df', '#546E7A', '#d4526e', '#13d8aa', '#A5978B']
-          break
-        case 'palette4':
-          this.colors = ['#4ecdc4', '#c7f464', '#81D4FA', '#fd6a6a', '#546E7A']
-          break
-        case 'palette5':
-          this.colors = ['#2b908f', '#f9a3a4', '#90ee7e', '#fa4443', '#69d2e7']
-          break
-        case 'palette6':
-          this.colors = ['#449DD1', '#F86624', '#EA3546', '#662E9B', '#C5D86D']
-          break
-        case 'palette7':
-          this.colors = ['#D7263D', '#1B998B', '#2E294E', '#F46036', '#E2C044']
-          break
-        case 'palette8':
-          this.colors = ['#662E9B', '#F86624', '#F9C80E', '#EA3546', '#43BCCD']
-          break
-        case 'palette9':
-          this.colors = ['#5C4742', '#A5978B', '#8D5B4C', '#5A2A27', '#C4BBAF']
-          break
-        case 'palette10':
-          this.colors = ['#A300D6', '#7D02EB', '#5653FE', '#2983FF', '#00B1F2']
-          break
+        case "palette0":
+          this.colors = [
+            "#6FEFD0",
+            "#FFDA7A",
+            "#D6A87D",
+            "#95EEA8",
+            "#7CC7FE",
+            "#FF8E8E",
+            "#FFA1D9",
+            "#A1A1FF",
+          ];
+          break;
+        case "palette1":
+          this.colors = ["#008FFB", "#00E396", "#FEB019", "#FF4560", "#775DD0"];
+          break;
+        case "palette2":
+          this.colors = ["#3f51b5", "#03a9f4", "#4caf50", "#f9ce1d", "#FF9800"];
+          break;
+        case "palette3":
+          this.colors = ["#33b2df", "#546E7A", "#d4526e", "#13d8aa", "#A5978B"];
+          break;
+        case "palette4":
+          this.colors = ["#4ecdc4", "#c7f464", "#81D4FA", "#fd6a6a", "#546E7A"];
+          break;
+        case "palette5":
+          this.colors = ["#2b908f", "#f9a3a4", "#90ee7e", "#fa4443", "#69d2e7"];
+          break;
+        case "palette6":
+          this.colors = ["#449DD1", "#F86624", "#EA3546", "#662E9B", "#C5D86D"];
+          break;
+        case "palette7":
+          this.colors = ["#D7263D", "#1B998B", "#2E294E", "#F46036", "#E2C044"];
+          break;
+        case "palette8":
+          this.colors = ["#662E9B", "#F86624", "#F9C80E", "#EA3546", "#43BCCD"];
+          break;
+        case "palette9":
+          this.colors = ["#5C4742", "#A5978B", "#8D5B4C", "#5A2A27", "#C4BBAF"];
+          break;
+        case "palette10":
+          this.colors = ["#A300D6", "#7D02EB", "#5653FE", "#2983FF", "#00B1F2"];
+          break;
         default:
-          this.colors = ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0']
-          break
+          this.colors = ["#008FFB", "#00E396", "#FEB019", "#FF4560", "#775DD0"];
+          break;
       }
-      return this.colors
+      return this.colors;
     }
   }
 }
