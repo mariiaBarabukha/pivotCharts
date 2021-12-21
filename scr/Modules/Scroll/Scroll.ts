@@ -90,6 +90,7 @@ namespace pivotcharts {
         " style='--a: 0; --b: 100; --min: 0; --max: 100; --w:500; --left-margin:0'" +
         ">" +
         "<label class='sr-only' for='a'>Value A:</label>" +
+        
         "<input class='input-range' id='a' type='range' min='0' value='0' max='100' />" +
         "<output" +
         " for='a'" +
@@ -102,9 +103,11 @@ namespace pivotcharts {
         " style='--c: var(--b)'" +
         "></output>" +
         "<div id='scroller'><div>" +
+        // "<img src='../scr/Modules/Scroll/scrollThumb.svg' id='thumb_min'>"+
         "</div>"
       );
     }
+
 
     private _addListeners() {
       document.getElementById("a").addEventListener("change", (e) => {

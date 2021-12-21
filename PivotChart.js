@@ -2007,6 +2007,7 @@ var pivotcharts;
                 " style='--c: var(--b)'" +
                 "></output>" +
                 "<div id='scroller'><div>" +
+                // "<img src='../scr/Modules/Scroll/scrollThumb.svg' id='thumb_min'>"+
                 "</div>");
         }
         _addListeners() {
