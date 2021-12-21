@@ -71,6 +71,9 @@ namespace pivotcharts {
         {
           series: cSeries,
           labels: cLabels,
+          xaxis:{
+            categories: cLabels
+          },
           yaxis: { max: max, min: min, forceNiceScale: true },
         },
         false,

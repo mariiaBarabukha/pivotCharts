@@ -1983,6 +1983,9 @@ var pivotcharts;
             Data.Chart.updateOptions({
                 series: cSeries,
                 labels: cLabels,
+                xaxis: {
+                    categories: cLabels
+                },
                 yaxis: { max: max, min: min, forceNiceScale: true },
             }, false, false);
             Data.Model.dataStorage.stateOfUpdate = 0;
