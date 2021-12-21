@@ -1,11 +1,13 @@
 /* fix too small font-size in both Chrome & Firefox */
 .wrap {
     --dif: calc(var(--max) - var(--min));
-    --d:calc(var(--h)*0.9);
-    --r:10px;
+
+    --r:24px;
     --tH:6px;
     /* --h:calc(var(--tH)*6); */
-    --h:15px;
+    --h:36px;
+    /* --d:20px; */
+    --d:calc(var(--h)*0.9);
     /* --r:calc(var(--d)*0.5); */
     display: grid;
     grid-template: repeat(2, max-content) var(--h)/ 1fr 1fr;
@@ -99,8 +101,11 @@ input[type='range']::-webkit-slider-thumb {
     /* height: var(--h); */
     /* border-radius: 0; */
    /* get rid of Firefox corner rounding */
-    background: linear-gradient(90deg, transparent 2px, transparent 0) calc(var(--r) - 1px),
-     radial-gradient(circle, var(--col) calc(var(--r) - 1px), transparent var(--r));
+   background-image: url('scrollThumb.svg');
+   background-repeat: no-repeat;
+   background-position:center;
+    /* background: linear-gradient(90deg, transparent 2px, transparent 0) calc(var(--r) - 1px),
+     radial-gradient(circle, var(--col) calc(var(--r) - 1px), transparent var(--r)); */
     pointer-events: auto;
 }
 input[type='range']::-moz-range-thumb {
