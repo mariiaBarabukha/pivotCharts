@@ -195,7 +195,7 @@ namespace pivotcharts {
           var parent = (e.target as Element).parentNode as Element;
           var text = parent.getAttribute("value");
           var names = Object.assign(text.split("_"));
-          LabelsGroup.hiddens.push({ val: text, level: names.length - 1 });
+          // LabelsGroup.hiddens.push({ val: text, level: names.length - 1 });
           Data.DataStorage.manipulateChartData(
             names,
             Data.Flexmonster.drillDownCell,

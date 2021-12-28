@@ -36,7 +36,7 @@ namespace Data {
         });
       });
       Data.RowsLevels = (sortByColumns[0].map(x=>x.r_full.split('_').length-1));
-      pivotcharts.LabelsGroup.allLabels = (sortByColumns[0].map(x=>x.r_full));
+      // pivotcharts.LabelsGroup.allLabels = (sortByColumns[0].map(x=>x.r_full));
       return series;
     }
   }

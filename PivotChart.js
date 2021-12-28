@@ -228,7 +228,7 @@ var Data;
                 });
             });
             Data.RowsLevels = (sortByColumns[0].map(x => x.r_full.split('_').length - 1));
-            pivotcharts.LabelsGroup.allLabels = (sortByColumns[0].map(x => x.r_full));
+            // pivotcharts.LabelsGroup.allLabels = (sortByColumns[0].map(x=>x.r_full));
             return series;
         }
     }
@@ -1383,7 +1383,7 @@ var pivotcharts;
                     var parent = e.target.parentNode;
                     var text = parent.getAttribute("value");
                     var names = Object.assign(text.split("_"));
-                    pivotcharts.LabelsGroup.hiddens.push({ val: text, level: names.length - 1 });
+                    // LabelsGroup.hiddens.push({ val: text, level: names.length - 1 });
                     Data.DataStorage.manipulateChartData(names, Data.Flexmonster.drillDownCell, Data.Flexmonster.expandCell, "rows");
                     let cSeries = [...Data.BasicSeries.series];
                     cSeries.forEach((x) => {
@@ -2227,54 +2227,6 @@ var pivotcharts;
         }
     }
     pivotcharts.Scroll = Scroll;
-})(pivotcharts || (pivotcharts = {}));
-var pivotcharts;
-(function (pivotcharts) {
-    class LabelsGroup {
-        static findByValue(val) {
-            return this.allLabels.indexOf(val);
-        }
-        static makegroups() {
-            let copy = [...this.allLabels];
-            let parents = LabelsGroup.hiddens.map((x) => x.val);
-            let inGroups = copy.filter((x) => {
-                for (let i = 0; i < this.hiddens.length; i++) {
-                    if (x.includes(this.hiddens[i].val) && x != this.hiddens[i].val) {
-                        return true;
-                    }
-                }
-                return false;
-            });
-            //   let difference = inGroups.filter((x) => !parents.includes(x));
-            LabelsGroup.groups = {
-                inGroup: inGroups,
-                parents: parents,
-                singles: copy.filter((x) => !inGroups.includes(x)),
-                all: copy,
-            };
-            return LabelsGroup.groups;
-        }
-        static calculateX(colWidth, parentVal) {
-            let gr = LabelsGroup.makegroups();
-            if (!gr.parents.includes(parentVal)) {
-                return;
-            }
-            let sgr = gr.inGroup.filter((x) => x.includes(parentVal));
-            // let min = gr.inGroup.indexOf(parentVal);
-            let min = 0;
-            for (let i = 0; i < gr.all.length; i++) {
-                if (gr.all[i].includes(parentVal)) {
-                    min = i;
-                    break;
-                }
-            }
-            let max = min + sgr.length;
-            return colWidth * min + (colWidth * (max - min)) / 2;
-        }
-    }
-    LabelsGroup.allLabels = [];
-    LabelsGroup.hiddens = [];
-    pivotcharts.LabelsGroup = LabelsGroup;
 })(pivotcharts || (pivotcharts = {}));
 var charts;
 (function (charts) {
