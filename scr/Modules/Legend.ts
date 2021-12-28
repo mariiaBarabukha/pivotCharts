@@ -527,34 +527,8 @@ namespace pivotcharts {
               break;
             }
           }
-
-          // if(i!= 0 && w.globals.series_levels.slice(0,i - c + 1).includes(1)){
-          //   Data.NeedToChangeHeight = false;
-          // }else{
-          //   Data.NeedToChangeHeight = true;
-          // }
-          // let arr:number[] = [...w.globals.series_levels].slice(0,i-c+1); //check if there was another expand before
-          // if(arr.includes(1)){
-
-          // }
-          // else{
-
-          //   if(w.globals.series_levels[i] != 0){
-          //     this.needToResize = true;
-          //   }
-          // }
-          //wrapLegendSet = w.globals.dom.elLegendWrap.childNodes.item(wId);
           wrapLegendSet.appendChild(elLegend);
         }
-        // let maxLenDown = Math.max(...w.globals.series_levels.join('').split('0').map(x=>x.length))+1;
-        // if(this.needToResize && new_height < w.config.chart.height
-        //   +(Number(mStyle.height.replace("px", ""))+10)
-        //   *maxLenDown){
-        //     new_height+=Number(mStyle.height.replace("px", ""))+10;
-        // }
-        // mStyle.transform =
-        //   "translateX(" + 5 * w.globals.series_levels[i] + "px)";
-        // elLegendText.style.transform = mStyle.transform;
         elLegend.appendChild(elMarker);
         elLegend.appendChild(elLegendText);
         elLegend.style.transform = "translateX(" + 5 * w.globals.series_levels[i] + "px)";

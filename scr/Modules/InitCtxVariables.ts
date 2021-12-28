@@ -12,6 +12,7 @@ namespace pivotcharts{
             this.ctx.theme = new PivotTheme(this.ctx);
             this.ctx.rowsSelector = this.ctx.rowsSelector || new Data.RowsSelector(this.ctx);
             this.ctx.zoomPanSelection = new pivotcharts.ZoomPanSelection(this.ctx);
+            // this.ctx.labelsGroup = new pivotcharts.LabelsGroup(this.ctx);
         }
     }  
 

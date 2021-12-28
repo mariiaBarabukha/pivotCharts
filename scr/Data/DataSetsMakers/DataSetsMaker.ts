@@ -56,6 +56,36 @@ namespace Data {
         DataSetsMaker.cols_names.push(this._meta["c" + i + "Name"]);
       }
     }
+
+    protected combineFullNames(key, element, v){
+      if (key[0].includes("full")) {
+        var a =
+          element[key[0]] === undefined
+            ? ""
+            : element[key[0]]
+                .match(/(?<=\[)[^\][]*(?=])/g)
+                .map((x) => this.capitalizeFirstLetter(x))
+                .join("_");
+
+        if (this.includesDespiteCase(a, element[v])) {
+          element[v] = a;
+        } else {
+          if (!this.includesDespiteCase(element[v], a)) {
+            element[v] += "_" + a;
+          }
+        }
+      } else {
+        var b =
+          element[key[0]] === undefined ? "" : "_" + element[key[0]];
+        if (this.includesDespiteCase(b, element[v])) {
+          element[v] = b;
+        } else {
+          if (!this.includesDespiteCase(element[v], b)) {
+            element[v] += "_" + b;
+          }
+        }
+      }
+    }
     protected sortData(sortKey: string = "c_full"): any[] {
       this._data.splice(0, 1);
       this._data.forEach((element) => {
@@ -64,69 +94,18 @@ namespace Data {
         element.r_full = "";
         keys.forEach((key) => {
           if (key[0][0] == "c") {
-            if (key[0].includes("full")) {
-              var a =
-                element[key[0]] === undefined
-                  ? ""
-                  : element[key[0]]
-                      .match(/(?<=\[)[^\][]*(?=])/g)
-                      .map((x) => this.capitalizeFirstLetter(x))
-                      .join("_");
-
-              if (this.includesDespiteCase(a, element.c_full)) {
-                element.c_full = a;
-              } else {
-                if (!this.includesDespiteCase(element.c_full, a)) {
-                  element.c_full += "_" + a;
-                }
-              }
-            } else {
-              var b =
-                element[key[0]] === undefined ? "" : "_" + element[key[0]];
-              if (this.includesDespiteCase(b, element.c_full)) {
-                element.c_full = b;
-              } else {
-                if (!this.includesDespiteCase(element.c_full, b)) {
-                  element.c_full += "_" + b;
-                }
-              }
-            }
+            this.combineFullNames(key, element, "c_full");
           }
           if (key[0][0] == "r") {
-            if (key[0].includes("full")) {
-              var a = (element.r_full =
-                element[key[0]] === undefined
-                  ? ""
-                  : element[key[0]]
-                      .match(/(?<=\[)[^\][]*(?=])/g)
-                      .map((x) => this.capitalizeFirstLetter(x))
-                      .join("_"));
-              if (this.includesDespiteCase(a, element.r_full)) {
-                element.r_full = a;
-              } else {
-                if (!this.includesDespiteCase(element.r_full, a)) {
-                  element.r_full += "_" + a;
-                }
-              }
-            } else {
-              var b =
-                element[key[0]] === undefined ? "" : "_" + element[key[0]];
-              if (this.includesDespiteCase(b, element.r_full)) {
-                element.r_full = b;
-              } else {
-                if (!this.includesDespiteCase(element.r_full, b)) {
-                  element.r_full += "_" + b;
-                }
-              }
-            }
+            this.combineFullNames(key, element, "r_full");
           }
           if (key[0][0] == "v" && key[1] != key[1]) {
             element[key[0]] = 0;
           }
         });
 
-        element.c_full = this.removeFirstUnderLine(element.c_full);
-        element.r_full = this.removeFirstUnderLine(element.r_full);
+        element.c_full = this.removeFirstUnderLine(element.c_full.replace("__", "_"));
+        element.r_full = this.removeFirstUnderLine(element.r_full.replace("__", "_"));
 
         var categKey = sortKey == "c_full" ? "r_full" : "c_full";
         Data.Categories.push(element[categKey]);

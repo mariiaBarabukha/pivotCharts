@@ -45,6 +45,35 @@ var Data;
                 DataSetsMaker.cols_names.push(this._meta["c" + i + "Name"]);
             }
         }
+        combineFullNames(key, element, v) {
+            if (key[0].includes("full")) {
+                var a = element[key[0]] === undefined
+                    ? ""
+                    : element[key[0]]
+                        .match(/(?<=\[)[^\][]*(?=])/g)
+                        .map((x) => this.capitalizeFirstLetter(x))
+                        .join("_");
+                if (this.includesDespiteCase(a, element[v])) {
+                    element[v] = a;
+                }
+                else {
+                    if (!this.includesDespiteCase(element[v], a)) {
+                        element[v] += "_" + a;
+                    }
+                }
+            }
+            else {
+                var b = element[key[0]] === undefined ? "" : "_" + element[key[0]];
+                if (this.includesDespiteCase(b, element[v])) {
+                    element[v] = b;
+                }
+                else {
+                    if (!this.includesDespiteCase(element[v], b)) {
+                        element[v] += "_" + b;
+                    }
+                }
+            }
+        }
         sortData(sortKey = "c_full") {
             this._data.splice(0, 1);
             this._data.forEach((element) => {
@@ -53,70 +82,17 @@ var Data;
                 element.r_full = "";
                 keys.forEach((key) => {
                     if (key[0][0] == "c") {
-                        if (key[0].includes("full")) {
-                            var a = element[key[0]] === undefined
-                                ? ""
-                                : element[key[0]]
-                                    .match(/(?<=\[)[^\][]*(?=])/g)
-                                    .map((x) => this.capitalizeFirstLetter(x))
-                                    .join("_");
-                            if (this.includesDespiteCase(a, element.c_full)) {
-                                element.c_full = a;
-                            }
-                            else {
-                                if (!this.includesDespiteCase(element.c_full, a)) {
-                                    element.c_full += "_" + a;
-                                }
-                            }
-                        }
-                        else {
-                            var b = element[key[0]] === undefined ? "" : "_" + element[key[0]];
-                            if (this.includesDespiteCase(b, element.c_full)) {
-                                element.c_full = b;
-                            }
-                            else {
-                                if (!this.includesDespiteCase(element.c_full, b)) {
-                                    element.c_full += "_" + b;
-                                }
-                            }
-                        }
+                        this.combineFullNames(key, element, "c_full");
                     }
                     if (key[0][0] == "r") {
-                        if (key[0].includes("full")) {
-                            var a = (element.r_full =
-                                element[key[0]] === undefined
-                                    ? ""
-                                    : element[key[0]]
-                                        .match(/(?<=\[)[^\][]*(?=])/g)
-                                        .map((x) => this.capitalizeFirstLetter(x))
-                                        .join("_"));
-                            if (this.includesDespiteCase(a, element.r_full)) {
-                                element.r_full = a;
-                            }
-                            else {
-                                if (!this.includesDespiteCase(element.r_full, a)) {
-                                    element.r_full += "_" + a;
-                                }
-                            }
-                        }
-                        else {
-                            var b = element[key[0]] === undefined ? "" : "_" + element[key[0]];
-                            if (this.includesDespiteCase(b, element.r_full)) {
-                                element.r_full = b;
-                            }
-                            else {
-                                if (!this.includesDespiteCase(element.r_full, b)) {
-                                    element.r_full += "_" + b;
-                                }
-                            }
-                        }
+                        this.combineFullNames(key, element, "r_full");
                     }
                     if (key[0][0] == "v" && key[1] != key[1]) {
                         element[key[0]] = 0;
                     }
                 });
-                element.c_full = this.removeFirstUnderLine(element.c_full);
-                element.r_full = this.removeFirstUnderLine(element.r_full);
+                element.c_full = this.removeFirstUnderLine(element.c_full.replace("__", "_"));
+                element.r_full = this.removeFirstUnderLine(element.r_full.replace("__", "_"));
                 var categKey = sortKey == "c_full" ? "r_full" : "c_full";
                 Data.Categories.push(element[categKey]);
             });
@@ -222,6 +198,7 @@ var Data;
         }
         makeDataSets() {
             this.riseAllCollapsedSeries();
+            // Data.RowsLevels = [];
             this.determinateRowsNames();
             this.determinateColumnsNames();
             var sortByColumns = this.sortData();
@@ -247,8 +224,11 @@ var Data;
                     data: group.map((a) => a.v0),
                     full_name: group[0][key],
                     level: n.length - 1,
+                    r_fulls: group.map(x => x.r_full)
                 });
             });
+            Data.RowsLevels = (sortByColumns[0].map(x => x.r_full.split('_').length - 1));
+            pivotcharts.LabelsGroup.allLabels = (sortByColumns[0].map(x => x.r_full));
             return series;
         }
     }
@@ -506,6 +486,8 @@ var Data;
     Data.DropScroll = false;
     Data.LegendHeightZero = 0;
     Data.updateLegend = false;
+    Data.xaxisHiddenLabels = [];
+    Data.RowsLevels = [];
     function processData(rawData, type) {
         if (type != undefined) {
             Data.chartType = type;
@@ -524,6 +506,7 @@ var Data;
         else {
             Data.DropScroll = false;
         }
+        // Chart.axes.expand();
         return data;
     }
     Data.processData = processData;
@@ -957,31 +940,8 @@ var pivotcharts;
                             break;
                         }
                     }
-                    // if(i!= 0 && w.globals.series_levels.slice(0,i - c + 1).includes(1)){
-                    //   Data.NeedToChangeHeight = false;
-                    // }else{
-                    //   Data.NeedToChangeHeight = true;
-                    // }
-                    // let arr:number[] = [...w.globals.series_levels].slice(0,i-c+1); //check if there was another expand before
-                    // if(arr.includes(1)){
-                    // }
-                    // else{
-                    //   if(w.globals.series_levels[i] != 0){
-                    //     this.needToResize = true;
-                    //   }
-                    // }
-                    //wrapLegendSet = w.globals.dom.elLegendWrap.childNodes.item(wId);
                     wrapLegendSet.appendChild(elLegend);
                 }
-                // let maxLenDown = Math.max(...w.globals.series_levels.join('').split('0').map(x=>x.length))+1;
-                // if(this.needToResize && new_height < w.config.chart.height
-                //   +(Number(mStyle.height.replace("px", ""))+10)
-                //   *maxLenDown){
-                //     new_height+=Number(mStyle.height.replace("px", ""))+10;
-                // }
-                // mStyle.transform =
-                //   "translateX(" + 5 * w.globals.series_levels[i] + "px)";
-                // elLegendText.style.transform = mStyle.transform;
                 elLegend.appendChild(elMarker);
                 elLegend.appendChild(elLegendText);
                 elLegend.style.transform = "translateX(" + 5 * w.globals.series_levels[i] + "px)";
@@ -1276,6 +1236,7 @@ var pivotcharts;
             this.ctx.theme = new pivotcharts.PivotTheme(this.ctx);
             this.ctx.rowsSelector = this.ctx.rowsSelector || new Data.RowsSelector(this.ctx);
             this.ctx.zoomPanSelection = new pivotcharts.ZoomPanSelection(this.ctx);
+            // this.ctx.labelsGroup = new pivotcharts.LabelsGroup(this.ctx);
         }
     }
     pivotcharts.PivotInitCtxVariables = PivotInitCtxVariables;
@@ -1290,16 +1251,17 @@ var pivotcharts;
             var w = this.w;
             var graphics = new pivotcharts.PivotGraphics(this.ctx);
             var elXaxis = graphics.group({
-                class: 'apexcharts-xaxis',
-                transform: "translate(".concat(w.config.xaxis.offsetX, ", ").concat(w.config.xaxis.offsetY, ")")
+                class: "apexcharts-xaxis",
+                transform: "translate("
+                    .concat(w.config.xaxis.offsetX, ", ")
+                    .concat(w.config.xaxis.offsetY, ")"),
             });
             var elXaxisTexts = graphics.group({
-                class: 'apexcharts-xaxis-texts-g',
-                transform: "translate(".concat(w.globals.translateXAxisX, ", ").concat(w.globals.translateXAxisY, ")")
+                class: "apexcharts-xaxis-texts-g",
+                transform: "translate("
+                    .concat(w.globals.translateXAxisX, ", ")
+                    .concat(w.globals.translateXAxisY, ")"),
             });
-            // if(document.getElementsByClassName("apexcharts-xaxis").length == 0){
-            //   //return;
-            // }
             elXaxis.add(elXaxisTexts);
             var colWidth; // initial x Position (keep adding column width in the loop)
             var xPos = w.globals.padHorizontal;
@@ -1319,7 +1281,10 @@ var pivotcharts;
             }
             var _loop = function _loop(_i) {
                 var x = xPos - colWidth / 2 + w.config.xaxis.labels.offsetX;
-                if (_i === 0 && labelsLen === 1 && colWidth / 2 === xPos && w.globals.dataPoints === 1) {
+                if (_i === 0 &&
+                    labelsLen === 1 &&
+                    colWidth / 2 === xPos &&
+                    w.globals.dataPoints === 1) {
                     // single datapoint
                     x = w.globals.gridWidth / 2;
                 }
@@ -1328,7 +1293,9 @@ var pivotcharts;
                 if (w.globals.rotateXLabels) {
                     offsetYCorrection = 22;
                 }
-                var isCategoryTickAmounts = typeof w.config.xaxis.tickAmount !== 'undefined' && w.config.xaxis.tickAmount !== 'dataPoints' && w.config.xaxis.type !== 'datetime';
+                var isCategoryTickAmounts = typeof w.config.xaxis.tickAmount !== "undefined" &&
+                    w.config.xaxis.tickAmount !== "dataPoints" &&
+                    w.config.xaxis.type !== "datetime";
                 if (isCategoryTickAmounts) {
                     label = _this.axesUtils.checkLabelBasedOnTickamount(_i, label, labelsLen);
                 }
@@ -1336,7 +1303,9 @@ var pivotcharts;
                     label = _this.axesUtils.checkForOverflowingLabels(_i, label, labelsLen, _this.drawnLabels, _this.drawnLabelsRects);
                 }
                 var getCatForeColor = function getCatForeColor() {
-                    return w.config.xaxis.convertedCatToNumeric ? _this.xaxisForeColors[w.globals.minX + _i - 1] : _this.xaxisForeColors[_i];
+                    return w.config.xaxis.convertedCatToNumeric
+                        ? _this.xaxisForeColors[w.globals.minX + _i - 1]
+                        : _this.xaxisForeColors[_i];
                 };
                 if (label.text) {
                     w.globals.xaxisLabelsCount++;
@@ -1344,22 +1313,33 @@ var pivotcharts;
                 if (w.config.xaxis.labels.show) {
                     var elText = graphics.drawText({
                         x: label.x,
-                        y: _this.offY + w.config.xaxis.labels.offsetY + offsetYCorrection - (w.config.xaxis.position === 'top' ? w.globals.xAxisHeight + w.config.xaxis.axisTicks.height - 2 : 0),
+                        y: _this.offY +
+                            w.config.xaxis.labels.offsetY +
+                            offsetYCorrection -
+                            (w.config.xaxis.position === "top"
+                                ? w.globals.xAxisHeight + w.config.xaxis.axisTicks.height - 2
+                                : 0),
                         text: label.text,
-                        textAnchor: 'middle',
-                        fontWeight: label.isBold ? 600 : w.config.xaxis.labels.style.fontWeight,
+                        textAnchor: "middle",
+                        fontWeight: label.isBold
+                            ? 600
+                            : w.config.xaxis.labels.style.fontWeight,
                         fontSize: _this.xaxisFontSize,
                         fontFamily: _this.xaxisFontFamily,
-                        foreColor: Array.isArray(_this.xaxisForeColors) ? getCatForeColor() : _this.xaxisForeColors,
+                        foreColor: Array.isArray(_this.xaxisForeColors)
+                            ? getCatForeColor()
+                            : _this.xaxisForeColors,
                         isPlainText: false,
                         opacity: undefined,
-                        cssClass: 'apexcharts-xaxis-label ' + w.config.xaxis.labels.style.cssClass
+                        cssClass: "apexcharts-xaxis-label " + w.config.xaxis.labels.style.cssClass,
                     });
                     elXaxisTexts.add(elText);
-                    var elTooltipTitle = document.createElementNS(w.globals.SVGNS, 'title');
-                    elTooltipTitle.textContent = Array.isArray(label.text) ? label.text.join(' ') : label.text;
+                    var elTooltipTitle = document.createElementNS(w.globals.SVGNS, "title");
+                    elTooltipTitle.textContent = Array.isArray(label.text)
+                        ? label.text.join(" ")
+                        : label.text;
                     elText.node.appendChild(elTooltipTitle);
-                    if (label.text !== '') {
+                    if (label.text !== "") {
                         _this.drawnLabels.push(label.text);
                         _this.drawnLabelsRects.push(label);
                     }
@@ -1371,19 +1351,23 @@ var pivotcharts;
             }
             if (w.config.xaxis.title.text !== undefined) {
                 var elXaxisTitle = graphics.group({
-                    class: 'apexcharts-xaxis-title'
+                    class: "apexcharts-xaxis-title",
                 });
                 var elXAxisTitleText = graphics.drawText({
                     x: w.globals.gridWidth / 2 + w.config.xaxis.title.offsetX,
-                    y: this.offY + parseFloat(this.xaxisFontSize) + w.globals.xAxisLabelsHeight + w.config.xaxis.title.offsetY,
+                    y: this.offY +
+                        parseFloat(this.xaxisFontSize) +
+                        w.globals.xAxisLabelsHeight +
+                        w.config.xaxis.title.offsetY,
                     text: w.config.xaxis.title.text,
-                    textAnchor: 'middle',
+                    textAnchor: "middle",
                     fontSize: w.config.xaxis.title.style.fontSize,
                     fontFamily: w.config.xaxis.title.style.fontFamily,
                     fontWeight: w.config.xaxis.title.style.fontWeight,
                     foreColor: w.config.xaxis.title.style.color,
                     opacity: undefined,
-                    cssClass: 'apexcharts-xaxis-title-text ' + w.config.xaxis.title.style.cssClass
+                    cssClass: "apexcharts-xaxis-title-text " +
+                        w.config.xaxis.title.style.cssClass,
                 });
                 elXaxisTitle.add(elXAxisTitleText);
                 elXaxis.add(elXaxisTitle);
@@ -1393,25 +1377,54 @@ var pivotcharts;
                 var elHorzLine = graphics.drawLine(w.globals.padHorizontal + w.config.xaxis.axisBorder.offsetX - offX, this.offY, this.xaxisBorderWidth + offX, this.offY, w.config.xaxis.axisBorder.color, 0, this.xaxisBorderHeight);
                 elXaxis.add(elHorzLine);
             }
-            var _labels = document.querySelectorAll('.apexcharts-xaxis-label');
+            var _labels = document.querySelectorAll(".apexcharts-xaxis-label");
             for (var i = 0; i < _labels.length; i++) {
-                _labels[i].addEventListener('click', (e) => {
+                _labels[i].addEventListener("click", (e) => {
                     var parent = e.target.parentNode;
-                    var text = parent.getAttribute('value');
-                    var names = Object.assign(text.split('_'));
+                    var text = parent.getAttribute("value");
+                    var names = Object.assign(text.split("_"));
+                    pivotcharts.LabelsGroup.hiddens.push({ val: text, level: names.length - 1 });
                     Data.DataStorage.manipulateChartData(names, Data.Flexmonster.drillDownCell, Data.Flexmonster.expandCell, "rows");
-                    // Data.Flexmonster.expandCell('rows', names);
-                    var index = Data.Chart.w.config.xaxis.categories.indexOf(text);
-                    var curr_button = document.getElementById(index + '_button');
-                    // curr_button.disabled = false;
+                    let cSeries = [...Data.BasicSeries.series];
+                    cSeries.forEach((x) => {
+                        let inds = [];
+                        for (let i = 0; i < x.r_fulls.length; i++) {
+                            if (!x.r_fulls[i].includes(text) || x.r_fulls[i] == text) {
+                                inds.push(i);
+                            }
+                        }
+                        inds.reverse();
+                        inds.forEach((y) => {
+                            x.data.splice(y, 1);
+                        });
+                        x.r_fulls = x.r_fulls.filter((a) => a.includes(text) && a != text);
+                    });
+                    var cLabels = cSeries[0].r_fulls.map((x) => {
+                        let t = x.split("_");
+                        let l = t.length;
+                        return t[l - 1];
+                    });
+                    Data.Chart.updateOptions({
+                        series: cSeries,
+                        labels: cLabels,
+                        xaxis: {
+                            categories: cLabels,
+                        },
+                    });
+                    let bp = document.getElementById("buttons_panel");
+                    let b = document.createElement("button");
+                    b.onclick = () => this.close(text);
+                    bp.appendChild(b);
+                    b.value = text;
+                    b.innerHTML = "Back";
                 });
             }
             return elXaxis;
         }
-        static close(id) {
-            var index = id.split('_')[0];
-            Data.DataStorage.manipulateChartData(Data.Chart.w.config.xaxis.categories[index].split('_'), Data.Flexmonster.drillUpCell, Data.Flexmonster.collapseCell, "rows");
-            document.getElementById(id).disabled = true;
+        close(val) {
+            // var index = id.split("_")[0];
+            Data.DataStorage.manipulateChartData(val.split("_"), Data.Flexmonster.drillUpCell, Data.Flexmonster.collapseCell, "rows");
+            document.getElementById("buttons_panel").innerHTML = "";
         }
     }
     pivotcharts.PivotXAxis = PivotXAxis;
@@ -1421,7 +1434,7 @@ var pivotcharts;
             var cnf = this.w.config;
             let xAxis = new PivotXAxis(this.ctx);
             var yAxis = new apexcharts.YAxis(this.ctx);
-            if (gl.axisCharts && type !== 'radar') {
+            if (gl.axisCharts && type !== "radar") {
                 let elXaxis, elYaxis;
                 if (gl.isBarHorizontal) {
                     elYaxis = yAxis.drawYaxisInversed(0);
@@ -1515,6 +1528,8 @@ var pivotcharts;
             var gl = this.w.globals;
             gl.full_name = [];
             gl.series_levels = [];
+            let rf = ser[0].r_fulls;
+            gl.rows_levels = rf.map(x => x.split('_').length - 1);
             for (let i = 0; i < ser.length; i++) {
                 if (ser[i].full_name !== undefined) {
                     gl.full_name.push(ser[i].full_name);
@@ -2212,6 +2227,54 @@ var pivotcharts;
         }
     }
     pivotcharts.Scroll = Scroll;
+})(pivotcharts || (pivotcharts = {}));
+var pivotcharts;
+(function (pivotcharts) {
+    class LabelsGroup {
+        static findByValue(val) {
+            return this.allLabels.indexOf(val);
+        }
+        static makegroups() {
+            let copy = [...this.allLabels];
+            let parents = LabelsGroup.hiddens.map((x) => x.val);
+            let inGroups = copy.filter((x) => {
+                for (let i = 0; i < this.hiddens.length; i++) {
+                    if (x.includes(this.hiddens[i].val) && x != this.hiddens[i].val) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+            //   let difference = inGroups.filter((x) => !parents.includes(x));
+            LabelsGroup.groups = {
+                inGroup: inGroups,
+                parents: parents,
+                singles: copy.filter((x) => !inGroups.includes(x)),
+                all: copy,
+            };
+            return LabelsGroup.groups;
+        }
+        static calculateX(colWidth, parentVal) {
+            let gr = LabelsGroup.makegroups();
+            if (!gr.parents.includes(parentVal)) {
+                return;
+            }
+            let sgr = gr.inGroup.filter((x) => x.includes(parentVal));
+            // let min = gr.inGroup.indexOf(parentVal);
+            let min = 0;
+            for (let i = 0; i < gr.all.length; i++) {
+                if (gr.all[i].includes(parentVal)) {
+                    min = i;
+                    break;
+                }
+            }
+            let max = min + sgr.length;
+            return colWidth * min + (colWidth * (max - min)) / 2;
+        }
+    }
+    LabelsGroup.allLabels = [];
+    LabelsGroup.hiddens = [];
+    pivotcharts.LabelsGroup = LabelsGroup;
 })(pivotcharts || (pivotcharts = {}));
 var charts;
 (function (charts) {

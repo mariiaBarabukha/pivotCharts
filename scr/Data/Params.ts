@@ -16,6 +16,8 @@ namespace Data{
     export var originalChartHeight: number;
     export var gridObjHeight;
     export var OldSeries;
+    export var xaxisHiddenLabels=[];
+    export var RowsLevels = [];
     
     export function processData(rawData, type?){
         if(type != undefined){
@@ -35,6 +37,7 @@ namespace Data{
             DropScroll = false;
 
         }
+        // Chart.axes.expand();
         return data;
     }
 

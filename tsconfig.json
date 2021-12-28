@@ -41,7 +41,8 @@
         "scr/Modules/Theme.ts",
         "scr/Modules/ZoomPanSelection.ts",
         "scr/Modules/Scroll/Scroll.ts",
-        
+        "scr/Modules/LabelsGroup.ts",
+
         "scr/Charts/Bar.ts",
         "scr/Charts/Pie.ts",
         "scr/Charts/Radar.ts",

@@ -8,6 +8,9 @@ namespace pivotcharts {
       var gl = this.w.globals;
       gl.full_name = [];
       gl.series_levels = [];
+      let rf = ser[0].r_fulls;
+      gl.rows_levels = rf.map(x=>x.split('_').length-1);
+
       for (let i = 0; i < ser.length; i++) {
         if (ser[i].full_name !== undefined) {
           gl.full_name.push(ser[i].full_name);

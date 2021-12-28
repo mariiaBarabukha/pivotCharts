@@ -5,7 +5,7 @@ namespace Data {
     }
     makeDataSets() {
       this.riseAllCollapsedSeries();
-
+      // Data.RowsLevels = [];
       this.determinateRowsNames();
       this.determinateColumnsNames();
       var sortByColumns = this.sortData();
@@ -32,8 +32,11 @@ namespace Data {
           data: group.map((a) => a.v0),
           full_name: group[0][key],
           level: n.length - 1,
+          r_fulls: group.map(x=>x.r_full)
         });
       });
+      Data.RowsLevels = (sortByColumns[0].map(x=>x.r_full.split('_').length-1));
+      pivotcharts.LabelsGroup.allLabels = (sortByColumns[0].map(x=>x.r_full));
       return series;
     }
   }
