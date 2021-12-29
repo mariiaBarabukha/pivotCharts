@@ -189,6 +189,7 @@ namespace pivotcharts {
         );
         elXaxis.add(elHorzLine);
       }
+
       var _labels = document.querySelectorAll(".apexcharts-xaxis-label");
       for (var i = 0; i < _labels.length; i++) {
         _labels[i].addEventListener("click", (e) => {
@@ -233,6 +234,9 @@ namespace pivotcharts {
             },
           });
           let bp = document.getElementById("buttons_panel");
+          if (bp.innerHTML != "") {
+            bp.innerHTML = "";
+          }
           let b = document.createElement("button");
           b.onclick = () => this.close(text);
           bp.appendChild(b);
@@ -251,7 +255,53 @@ namespace pivotcharts {
         Data.Flexmonster.collapseCell,
         "rows"
       );
-      document.getElementById("buttons_panel").innerHTML = "";
+      let bp = document.getElementById("buttons_panel");
+      bp.innerHTML = "";
+
+      let tt = val.split("_");
+      let text = tt.slice(0, tt.length - 1).join("_");
+      if (val.split("_").length > 1) {
+        // let b = document.createElement("button");
+        let b = document.createElement("button");
+
+        b.onclick = () => this.close(text);
+        bp.appendChild(b);
+        b.value = text;
+        b.innerHTML = "Back";
+      }
+
+      if(text.length > 0){
+        let cSeries = [...Data.BasicSeries.series];
+        cSeries.forEach((x) => {
+          let inds = [];
+          for (let i = 0; i < x.r_fulls.length; i++) {
+            if (!x.r_fulls[i].includes(text) || x.r_fulls[i] == text) {
+              inds.push(i);
+            }
+          }
+  
+          inds.reverse();
+          inds.forEach((y) => {
+            x.data.splice(y, 1);
+          });
+  
+          x.r_fulls = x.r_fulls.filter((a) => a.includes(text) && a != text);
+        });
+  
+        var cLabels = cSeries[0].r_fulls.map((x) => {
+          let t = x.split("_");
+          let l = t.length;
+          return t[l - 1];
+        });
+        Data.Chart.updateOptions({
+          series: cSeries,
+          labels: cLabels,
+          xaxis: {
+            categories: cLabels,
+          },
+        });
+      }
+      
     }
   }
 
