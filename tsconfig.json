@@ -33,7 +33,7 @@
         "scr/Modules/Legend.ts",
         "scr/Modules/Core.ts",
         "scr/Modules/InitCtxVariables.ts",
-        "scr/Modules/Axis.ts",
+        "scr/Modules/Axis/Axis.ts",
         "scr/Modules/Grid.ts",
         "scr/Modules/Data.ts",
         "scr/Modules/UpdateHelper.ts",

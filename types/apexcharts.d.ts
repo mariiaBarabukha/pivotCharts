@@ -160,6 +160,8 @@ declare module apexcharts {
     static setAttrs(el, attrs);
     pathMouseDown(path, e);
     group(a);
+    rotateAroundCenter(x);
+    placeTextWithEllipsis(a,b,c);
     drawText({
       x,
       y,

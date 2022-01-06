@@ -3828,7 +3828,7 @@
             overwriteCategories: undefined,
             labels: {
               show: true,
-              rotate: -45,
+              // rotate: -45,
               rotateAlways: false,
               hideOverlappingLabels: true,
               trim: false,
