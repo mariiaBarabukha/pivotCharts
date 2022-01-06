@@ -1,0 +1,6 @@
+.apexcharts-text tspan {
+    width: 30px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
