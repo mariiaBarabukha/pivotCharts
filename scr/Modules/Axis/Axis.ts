@@ -1,89 +1,94 @@
 namespace pivotcharts {
   export class PivotXAxis extends apexcharts.XAxis {
 
+
     xAxisLabelCorrections() {
-      let w = this.w
-  
-      let graphics = new apexcharts.Graphics(this.ctx)
-  
-      let xAxis = w.globals.dom.baseEl.querySelector('.apexcharts-xaxis-texts-g')
-  
+      let w = this.w;
+
+      let graphics = new apexcharts.Graphics(this.ctx);
+
+      let xAxis = w.globals.dom.baseEl.querySelector(
+        ".apexcharts-xaxis-texts-g"
+      );
+
       let xAxisTexts = w.globals.dom.baseEl.querySelectorAll(
-        '.apexcharts-xaxis-texts-g text'
-      )
+        ".apexcharts-xaxis-texts-g text"
+      );
       let yAxisTextsInversed = w.globals.dom.baseEl.querySelectorAll(
-        '.apexcharts-yaxis-inversed text'
-      )
+        ".apexcharts-yaxis-inversed text"
+      );
       let xAxisTextsInversed = w.globals.dom.baseEl.querySelectorAll(
-        '.apexcharts-xaxis-inversed-texts-g text tspan'
-      )
-  
+        ".apexcharts-xaxis-inversed-texts-g text tspan"
+      );
+
       if (w.globals.rotateXLabels || w.config.xaxis.labels.rotateAlways) {
-        for (let xat = 0; xat < xAxisTexts.length; xat++) {
-          let textRotatingCenter = graphics.rotateAroundCenter(xAxisTexts[xat])
-          textRotatingCenter.y = textRotatingCenter.y - 1 // + tickWidth/4;
-          textRotatingCenter.x = textRotatingCenter.x + 1
-  
-          // xAxisTexts[xat].setAttribute(
-          //   'transform',
-          //   // `rotate(${w.config.xaxis.labels.rotate} ${textRotatingCenter.x} ${textRotatingCenter.y})`
-          // )
-  
-          xAxisTexts[xat].setAttribute('text-anchor', `end`)
-  
-          let offsetHeight = 10
-  
-          xAxis.setAttribute('transform', `translate(0, ${-offsetHeight})`)
-  
-          let tSpan = xAxisTexts[xat].childNodes
-  
-          if (w.config.xaxis.labels.trim) {
-            Array.prototype.forEach.call(tSpan, (ts) => {
-              graphics.placeTextWithEllipsis(
-                ts,
-                ts.textContent,
-                w.globals.xAxisLabelsHeight -
-                  (w.config.legend.position === 'bottom' ? 20 : 10)
-              )
-            })
-          }
-        }
+        // for (let xat = 0; xat < xAxisTexts.length; xat++) {
+        //   let textRotatingCenter = graphics.rotateAroundCenter(xAxisTexts[xat]);
+        //   textRotatingCenter.y = textRotatingCenter.y - 1; // + tickWidth/4;
+        //   textRotatingCenter.x = textRotatingCenter.x + 1;
+
+        //   // xAxisTexts[xat].setAttribute(
+        //   //   'transform',
+        //   //   // `rotate(${w.config.xaxis.labels.rotate} ${textRotatingCenter.x} ${textRotatingCenter.y})`
+        //   // )
+
+        //   xAxisTexts[xat].setAttribute("text-anchor", `end`);
+
+        //   let offsetHeight = 10;
+
+        //   xAxis.setAttribute("transform", `translate(0, ${-offsetHeight})`);
+
+        //   let tSpan = xAxisTexts[xat].childNodes;
+
+        //   if (w.config.xaxis.labels.trim) {
+        //     Array.prototype.forEach.call(tSpan, (ts) => {
+        //       graphics.placeTextWithEllipsis(
+        //         ts,
+        //         ts.textContent,
+        //         w.globals.xAxisLabelsHeight -
+        //           (w.config.legend.position === "bottom" ? 20 : 10)
+        //       );
+        //     });
+        //   }
+        // }
       } else {
-        let width = w.globals.gridWidth / (w.globals.labels.length + 1)
-  
+        let width = w.globals.gridWidth / (w.globals.labels.length + 1);
+
         for (let xat = 0; xat < xAxisTexts.length; xat++) {
-          let tSpan = xAxisTexts[xat].childNodes
-  
-          if (w.config.xaxis.labels.trim && w.config.xaxis.type !== 'datetime') {
+          let tSpan = xAxisTexts[xat].childNodes;
+
+          if (
+            w.config.xaxis.labels.trim &&
+            w.config.xaxis.type !== "datetime"
+          ) {
             Array.prototype.forEach.call(tSpan, (ts) => {
-              graphics.placeTextWithEllipsis(ts, ts.textContent, width)
-            })
+              graphics.placeTextWithEllipsis(ts, ts.textContent, width);
+            });
           }
         }
       }
-  
+
       if (yAxisTextsInversed.length > 0) {
         // truncate rotated y axis in bar chart (x axis)
-        let firstLabelPosX = yAxisTextsInversed[
-          yAxisTextsInversed.length - 1
-        ].getBBox()
-        let lastLabelPosX = yAxisTextsInversed[0].getBBox()
-  
+        let firstLabelPosX =
+          yAxisTextsInversed[yAxisTextsInversed.length - 1].getBBox();
+        let lastLabelPosX = yAxisTextsInversed[0].getBBox();
+
         if (firstLabelPosX.x < -20) {
           yAxisTextsInversed[
             yAxisTextsInversed.length - 1
           ].parentNode.removeChild(
             yAxisTextsInversed[yAxisTextsInversed.length - 1]
-          )
+          );
         }
-  
+
         if (
           lastLabelPosX.x + lastLabelPosX.width > w.globals.gridWidth &&
           !w.globals.isBarHorizontal
         ) {
-          yAxisTextsInversed[0].parentNode.removeChild(yAxisTextsInversed[0])
+          yAxisTextsInversed[0].parentNode.removeChild(yAxisTextsInversed[0]);
         }
-  
+
         // truncate rotated x axis in bar chart (y axis)
         for (let xat = 0; xat < xAxisTextsInversed.length; xat++) {
           graphics.placeTextWithEllipsis(
@@ -92,11 +97,15 @@ namespace pivotcharts {
             w.config.yaxis[0].labels.maxWidth -
               parseFloat(w.config.yaxis[0].title.style.fontSize) * 2 -
               20
-          )
+          );
         }
       }
     }
-  
+
+    
+    
+
+
     drawXaxis() {
       let aa = document.getElementsByClassName("apexcharts-xaxis");
 
@@ -198,8 +207,7 @@ namespace pivotcharts {
           w.globals.xaxisLabelsCount++;
         }
 
-        if(label.text.le){
-
+        if (label.text.le) {
         }
 
         if (w.config.xaxis.labels.show) {
@@ -227,10 +235,23 @@ namespace pivotcharts {
             cssClass:
               "apexcharts-xaxis-label " + w.config.xaxis.labels.style.cssClass,
           });
+          let trimT = function trimText(elText, colWidth){
+            let l = elText.node.getBBox();
+            if(l.width > colWidth){
+              let v = elText.node.childNodes[0].innerHTML;
+              let nv = v.slice(0,v.length-4);
+              elText.node.childNodes[0].innerHTML = nv+'...';
+              let nw = elText.node.getBBox();
+              // if(nw.width > colWidth){
+              //   trimText(elText, colWidth);
+              // }
+              // v = "...";
+            }
+          }
 
-          // elText.node.childNodes[0].classList.add("truncate");
-
+          trimT(elText, colWidth);
           
+          // elText.node.setAttribute("width", colWidth)
 
           elXaxisTexts.add(elText);
           var elTooltipTitle = document.createElementNS(
@@ -328,38 +349,39 @@ namespace pivotcharts {
       return elXaxis;
     }
 
-    private selectCurrent(text){
+    private selectCurrent(text) {
       let cSeries = [...Data.BasicSeries.series];
 
-          cSeries.forEach((x) => {
-            let inds = [];
-            for (let i = 0; i < x.r_fulls.length; i++) {
-              if (!x.r_fulls[i].includes(text) || x.r_fulls[i] == text) {
-                inds.push(i);
-              }
-            }
+      cSeries.forEach((x) => {
+        let inds = [];
+        for (let i = 0; i < x.r_fulls.length; i++) {
+          if (!x.r_fulls[i].includes(text) || x.r_fulls[i] == text) {
+            inds.push(i);
+          }
+        }
 
-            inds.reverse();
-            inds.forEach((y) => {
-              x.data.splice(y, 1);
-            });
+        inds.reverse();
+        inds.forEach((y) => {
+          x.data.splice(y, 1);
+        });
 
-            x.r_fulls = x.r_fulls.filter((a) => a.includes(text) && a != text);
-          });
+        x.r_fulls = x.r_fulls.filter((a) => a.includes(text) && a != text);
+      });
 
-          var cLabels = cSeries[0].r_fulls.map((x) => {
-            let t = x.split("_");
-            let l = t.length;
-            return t[l - 1];
-          });
-          Data.Chart.updateOptions({
-            series: cSeries,
-            labels: cLabels,
-            xaxis: {
-              categories: cLabels,
-            },
-          });
+      var cLabels = cSeries[0].r_fulls.map((x) => {
+        let t = x.split("_");
+        let l = t.length;
+        return t[l - 1];
+      });
+      Data.Chart.updateOptions({
+        series: cSeries,
+        labels: cLabels,
+        xaxis: {
+          categories: cLabels,
+        },
+      });
     }
+
 
     private close(val: string) {
       // var index = id.split("_")[0];
@@ -384,10 +406,9 @@ namespace pivotcharts {
         b.innerHTML = "Back";
       }
 
-      if(text.length > 0){
+      if (text.length > 0) {
         this.selectCurrent(text);
       }
-      
     }
   }
 

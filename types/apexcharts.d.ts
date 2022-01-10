@@ -158,6 +158,7 @@ declare module apexcharts {
   export class Graphics{
     constructor(ctx);
     static setAttrs(el, attrs);
+    w;
     pathMouseDown(path, e);
     group(a);
     rotateAroundCenter(x);

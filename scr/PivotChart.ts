@@ -6,6 +6,8 @@ namespace pivotcharts {
 
       initCtx.initModules();
       Data.Chart = this;
+      document.head.innerHTML +=
+        "<link rel='stylesheet' href='../scr/Modules/Axis/style.css' />";
     }
 
     // updateSeries(newSeries = [], animate = true, overwriteInitialSeries = true) {

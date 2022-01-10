@@ -1247,36 +1247,41 @@ var pivotcharts;
         xAxisLabelCorrections() {
             let w = this.w;
             let graphics = new apexcharts.Graphics(this.ctx);
-            let xAxis = w.globals.dom.baseEl.querySelector('.apexcharts-xaxis-texts-g');
-            let xAxisTexts = w.globals.dom.baseEl.querySelectorAll('.apexcharts-xaxis-texts-g text');
-            let yAxisTextsInversed = w.globals.dom.baseEl.querySelectorAll('.apexcharts-yaxis-inversed text');
-            let xAxisTextsInversed = w.globals.dom.baseEl.querySelectorAll('.apexcharts-xaxis-inversed-texts-g text tspan');
+            let xAxis = w.globals.dom.baseEl.querySelector(".apexcharts-xaxis-texts-g");
+            let xAxisTexts = w.globals.dom.baseEl.querySelectorAll(".apexcharts-xaxis-texts-g text");
+            let yAxisTextsInversed = w.globals.dom.baseEl.querySelectorAll(".apexcharts-yaxis-inversed text");
+            let xAxisTextsInversed = w.globals.dom.baseEl.querySelectorAll(".apexcharts-xaxis-inversed-texts-g text tspan");
             if (w.globals.rotateXLabels || w.config.xaxis.labels.rotateAlways) {
-                for (let xat = 0; xat < xAxisTexts.length; xat++) {
-                    let textRotatingCenter = graphics.rotateAroundCenter(xAxisTexts[xat]);
-                    textRotatingCenter.y = textRotatingCenter.y - 1; // + tickWidth/4;
-                    textRotatingCenter.x = textRotatingCenter.x + 1;
-                    // xAxisTexts[xat].setAttribute(
-                    //   'transform',
-                    //   // `rotate(${w.config.xaxis.labels.rotate} ${textRotatingCenter.x} ${textRotatingCenter.y})`
-                    // )
-                    xAxisTexts[xat].setAttribute('text-anchor', `end`);
-                    let offsetHeight = 10;
-                    xAxis.setAttribute('transform', `translate(0, ${-offsetHeight})`);
-                    let tSpan = xAxisTexts[xat].childNodes;
-                    if (w.config.xaxis.labels.trim) {
-                        Array.prototype.forEach.call(tSpan, (ts) => {
-                            graphics.placeTextWithEllipsis(ts, ts.textContent, w.globals.xAxisLabelsHeight -
-                                (w.config.legend.position === 'bottom' ? 20 : 10));
-                        });
-                    }
-                }
+                // for (let xat = 0; xat < xAxisTexts.length; xat++) {
+                //   let textRotatingCenter = graphics.rotateAroundCenter(xAxisTexts[xat]);
+                //   textRotatingCenter.y = textRotatingCenter.y - 1; // + tickWidth/4;
+                //   textRotatingCenter.x = textRotatingCenter.x + 1;
+                //   // xAxisTexts[xat].setAttribute(
+                //   //   'transform',
+                //   //   // `rotate(${w.config.xaxis.labels.rotate} ${textRotatingCenter.x} ${textRotatingCenter.y})`
+                //   // )
+                //   xAxisTexts[xat].setAttribute("text-anchor", `end`);
+                //   let offsetHeight = 10;
+                //   xAxis.setAttribute("transform", `translate(0, ${-offsetHeight})`);
+                //   let tSpan = xAxisTexts[xat].childNodes;
+                //   if (w.config.xaxis.labels.trim) {
+                //     Array.prototype.forEach.call(tSpan, (ts) => {
+                //       graphics.placeTextWithEllipsis(
+                //         ts,
+                //         ts.textContent,
+                //         w.globals.xAxisLabelsHeight -
+                //           (w.config.legend.position === "bottom" ? 20 : 10)
+                //       );
+                //     });
+                //   }
+                // }
             }
             else {
                 let width = w.globals.gridWidth / (w.globals.labels.length + 1);
                 for (let xat = 0; xat < xAxisTexts.length; xat++) {
                     let tSpan = xAxisTexts[xat].childNodes;
-                    if (w.config.xaxis.labels.trim && w.config.xaxis.type !== 'datetime') {
+                    if (w.config.xaxis.labels.trim &&
+                        w.config.xaxis.type !== "datetime") {
                         Array.prototype.forEach.call(tSpan, (ts) => {
                             graphics.placeTextWithEllipsis(ts, ts.textContent, width);
                         });
@@ -1393,7 +1398,21 @@ var pivotcharts;
                         opacity: undefined,
                         cssClass: "apexcharts-xaxis-label " + w.config.xaxis.labels.style.cssClass,
                     });
-                    // elText.node.childNodes[0].classList.add("truncate");
+                    let trimT = function trimText(elText, colWidth) {
+                        let l = elText.node.getBBox();
+                        if (l.width > colWidth) {
+                            let v = elText.node.childNodes[0].innerHTML;
+                            let nv = v.slice(0, v.length - 4);
+                            elText.node.childNodes[0].innerHTML = nv + '...';
+                            let nw = elText.node.getBBox();
+                            // if(nw.width > colWidth){
+                            //   trimText(elText, colWidth);
+                            // }
+                            // v = "...";
+                        }
+                    };
+                    trimT(elText, colWidth);
+                    // elText.node.setAttribute("width", colWidth)
                     elXaxisTexts.add(elText);
                     var elTooltipTitle = document.createElementNS(w.globals.SVGNS, "title");
                     elTooltipTitle.textContent = Array.isArray(label.text)
@@ -2827,6 +2846,8 @@ var pivotcharts;
             var initCtx = new pivotcharts.PivotInitCtxVariables(this);
             initCtx.initModules();
             Data.Chart = this;
+            document.head.innerHTML +=
+                "<link rel='stylesheet' href='../scr/Modules/Axis/style.css' />";
         }
         // updateSeries(newSeries = [], animate = true, overwriteInitialSeries = true) {
         //   this.series.resetSeries(false)
