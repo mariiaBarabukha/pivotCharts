@@ -334,6 +334,7 @@ namespace pivotcharts {
             "rows"
           );
           this.selectCurrent(text);
+          Data.xaxisFilter = text;
 
           let bp = document.getElementById("buttons_panel");
           if (bp.innerHTML != "") {
@@ -385,6 +386,9 @@ namespace pivotcharts {
 
     private close(val: string) {
       // var index = id.split("_")[0];
+      if(val.split("_").length == 1){
+        Data.xaxisFilter = "";
+      }
       Data.DataStorage.manipulateChartData(
         val.split("_"),
         Data.Flexmonster.drillUpCell,
@@ -407,7 +411,10 @@ namespace pivotcharts {
       }
 
       if (text.length > 0) {
+        Data.xaxisFilter = text;
         this.selectCurrent(text);
+      }else{
+        Data.xaxisFilter = "";
       }
     }
   }

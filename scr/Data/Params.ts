@@ -18,6 +18,7 @@ namespace Data{
     export var OldSeries;
     export var xaxisHiddenLabels=[];
     export var RowsLevels = [];
+    export var xaxisFilter = "";
     
     export function processData(rawData, type?){
         if(type != undefined){

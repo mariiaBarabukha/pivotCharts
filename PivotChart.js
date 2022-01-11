@@ -208,8 +208,15 @@ var Data;
             });
             var series = this.makeSeries(sortByColumns);
             this.hideSeries(series);
-            // console.log(series);
-            return { series: series, xaxis: { categories: categories } };
+            console.log(series);
+            if (Data.xaxisFilter != "") {
+                let res = this.selectCurrent(Data.xaxisFilter, series);
+                return { series: res.series, xaxis: res.xaxis };
+            }
+            else {
+                return { series: series, xaxis: { categories: categories } };
+            }
+            // return { series: series, xaxis: { categories: categories } };
         }
         makeSeries(sortByColumns) {
             var key = "c_full";
@@ -230,6 +237,33 @@ var Data;
             Data.RowsLevels = (sortByColumns[0].map(x => x.r_full.split('_').length - 1));
             // pivotcharts.LabelsGroup.allLabels = (sortByColumns[0].map(x=>x.r_full));
             return series;
+        }
+        selectCurrent(text, series) {
+            let cSeries = JSON.parse(JSON.stringify(series));
+            cSeries.forEach((x) => {
+                let inds = [];
+                for (let i = 0; i < x.r_fulls.length; i++) {
+                    if (!x.r_fulls[i].includes(text) || x.r_fulls[i] == text) {
+                        inds.push(i);
+                    }
+                }
+                inds.reverse();
+                inds.forEach((y) => {
+                    x.data.splice(y, 1);
+                });
+                x.r_fulls = x.r_fulls.filter((a) => a.includes(text) && a != text);
+            });
+            var cLabels = cSeries[0].r_fulls.map((x) => {
+                let t = x.split("_");
+                let l = t.length;
+                return t[l - 1];
+            });
+            return {
+                series: cSeries,
+                xaxis: {
+                    categories: cLabels,
+                },
+            };
         }
     }
     Data.AxisDataSetsMaker = AxisDataSetsMaker;
@@ -488,6 +522,7 @@ var Data;
     Data.updateLegend = false;
     Data.xaxisHiddenLabels = [];
     Data.RowsLevels = [];
+    Data.xaxisFilter = "";
     function processData(rawData, type) {
         if (type != undefined) {
             Data.chartType = type;
@@ -1468,6 +1503,7 @@ var pivotcharts;
                     // LabelsGroup.hiddens.push({ val: text, level: names.length - 1 });
                     Data.DataStorage.manipulateChartData(names, Data.Flexmonster.drillDownCell, Data.Flexmonster.expandCell, "rows");
                     this.selectCurrent(text);
+                    Data.xaxisFilter = text;
                     let bp = document.getElementById("buttons_panel");
                     if (bp.innerHTML != "") {
                         bp.innerHTML = "";
@@ -1511,6 +1547,9 @@ var pivotcharts;
         }
         close(val) {
             // var index = id.split("_")[0];
+            if (val.split("_").length == 1) {
+                Data.xaxisFilter = "";
+            }
             Data.DataStorage.manipulateChartData(val.split("_"), Data.Flexmonster.drillUpCell, Data.Flexmonster.collapseCell, "rows");
             let bp = document.getElementById("buttons_panel");
             bp.innerHTML = "";
@@ -1525,7 +1564,11 @@ var pivotcharts;
                 b.innerHTML = "Back";
             }
             if (text.length > 0) {
+                Data.xaxisFilter = text;
                 this.selectCurrent(text);
+            }
+            else {
+                Data.xaxisFilter = "";
             }
         }
     }

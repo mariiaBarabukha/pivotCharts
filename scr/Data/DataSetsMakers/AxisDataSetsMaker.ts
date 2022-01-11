@@ -15,8 +15,15 @@ namespace Data {
       });
       var series = this.makeSeries(sortByColumns);
       this.hideSeries(series);
-      // console.log(series);
-      return { series: series, xaxis: { categories: categories } };
+      console.log(series);
+      if(Data.xaxisFilter != ""){
+        let res = this.selectCurrent(Data.xaxisFilter, series);
+        return { series: res.series, xaxis: res.xaxis };
+      }else{
+        return { series: series, xaxis: { categories: categories } };
+      }
+      
+      // return { series: series, xaxis: { categories: categories } };
     }
 
     makeSeries(sortByColumns: any[]): any[] {
@@ -38,6 +45,38 @@ namespace Data {
       Data.RowsLevels = (sortByColumns[0].map(x=>x.r_full.split('_').length-1));
       // pivotcharts.LabelsGroup.allLabels = (sortByColumns[0].map(x=>x.r_full));
       return series;
+    }
+
+    private selectCurrent(text, series) {
+      let cSeries = JSON.parse(JSON.stringify(series));
+
+      cSeries.forEach((x) => {
+        let inds = [];
+        for (let i = 0; i < x.r_fulls.length; i++) {
+          if (!x.r_fulls[i].includes(text) || x.r_fulls[i] == text) {
+            inds.push(i);
+          }
+        }
+
+        inds.reverse();
+        inds.forEach((y) => {
+          x.data.splice(y, 1);
+        });
+
+        x.r_fulls = x.r_fulls.filter((a) => a.includes(text) && a != text);
+      });
+
+      var cLabels = cSeries[0].r_fulls.map((x) => {
+        let t = x.split("_");
+        let l = t.length;
+        return t[l - 1];
+      });
+      return {
+        series: cSeries,
+        xaxis: {
+          categories: cLabels,
+        },
+      };
     }
   }
 }
