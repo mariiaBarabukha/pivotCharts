@@ -351,7 +351,7 @@ namespace pivotcharts {
     }
 
     private selectCurrent(text) {
-      let cSeries = [...Data.BasicSeries.series];
+      let cSeries = Data.BasicSeries.series;
 
       cSeries.forEach((x) => {
         let inds = [];
@@ -374,6 +374,7 @@ namespace pivotcharts {
         let l = t.length;
         return t[l - 1];
       });
+      Data.BasicSeries.xaxis.categories = cLabels;
       Data.Chart.updateOptions({
         series: cSeries,
         labels: cLabels,

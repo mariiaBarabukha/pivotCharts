@@ -1518,7 +1518,7 @@ var pivotcharts;
             return elXaxis;
         }
         selectCurrent(text) {
-            let cSeries = [...Data.BasicSeries.series];
+            let cSeries = Data.BasicSeries.series;
             cSeries.forEach((x) => {
                 let inds = [];
                 for (let i = 0; i < x.r_fulls.length; i++) {
@@ -1537,6 +1537,7 @@ var pivotcharts;
                 let l = t.length;
                 return t[l - 1];
             });
+            Data.BasicSeries.xaxis.categories = cLabels;
             Data.Chart.updateOptions({
                 series: cSeries,
                 labels: cLabels,
@@ -2350,7 +2351,7 @@ var pivotcharts;
             document.head.innerHTML +=
                 "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
             var chart = document.getElementById(this.ctx.el.id);
-            chart.insertAdjacentHTML("beforebegin", this.createScroll());
+            chart.insertAdjacentHTML("afterbegin", this.createScroll());
             this._addListeners();
             document.getElementsByClassName("wrap")[0].style.setProperty("--w", this.ctx.w.globals.gridWidth);
             document.getElementsByClassName("wrap")[0].style.setProperty("--left-margin", this.ctx.w.globals.translateX);
@@ -2891,16 +2892,12 @@ var pivotcharts;
             Data.Chart = this;
             document.head.innerHTML +=
                 "<link rel='stylesheet' href='../scr/Modules/Axis/style.css' />";
+            document.head.innerHTML +=
+                "<link rel='stylesheet' href='../scr/style.css' />";
+            // let org_html = document.getElementById("chart").innerHTML;
+            // let new_html = "<div id='chart-box'>" + org_html + "</div>";
+            // document.getElementById("chart").innerHTML = new_html;
         }
-        // updateSeries(newSeries = [], animate = true, overwriteInitialSeries = true) {
-        //   this.series.resetSeries(false)
-        //   this.updateHelpers.revertDefaultAxisMinMax()
-        //   return this.updateHelpers._updateSeries(
-        //     newSeries,
-        //     animate,
-        //     overwriteInitialSeries
-        //   )
-        // }
         updateOptions(options, redraw = false, animate = true, updateSyncedCharts = true, overwriteInitialConfig = true) {
             const w = this.w;
             if (options.series != null && Data.Model.dataStorage.stateOfUpdate != 1) {

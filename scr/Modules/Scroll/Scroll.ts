@@ -307,7 +307,7 @@ namespace pivotcharts {
         "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
       var chart = document.getElementById(this.ctx.el.id);
 
-      chart.insertAdjacentHTML("beforebegin", this.createScroll());
+      chart.insertAdjacentHTML("afterbegin", this.createScroll());
 
       this._addListeners();
 
