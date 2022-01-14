@@ -8,8 +8,8 @@ namespace pivotcharts {
       Data.Chart = this;
       document.head.innerHTML +=
         "<link rel='stylesheet' href='../scr/Modules/Axis/style.css' />";
-      document.head.innerHTML +=
-        "<link rel='stylesheet' href='../scr/style.css' />";
+      // document.head.innerHTML +=
+      //   "<link rel='stylesheet' href='../scr/style.css' />";
       // let org_html = document.getElementById("chart").innerHTML;
       // let new_html = "<div id='chart-box'>" + org_html + "</div>";
       // document.getElementById("chart").innerHTML = new_html;

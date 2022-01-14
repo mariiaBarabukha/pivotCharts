@@ -15,15 +15,35 @@ namespace Data {
       });
       var series = this.makeSeries(sortByColumns);
       this.hideSeries(series);
-      console.log(series);
-      if(Data.xaxisFilter != ""){
-        let res = this.selectCurrent(Data.xaxisFilter, series);
-        return { series: res.series, xaxis: res.xaxis };
-      }else{
-        return { series: series, xaxis: { categories: categories } };
-      }
+      // console.log(series);
+      // if(Data.xaxisFilter != ""){
+      //   let res = this.selectCurrent(Data.xaxisFilter, series);
+      //   return { series: res.series, xaxis: res.xaxis };
+      // }else{
+      //   return { series: series, xaxis: { categories: categories } };
+      // }
+      this.filterRowsByDepth(series, categories);
       
-      // return { series: series, xaxis: { categories: categories } };
+      return { series: series, xaxis: { categories: categories } };
+    }
+
+    private filterRowsByDepth(series, categories){
+      let rlevels = series[0].r_fulls.map(x=>x.split("_").length-1);
+      let max = Math.max(...rlevels);
+      if(max == 0) return;
+      let indexes = rlevels.map((elem, i)=> elem == max ? i : []).flat()
+      
+      for(let i = 0; i < series.length; i++){
+        for(let j = rlevels.length; j >=0; j--){
+          if(!indexes.includes(j)){
+            series[i].data.splice(j,1);
+            series[i].r_fulls.splice(j,1);
+            if(i == 0){
+              categories.splice(j,1);
+            }
+          }
+        }
+      }
     }
 
     makeSeries(sortByColumns: any[]): any[] {
