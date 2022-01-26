@@ -3,10 +3,10 @@
   <script src="../dist/apexcharts.js"></script>
   <script src="../PivotChart.js"></script>
 
-  <div id="pivot-container" style="max-height: 300"></div>
+  <div id="pivot-container" style="max-height: 400"></div>
   <div id="chart"></div>
 
-  <div id="buttons_panel"></div>
+  <!-- <div id="buttons_panel"></div> -->
   <script>
     let pivot = new Flexmonster({
       container: "#pivot-container",
@@ -188,6 +188,9 @@
             enabled: true
           }
         },
+        // title:{
+        //   text:'chart'
+        // },
         plotOptions: {
           bar: {
             horizontal: false,

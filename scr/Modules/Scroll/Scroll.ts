@@ -303,8 +303,7 @@ namespace pivotcharts {
         return;
       }
       this.segment_value = Math.round(100 / this.top);
-      document.head.innerHTML +=
-        "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
+
       var chart = document.getElementById(this.ctx.el.id);
 
       chart.insertAdjacentHTML("afterbegin", this.createScroll());

@@ -2091,6 +2091,49 @@ var pivotcharts;
 })(pivotcharts || (pivotcharts = {}));
 var pivotcharts;
 (function (pivotcharts) {
+    class PivotDestroy extends apexcharts.Destroy {
+        clearDomElements({ isUpdating }) {
+            const elSVG = this.w.globals.dom.Paper.node;
+            // fixes apexcharts.js#1654 & vue-apexcharts#256
+            if (elSVG.parentNode && elSVG.parentNode.parentNode && !isUpdating) {
+                elSVG.parentNode.parentNode.style.minHeight = 'unset';
+            }
+            // detach root event
+            const baseEl = this.w.globals.dom.baseEl;
+            if (baseEl) {
+                // see https://github.com/apexcharts/vue-apexcharts/issues/275
+                this.ctx.eventList.forEach((event) => {
+                    baseEl.removeEventListener(event, this.ctx.events.documentEvent);
+                });
+            }
+            const domEls = this.w.globals.dom;
+            if (this.ctx.el !== null) {
+                // remove all child elements - resetting the whole chart
+                // let fc = this.ctx.el.firstChild;
+                for (let ii = 0; ii < this.ctx.el.children.length; ii++) {
+                    let _class = this.ctx.el.children[ii].className;
+                    if (_class != 'wrap') {
+                        this.ctx.el.removeChild(this.ctx.el.children[ii]);
+                    }
+                }
+            }
+            this.killSVG(domEls.Paper);
+            domEls.Paper.remove();
+            domEls.elWrap = null;
+            domEls.elGraphical = null;
+            domEls.elAnnotations = null;
+            domEls.elLegendWrap = null;
+            domEls.baseEl = null;
+            domEls.elGridRect = null;
+            domEls.elGridRectMask = null;
+            domEls.elGridRectMarkerMask = null;
+            domEls.elDefs = null;
+        }
+    }
+    pivotcharts.PivotDestroy = PivotDestroy;
+})(pivotcharts || (pivotcharts = {}));
+var pivotcharts;
+(function (pivotcharts) {
     class ZoomPanSelection extends apexcharts.ZoomPanSelection {
         selectionDrawn({ context, zoomtype }) {
             super.selectionDrawn({ context, zoomtype });
@@ -2366,8 +2409,6 @@ var pivotcharts;
                 return;
             }
             this.segment_value = Math.round(100 / this.top);
-            document.head.innerHTML +=
-                "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
             var chart = document.getElementById(this.ctx.el.id);
             chart.insertAdjacentHTML("afterbegin", this.createScroll());
             this._addListeners();
@@ -2904,17 +2945,28 @@ var pivotcharts;
 (function (pivotcharts) {
     class PivotChart extends ApexCharts {
         constructor(el, config) {
+            if (config.title == null) {
+                config.title = { text: "Chart", align: "left" };
+                // config.title =
+            }
             super(el, config);
             var initCtx = new pivotcharts.PivotInitCtxVariables(this);
             initCtx.initModules();
             Data.Chart = this;
             document.head.innerHTML +=
                 "<link rel='stylesheet' href='../scr/Modules/Axis/style.css' />";
+            document.head.innerHTML +=
+                "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
             // document.head.innerHTML +=
             //   "<link rel='stylesheet' href='../scr/style.css' />";
             // let org_html = document.getElementById("chart").innerHTML;
             // let new_html = "<div id='chart-box'>" + org_html + "</div>";
             // document.getElementById("chart").innerHTML = new_html;
+            if (document.getElementById("buttons_panel") == null) {
+                el.insertAdjacentHTML("beforebegin", "<div id='buttons_panel'></div>");
+                // document.createElement('div');
+                // bp.id = 'buttons_panel';
+            }
         }
         updateOptions(options, redraw = false, animate = true, updateSyncedCharts = true, overwriteInitialConfig = true) {
             const w = this.w;
@@ -2925,10 +2977,10 @@ var pivotcharts;
                     return a.indexOf(item) == pos;
                 });
                 let newArr = [...options.series];
-                uniqueArray.forEach(element => {
+                uniqueArray.forEach((element) => {
                     newArr[element].data = [0];
                 });
-                let m = Math.max(...newArr.map(x => x.data).flat(2));
+                let m = Math.max(...newArr.map((x) => x.data).flat(2));
                 if (options.yaxis == null) {
                     options.yaxis = { max: m };
                 }
@@ -3098,16 +3150,33 @@ var pivotcharts;
             });
         }
         update(options) {
-            super.update(options);
-            Data.Hiddens.forEach((e) => {
-                var sEl = null;
-                var obj = Data.LegendHelper._realIndex(e);
-                sEl = obj.seriesEl;
-                let ee = e;
-                Data.Hiddens.shift();
-                Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: ee });
+            return new Promise((resolve, reject) => {
+                new pivotcharts.PivotDestroy(this.ctx).clear({ isUpdating: true });
+                const graphData = this.create(this.w.config.series, options);
+                if (!graphData)
+                    return resolve(this);
+                this.mount(graphData)
+                    .then(() => {
+                    if (typeof this.w.config.chart.events.updated === "function") {
+                        this.w.config.chart.events.updated(this, this.w);
+                    }
+                    this.events.fireEvent("updated", [this, this.w]);
+                    this.w.globals.isDirty = true;
+                    resolve(this);
+                })
+                    .catch((e) => {
+                    reject(e);
+                });
+                Data.Hiddens.forEach((e) => {
+                    var sEl = null;
+                    var obj = Data.LegendHelper._realIndex(e);
+                    sEl = obj.seriesEl;
+                    let ee = e;
+                    Data.Hiddens.shift();
+                    Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: ee });
+                });
+                this.ctx.legend.setCorrectHeight();
             });
-            this.ctx.legend.setCorrectHeight();
         }
     }
     pivotcharts.PivotChart = PivotChart;

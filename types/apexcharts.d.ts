@@ -83,6 +83,8 @@ declare class ApexCharts {
   data;
   events;
   responsive;
+  windowResizeHandler;
+  parentResizeHandler;
 }
 declare module apexcharts {
   export class Legend {
@@ -153,6 +155,15 @@ declare module apexcharts {
   export class Defaults{
     constructor(conf);
     convertCatToNumericXaxis(config, ctx);
+  }
+
+  export class Destroy{
+    constructor(ctx);
+    clear({ isUpdating });
+    ctx;
+    w;
+    clearDomElements({ isUpdating });
+    killSVG(el);
   }
 
   export class Graphics{

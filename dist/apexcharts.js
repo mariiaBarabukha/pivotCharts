@@ -16291,7 +16291,9 @@
               "class",
               "apexcharts-".concat(type, "-text")
             );
-            w.globals.dom.Paper.add(titleText);
+            let panel = graphics.group({id: 'info_panel',width:'100%'});
+            w.globals.dom.Paper.add(panel);
+            panel.add(titleText);
           }
         },
       },
@@ -37410,6 +37412,7 @@
   window.apexcharts.Annotations = Annotations;
 
   window.apexcharts.Fill = Fill;
+  window.apexcharts.Destroy = Destroy;
   window.apexcharts.Markers = Markers;
   window.apexcharts.Filters = Filters;
   window.apexcharts.DataLabels = DataLabels;

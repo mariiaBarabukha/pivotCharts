@@ -1,6 +1,10 @@
 namespace pivotcharts {
   export class PivotChart extends ApexCharts {
     constructor(el: any, config: any) {
+      if (config.title == null) {
+        config.title = { text: "Chart", align: "left" };
+        // config.title =
+      }
       super(el, config);
       var initCtx = new PivotInitCtxVariables(this);
 
@@ -8,13 +12,19 @@ namespace pivotcharts {
       Data.Chart = this;
       document.head.innerHTML +=
         "<link rel='stylesheet' href='../scr/Modules/Axis/style.css' />";
+      document.head.innerHTML +=
+        "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
       // document.head.innerHTML +=
       //   "<link rel='stylesheet' href='../scr/style.css' />";
       // let org_html = document.getElementById("chart").innerHTML;
       // let new_html = "<div id='chart-box'>" + org_html + "</div>";
       // document.getElementById("chart").innerHTML = new_html;
+      if (document.getElementById("buttons_panel") == null) {
+        el.insertAdjacentHTML("beforebegin", "<div id='buttons_panel'></div>");
+        // document.createElement('div');
+        // bp.id = 'buttons_panel';
+      }
     }
-
 
     updateOptions(
       options,
@@ -23,56 +33,55 @@ namespace pivotcharts {
       updateSyncedCharts = true,
       overwriteInitialConfig = true
     ) {
-      const w = this.w
-      
-      if(options.series!=null && Data.Model.dataStorage.stateOfUpdate != 1){
+      const w = this.w;
 
+      if (options.series != null && Data.Model.dataStorage.stateOfUpdate != 1) {
         //Data.Hiddens;
-        let a = w.globals.collapsedSeriesIndices
-        let uniqueArray = a.filter(function(item, pos) {
+        let a = w.globals.collapsedSeriesIndices;
+        let uniqueArray = a.filter(function (item, pos) {
           return a.indexOf(item) == pos;
         });
-        let newArr = [...options.series]
-        uniqueArray.forEach(element => {
+        let newArr = [...options.series];
+        uniqueArray.forEach((element) => {
           newArr[element].data = [0];
         });
-        let m = Math.max(...newArr.map(x => x.data).flat(2));
-        if(options.yaxis == null){
-          options.yaxis = {max: m}
-        }else{
+        let m = Math.max(...newArr.map((x) => x.data).flat(2));
+        if (options.yaxis == null) {
+          options.yaxis = { max: m };
+        } else {
           options.yaxis.max = m;
         }
         options.yaxis.forceNiceScale = true;
       }
       // when called externally, clear some global variables
       // fixes apexcharts.js#1488
-      w.globals.selection = undefined
-  
+      w.globals.selection = undefined;
+
       if (options.series) {
-        this.series.resetSeries(false, true, false)
+        this.series.resetSeries(false, true, false);
         if (options.series.length && options.series[0].data) {
           options.series = options.series.map((s, i) => {
-            return this.updateHelpers._extendSeries(s, i)
-          })
+            return this.updateHelpers._extendSeries(s, i);
+          });
         }
-  
+
         // user updated the series via updateOptions() function.
         // Hence, we need to reset axis min/max to avoid zooming issues
-        this.updateHelpers.revertDefaultAxisMinMax()
+        this.updateHelpers.revertDefaultAxisMinMax();
       }
       // user has set x-axis min/max externally - hence we need to forcefully set the xaxis min/max
       if (options.xaxis) {
-        options = this.updateHelpers.forceXAxisUpdate(options)
+        options = this.updateHelpers.forceXAxisUpdate(options);
       }
       if (options.yaxis) {
-        options = this.updateHelpers.forceYAxisUpdate(options)
+        options = this.updateHelpers.forceYAxisUpdate(options);
       }
       if (w.globals.collapsedSeriesIndices.length > 0) {
-        this.series.clearPreviousPaths()
+        this.series.clearPreviousPaths();
       }
       /* update theme mode#459 */
       if (options.theme) {
-        options = this.theme.updateThemeOptions(options)
+        options = this.theme.updateThemeOptions(options);
       }
       return this.updateHelpers._updateOptions(
         options,
@@ -80,9 +89,8 @@ namespace pivotcharts {
         animate,
         updateSyncedCharts,
         overwriteInitialConfig
-      )
+      );
     }
-  
 
     create(ser, opts) {
       if (Data.Model.dataStorage.stateOfUpdate == 0) {
@@ -242,20 +250,36 @@ namespace pivotcharts {
     }
 
     update(options: any) {
-      super.update(options);   
-      Data.Hiddens.forEach((e) => {
-        var sEl = null;
-        var obj = Data.LegendHelper._realIndex(e);
-        sEl = obj.seriesEl;
-        let ee = e;
-        Data.Hiddens.shift();
-        Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: ee });
-       
-      });   
-      this.ctx.legend.setCorrectHeight();
-      
-      
+      return new Promise((resolve, reject) => {
+        new PivotDestroy(this.ctx).clear({ isUpdating: true });
 
+        const graphData = this.create(this.w.config.series, options);
+        if (!graphData) return resolve(this);
+        this.mount(graphData)
+          .then(() => {
+            if (typeof this.w.config.chart.events.updated === "function") {
+              this.w.config.chart.events.updated(this, this.w);
+            }
+            this.events.fireEvent("updated", [this, this.w]);
+
+            this.w.globals.isDirty = true;
+
+            resolve(this);
+          })
+          .catch((e) => {
+            reject(e);
+          });
+
+        Data.Hiddens.forEach((e) => {
+          var sEl = null;
+          var obj = Data.LegendHelper._realIndex(e);
+          sEl = obj.seriesEl;
+          let ee = e;
+          Data.Hiddens.shift();
+          Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: ee });
+        });
+        this.ctx.legend.setCorrectHeight();
+      });
     }
   }
 }
