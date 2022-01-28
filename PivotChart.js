@@ -1877,6 +1877,9 @@ var pivotcharts;
                     let ser_lev = w.globals.series_levels;
                     for (var i = 0; i < len; i++) {
                         if (ser_lev[i] == 0) {
+                            if (cl.length == 0) {
+                                cl = JSON.parse(JSON.stringify(colorSeries));
+                            }
                             new_colors.push(cl.shift());
                         }
                         else {

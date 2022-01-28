@@ -35,7 +35,11 @@ namespace pivotcharts {
           let ser_lev = w.globals.series_levels;
           for (var i = 0; i < len; i++) {
             if (ser_lev[i] == 0) {
+              if(cl.length == 0){
+                cl = JSON.parse(JSON.stringify(colorSeries));
+              }
               new_colors.push(cl.shift());
+              
             } else {
               if (ser_lev[i] >= lev) {
                 new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
