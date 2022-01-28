@@ -40,6 +40,7 @@
         "scr/Modules/Graphics.ts",
         "scr/Modules/Theme.ts",
         "scr/Modules/Destroy.ts",
+        "scr/Modules/NavigationPanel.ts",
         "scr/Modules/ZoomPanSelection.ts",
         "scr/Modules/Scroll/Scroll.ts",
 

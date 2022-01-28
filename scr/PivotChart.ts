@@ -1,10 +1,12 @@
 namespace pivotcharts {
   export class PivotChart extends ApexCharts {
+    navPanel;
     constructor(el: any, config: any) {
-      if (config.title == null) {
-        config.title = { text: "Chart", align: "left" };
-        // config.title =
-      }
+      // if (config.title == null) {
+      //   config.title = { text: "Chart", align: "left" };
+      //   // config.title =
+      // }
+
       super(el, config);
       var initCtx = new PivotInitCtxVariables(this);
 
@@ -14,16 +16,12 @@ namespace pivotcharts {
         "<link rel='stylesheet' href='../scr/Modules/Axis/style.css' />";
       document.head.innerHTML +=
         "<link rel='stylesheet' href='../scr/Modules/Scroll/style.css' />";
+
       // document.head.innerHTML +=
       //   "<link rel='stylesheet' href='../scr/style.css' />";
       // let org_html = document.getElementById("chart").innerHTML;
       // let new_html = "<div id='chart-box'>" + org_html + "</div>";
       // document.getElementById("chart").innerHTML = new_html;
-      if (document.getElementById("buttons_panel") == null) {
-        el.insertAdjacentHTML("beforebegin", "<div id='buttons_panel'></div>");
-        // document.createElement('div');
-        // bp.id = 'buttons_panel';
-      }
     }
 
     updateOptions(
@@ -34,7 +32,19 @@ namespace pivotcharts {
       overwriteInitialConfig = true
     ) {
       const w = this.w;
+      let path = document.querySelector("#path");
+      if (path != null) {
+        path.innerHTML = "";
+      }
 
+      let bp = document.querySelector("#buttons_panel");
+      if (bp != null) {
+        bp.innerHTML = "";
+      }
+
+      if (Data.NavPanel != null && Data.xaxisFilter == "") {
+        Data.NavPanel.toRoot();
+      }
       if (options.series != null && Data.Model.dataStorage.stateOfUpdate != 1) {
         //Data.Hiddens;
         let a = w.globals.collapsedSeriesIndices;
@@ -113,6 +123,19 @@ namespace pivotcharts {
           Data.Model.scroll = new pivotcharts.Scroll(this.ctx);
         }
         Data.Model.scroll.create();
+      }
+
+      if (Data.NavPanel == null) {
+        let navPanel = new pivotcharts.NavigationPanel(this.ctx);
+        navPanel.create();
+        Data.NavPanel = navPanel;
+        let el = document.getElementById("nav_panel");
+
+        if (document.getElementById("buttons_panel") == null) {
+          el.innerHTML += "<div id='buttons_panel'></div>";
+          // document.createElement('div');
+          // bp.id = 'buttons_panel';
+        }
       }
 
       return res;

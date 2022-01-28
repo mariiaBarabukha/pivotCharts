@@ -340,14 +340,27 @@ namespace pivotcharts {
           if (bp.innerHTML != "") {
             bp.innerHTML = "";
           }
-          let b = document.createElement("button");
-          b.onclick = () => this.close(text);
-          bp.appendChild(b);
-          b.value = text;
-          b.innerHTML = "Back";
+          this.createButton(bp,text);
+          Data.NavPanel.expand(names);
         });
       }
       return elXaxis;
+    }
+
+    private createButton(bp,text){
+        let b = document.createElement("button");
+        b.style.background = "#FFFFFF";
+        b.style.border = "1px solid #DF3800";
+        b.style.boxSizing = "border-box";
+        b.style.borderRadius = "4px";
+        b.style.color = "DF3800";
+        b.style.padding = "6px 16px";
+        b.style.fontSize = "14px";
+        b.style.fontFamily = "Open Sans";
+        b.onclick = () => this.close(text);
+        bp.appendChild(b);
+        b.value = text;
+        b.innerHTML = "<&nbsp;&nbsp;Back to the main chart";
     }
 
     private selectCurrent(text) {
@@ -391,32 +404,30 @@ namespace pivotcharts {
         Data.xaxisFilter = "";
       }
       Data.DataStorage.manipulateChartData(
-        val.split("_"),
+        [val.split("_")[0]],
         Data.Flexmonster.drillUpCell,
         Data.Flexmonster.collapseCell,
         "rows"
       );
-      let bp = document.getElementById("buttons_panel");
-      bp.innerHTML = "";
+      // let bp = document.getElementById("buttons_panel");
+      // bp.innerHTML = "";
+      Data.NavPanel.toRoot();
 
       let tt = val.split("_");
       let text = tt.slice(0, tt.length - 1).join("_");
-      if (val.split("_").length > 1) {
-        // let b = document.createElement("button");
-        let b = document.createElement("button");
+      // if (val.split("_").length > 1) {
+      //   // let b = document.createElement("button");
+      //   this.createButton(bp,text);
+        
+      // }
+      Data.xaxisFilter = "";
 
-        b.onclick = () => this.close(text);
-        bp.appendChild(b);
-        b.value = text;
-        b.innerHTML = "Back";
-      }
-
-      if (text.length > 0) {
-        Data.xaxisFilter = text;
-        this.selectCurrent(text);
-      }else{
-        Data.xaxisFilter = "";
-      }
+      // if (text.length > 0) {
+      //   Data.xaxisFilter = text;
+      //   this.selectCurrent(text);
+      // }else{
+      //   Data.xaxisFilter = "";
+      // }
     }
   }
 

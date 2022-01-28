@@ -19,6 +19,7 @@ namespace Data{
     export var xaxisHiddenLabels=[];
     export var RowsLevels = [];
     export var xaxisFilter = "";
+    export var NavPanel: pivotcharts.NavigationPanel;
     
     export function processData(rawData, type?){
         if(type != undefined){

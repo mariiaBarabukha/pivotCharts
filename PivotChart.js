@@ -1526,14 +1526,26 @@ var pivotcharts;
                     if (bp.innerHTML != "") {
                         bp.innerHTML = "";
                     }
-                    let b = document.createElement("button");
-                    b.onclick = () => this.close(text);
-                    bp.appendChild(b);
-                    b.value = text;
-                    b.innerHTML = "Back";
+                    this.createButton(bp, text);
+                    Data.NavPanel.expand(names);
                 });
             }
             return elXaxis;
+        }
+        createButton(bp, text) {
+            let b = document.createElement("button");
+            b.style.background = "#FFFFFF";
+            b.style.border = "1px solid #DF3800";
+            b.style.boxSizing = "border-box";
+            b.style.borderRadius = "4px";
+            b.style.color = "DF3800";
+            b.style.padding = "6px 16px";
+            b.style.fontSize = "14px";
+            b.style.fontFamily = "Open Sans";
+            b.onclick = () => this.close(text);
+            bp.appendChild(b);
+            b.value = text;
+            b.innerHTML = "<&nbsp;&nbsp;Back to the main chart";
         }
         selectCurrent(text) {
             let cSeries = Data.BasicSeries.series;
@@ -1569,26 +1581,23 @@ var pivotcharts;
             if (val.split("_").length == 1) {
                 Data.xaxisFilter = "";
             }
-            Data.DataStorage.manipulateChartData(val.split("_"), Data.Flexmonster.drillUpCell, Data.Flexmonster.collapseCell, "rows");
-            let bp = document.getElementById("buttons_panel");
-            bp.innerHTML = "";
+            Data.DataStorage.manipulateChartData([val.split("_")[0]], Data.Flexmonster.drillUpCell, Data.Flexmonster.collapseCell, "rows");
+            // let bp = document.getElementById("buttons_panel");
+            // bp.innerHTML = "";
+            Data.NavPanel.toRoot();
             let tt = val.split("_");
             let text = tt.slice(0, tt.length - 1).join("_");
-            if (val.split("_").length > 1) {
-                // let b = document.createElement("button");
-                let b = document.createElement("button");
-                b.onclick = () => this.close(text);
-                bp.appendChild(b);
-                b.value = text;
-                b.innerHTML = "Back";
-            }
-            if (text.length > 0) {
-                Data.xaxisFilter = text;
-                this.selectCurrent(text);
-            }
-            else {
-                Data.xaxisFilter = "";
-            }
+            // if (val.split("_").length > 1) {
+            //   // let b = document.createElement("button");
+            //   this.createButton(bp,text);
+            // }
+            Data.xaxisFilter = "";
+            // if (text.length > 0) {
+            //   Data.xaxisFilter = text;
+            //   this.selectCurrent(text);
+            // }else{
+            //   Data.xaxisFilter = "";
+            // }
         }
     }
     pivotcharts.PivotXAxis = PivotXAxis;
@@ -2134,6 +2143,44 @@ var pivotcharts;
 })(pivotcharts || (pivotcharts = {}));
 var pivotcharts;
 (function (pivotcharts) {
+    class NavigationPanel {
+        constructor(ctx, name = "Chart") {
+            this.names = [];
+            this.ctx = ctx;
+            this.title = name;
+            this.names.push(name);
+        }
+        toRoot() {
+            this.names = [""];
+            document.getElementById("path").innerHTML = "";
+        }
+        create() {
+            var chart = document.getElementById(this.ctx.el.id);
+            let panel = "<div id='nav_panel' style='margin:10px 0px 10px " +
+                this.ctx.w.globals.translateX +
+                "px;width:" +
+                this.ctx.w.globals.gridWidth +
+                "px;" +
+                "display:flex;justify-content:space-between; align-items:center; font-size:14; font-family:'Open Sans''>" +
+                "<div id='path'>" +
+                // this.title +
+                "</div>" +
+                "</div>";
+            chart.insertAdjacentHTML("beforebegin", panel);
+        }
+        expand(names) {
+            this.names = ["<span style='color:#DF3800'>" + this.title + "</span>"];
+            names.forEach(element => {
+                this.names.push(element);
+            });
+            let _names = this.names.join(' > ');
+            document.getElementById('path').innerHTML = _names;
+        }
+    }
+    pivotcharts.NavigationPanel = NavigationPanel;
+})(pivotcharts || (pivotcharts = {}));
+var pivotcharts;
+(function (pivotcharts) {
     class ZoomPanSelection extends apexcharts.ZoomPanSelection {
         selectionDrawn({ context, zoomtype }) {
             super.selectionDrawn({ context, zoomtype });
@@ -2226,16 +2273,16 @@ var pivotcharts;
                 ">" +
                 "<label class='sr-only' for='a'>Value A:</label>" +
                 "<input class='input-range' id='a' type='range' min='0' value='0' max='100' />" +
-                "<output" +
-                " for='a'" +
-                " style='--c: var(--a)'" +
-                "></output>" +
+                // "<output" +
+                // " for='a'" +
+                // " style='--c: var(--a)'" +
+                // "></output>" +
                 "<label class='sr-only' for='b'>Value B:</label>" +
                 "<input class='input-range' id='b' type='range' min='0' value='100' max='100'  />" +
-                "<output" +
-                " for='b'" +
-                " style='--c: var(--b)'" +
-                "></output>" +
+                // "<output" +
+                // " for='b'" +
+                // " style='--c: var(--b)'" +
+                // "></output>" +
                 "<div id='backSideScroll'></div>" +
                 "<div id='scroller'></div>" +
                 // "<img src='../scr/Modules/Scroll/scrollThumb.svg' id='thumb_min'>"+
@@ -2945,10 +2992,10 @@ var pivotcharts;
 (function (pivotcharts) {
     class PivotChart extends ApexCharts {
         constructor(el, config) {
-            if (config.title == null) {
-                config.title = { text: "Chart", align: "left" };
-                // config.title =
-            }
+            // if (config.title == null) {
+            //   config.title = { text: "Chart", align: "left" };
+            //   // config.title =
+            // }
             super(el, config);
             var initCtx = new pivotcharts.PivotInitCtxVariables(this);
             initCtx.initModules();
@@ -2962,14 +3009,20 @@ var pivotcharts;
             // let org_html = document.getElementById("chart").innerHTML;
             // let new_html = "<div id='chart-box'>" + org_html + "</div>";
             // document.getElementById("chart").innerHTML = new_html;
-            if (document.getElementById("buttons_panel") == null) {
-                el.insertAdjacentHTML("beforebegin", "<div id='buttons_panel'></div>");
-                // document.createElement('div');
-                // bp.id = 'buttons_panel';
-            }
         }
         updateOptions(options, redraw = false, animate = true, updateSyncedCharts = true, overwriteInitialConfig = true) {
             const w = this.w;
+            let path = document.querySelector("#path");
+            if (path != null) {
+                path.innerHTML = "";
+            }
+            let bp = document.querySelector("#buttons_panel");
+            if (bp != null) {
+                bp.innerHTML = "";
+            }
+            if (Data.NavPanel != null && Data.xaxisFilter == "") {
+                Data.NavPanel.toRoot();
+            }
             if (options.series != null && Data.Model.dataStorage.stateOfUpdate != 1) {
                 //Data.Hiddens;
                 let a = w.globals.collapsedSeriesIndices;
@@ -3038,6 +3091,17 @@ var pivotcharts;
                     Data.Model.scroll = new pivotcharts.Scroll(this.ctx);
                 }
                 Data.Model.scroll.create();
+            }
+            if (Data.NavPanel == null) {
+                let navPanel = new pivotcharts.NavigationPanel(this.ctx);
+                navPanel.create();
+                Data.NavPanel = navPanel;
+                let el = document.getElementById("nav_panel");
+                if (document.getElementById("buttons_panel") == null) {
+                    el.innerHTML += "<div id='buttons_panel'></div>";
+                    // document.createElement('div');
+                    // bp.id = 'buttons_panel';
+                }
             }
             return res;
         }

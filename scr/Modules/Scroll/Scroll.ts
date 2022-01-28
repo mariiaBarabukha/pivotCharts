@@ -95,16 +95,16 @@ namespace pivotcharts {
         "<label class='sr-only' for='a'>Value A:</label>" +
         
         "<input class='input-range' id='a' type='range' min='0' value='0' max='100' />" +
-        "<output" +
-        " for='a'" +
-        " style='--c: var(--a)'" +
-        "></output>" +
+        // "<output" +
+        // " for='a'" +
+        // " style='--c: var(--a)'" +
+        // "></output>" +
         "<label class='sr-only' for='b'>Value B:</label>" +
         "<input class='input-range' id='b' type='range' min='0' value='100' max='100'  />" +
-        "<output" +
-        " for='b'" +
-        " style='--c: var(--b)'" +
-        "></output>" +
+        // "<output" +
+        // " for='b'" +
+        // " style='--c: var(--b)'" +
+        // "></output>" +
         "<div id='backSideScroll'></div>" +
         "<div id='scroller'></div>" +
         
