@@ -327,6 +327,7 @@ namespace pivotcharts {
           var text = parent.getAttribute("value");
           var names = Object.assign(text.split("_"));
           // LabelsGroup.hiddens.push({ val: text, level: names.length - 1 });
+          Data.xaxisFilter = text;
           Data.DataStorage.manipulateChartData(
             names,
             Data.Flexmonster.drillDownCell,
@@ -334,7 +335,7 @@ namespace pivotcharts {
             "rows"
           );
           this.selectCurrent(text);
-          Data.xaxisFilter = text;
+          
 
           let bp = document.getElementById("buttons_panel");
           if (bp.innerHTML != "") {

@@ -33,12 +33,12 @@ namespace pivotcharts {
     ) {
       const w = this.w;
       let path = document.querySelector("#path");
-      if (path != null) {
+      if (path != null && Data.xaxisFilter == '') {
         path.innerHTML = "";
       }
 
       let bp = document.querySelector("#buttons_panel");
-      if (bp != null) {
+      if (bp != null && Data.xaxisFilter == '') {
         bp.innerHTML = "";
       }
 

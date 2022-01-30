@@ -17,7 +17,7 @@ namespace pivotcharts {
     public create() {
       var chart = document.getElementById(this.ctx.el.id);
       let panel =
-        "<div id='nav_panel' style='margin:10px 0px 10px "+
+        "<div id='nav_panel' class='nav' style='margin:10px 0px 10px "+
         this.ctx.w.globals.translateX +
         "px;width:" +
         this.ctx.w.globals.gridWidth +

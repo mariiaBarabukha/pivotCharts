@@ -1519,9 +1519,9 @@ var pivotcharts;
                     var text = parent.getAttribute("value");
                     var names = Object.assign(text.split("_"));
                     // LabelsGroup.hiddens.push({ val: text, level: names.length - 1 });
+                    Data.xaxisFilter = text;
                     Data.DataStorage.manipulateChartData(names, Data.Flexmonster.drillDownCell, Data.Flexmonster.expandCell, "rows");
                     this.selectCurrent(text);
-                    Data.xaxisFilter = text;
                     let bp = document.getElementById("buttons_panel");
                     if (bp.innerHTML != "") {
                         bp.innerHTML = "";
@@ -2159,7 +2159,7 @@ var pivotcharts;
         }
         create() {
             var chart = document.getElementById(this.ctx.el.id);
-            let panel = "<div id='nav_panel' style='margin:10px 0px 10px " +
+            let panel = "<div id='nav_panel' class='nav' style='margin:10px 0px 10px " +
                 this.ctx.w.globals.translateX +
                 "px;width:" +
                 this.ctx.w.globals.gridWidth +
@@ -2186,16 +2186,17 @@ var pivotcharts;
 (function (pivotcharts) {
     class ZoomPanSelection extends apexcharts.ZoomPanSelection {
         selectionDrawn({ context, zoomtype }) {
+            // let xaxis = document.getElementsByClassName("apexcharts-xaxis")[0] as any;
+            // xaxis.style.zIndex = "100";
             super.selectionDrawn({ context, zoomtype });
-            document.getElementById("apexcharts-xaxis").style.zIndex = "100";
-            // let y = context.startY;
-            // let rect = document.getElementsByClassName("apexcharts-inner")[0].getBoundingClientRect();
-            // let top = rect.top;
-            // let bottom = rect.bottom;
-            // let startY = context.startY;
-            // if(startY > bottom || startY < top){
-            //     return;
-            // }
+            let y = context.startY;
+            let rect = document.getElementsByClassName("apexcharts-grid")[0].getBoundingClientRect();
+            let top = rect.top;
+            let bottom = rect.bottom;
+            let startY = context.clientY;
+            if (startY > bottom || startY < top) {
+                return;
+            }
             let startX = context.startX;
             let endX = context.endX;
             let minVal = startX / (this.ctx.w.globals.gridWidth / 100);
@@ -3025,11 +3026,11 @@ var pivotcharts;
         updateOptions(options, redraw = false, animate = true, updateSyncedCharts = true, overwriteInitialConfig = true) {
             const w = this.w;
             let path = document.querySelector("#path");
-            if (path != null) {
+            if (path != null && Data.xaxisFilter == '') {
                 path.innerHTML = "";
             }
             let bp = document.querySelector("#buttons_panel");
-            if (bp != null) {
+            if (bp != null && Data.xaxisFilter == '') {
                 bp.innerHTML = "";
             }
             if (Data.NavPanel != null && Data.xaxisFilter == "") {
