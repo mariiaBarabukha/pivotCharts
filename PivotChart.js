@@ -1412,12 +1412,21 @@ var pivotcharts;
                 var isCategoryTickAmounts = typeof w.config.xaxis.tickAmount !== "undefined" &&
                     w.config.xaxis.tickAmount !== "dataPoints" &&
                     w.config.xaxis.type !== "datetime";
-                if (isCategoryTickAmounts) {
-                    label = _this.axesUtils.checkLabelBasedOnTickamount(_i, label, labelsLen);
-                }
-                else {
-                    label = _this.axesUtils.checkForOverflowingLabels(_i, label, labelsLen, _this.drawnLabels, _this.drawnLabelsRects);
-                }
+                // if (isCategoryTickAmounts) {
+                //   label = _this.axesUtils.checkLabelBasedOnTickamount(
+                //     _i,
+                //     label,
+                //     labelsLen
+                //   );
+                // } else {
+                //   label = _this.axesUtils.checkForOverflowingLabels(
+                //     _i,
+                //     label,
+                //     labelsLen,
+                //     _this.drawnLabels,
+                //     _this.drawnLabelsRects
+                //   );
+                // }
                 var getCatForeColor = function getCatForeColor() {
                     return w.config.xaxis.convertedCatToNumeric
                         ? _this.xaxisForeColors[w.globals.minX + _i - 1]
@@ -1428,54 +1437,52 @@ var pivotcharts;
                 }
                 if (label.text.le) {
                 }
-                if (w.config.xaxis.labels.show) {
-                    var elText = graphics.drawText({
-                        x: label.x,
-                        y: _this.offY +
-                            w.config.xaxis.labels.offsetY +
-                            offsetYCorrection -
-                            (w.config.xaxis.position === "top"
-                                ? w.globals.xAxisHeight + w.config.xaxis.axisTicks.height - 2
-                                : 0),
-                        text: label.text,
-                        textAnchor: "middle",
-                        fontWeight: label.isBold
-                            ? 600
-                            : w.config.xaxis.labels.style.fontWeight,
-                        fontSize: _this.xaxisFontSize,
-                        fontFamily: _this.xaxisFontFamily,
-                        foreColor: Array.isArray(_this.xaxisForeColors)
-                            ? getCatForeColor()
-                            : _this.xaxisForeColors,
-                        isPlainText: false,
-                        opacity: undefined,
-                        cssClass: "apexcharts-xaxis-label " + w.config.xaxis.labels.style.cssClass,
-                    });
-                    let trimT = function trimText(elText, colWidth) {
-                        let l = elText.node.getBBox();
-                        if (l.width > colWidth) {
-                            let v = elText.node.childNodes[0].innerHTML;
-                            let nv = v.slice(0, v.length - 4);
-                            elText.node.childNodes[0].innerHTML = nv + '...';
-                            let nw = elText.node.getBBox();
-                            // if(nw.width > colWidth){
-                            //   trimText(elText, colWidth);
-                            // }
-                            // v = "...";
-                        }
-                    };
-                    trimT(elText, colWidth);
-                    // elText.node.setAttribute("width", colWidth)
-                    elXaxisTexts.add(elText);
-                    var elTooltipTitle = document.createElementNS(w.globals.SVGNS, "title");
-                    elTooltipTitle.textContent = Array.isArray(label.text)
-                        ? label.text.join(" ")
-                        : label.text;
-                    elText.node.appendChild(elTooltipTitle);
-                    if (label.text !== "") {
-                        _this.drawnLabels.push(label.text);
-                        _this.drawnLabelsRects.push(label);
+                var elText = graphics.drawText({
+                    x: label.x,
+                    y: _this.offY +
+                        w.config.xaxis.labels.offsetY +
+                        offsetYCorrection -
+                        (w.config.xaxis.position === "top"
+                            ? w.globals.xAxisHeight + w.config.xaxis.axisTicks.height - 2
+                            : 0),
+                    text: label.text,
+                    textAnchor: "middle",
+                    fontWeight: label.isBold
+                        ? 600
+                        : w.config.xaxis.labels.style.fontWeight,
+                    fontSize: _this.xaxisFontSize,
+                    fontFamily: _this.xaxisFontFamily,
+                    foreColor: Array.isArray(_this.xaxisForeColors)
+                        ? getCatForeColor()
+                        : _this.xaxisForeColors,
+                    isPlainText: false,
+                    opacity: undefined,
+                    cssClass: "apexcharts-xaxis-label " + w.config.xaxis.labels.style.cssClass,
+                });
+                let trimT = function trimText(elText, colWidth) {
+                    let l = elText.node.getBBox();
+                    if (l.width > colWidth) {
+                        let v = elText.node.childNodes[0].innerHTML;
+                        let nv = v.slice(0, v.length / 2);
+                        elText.node.childNodes[0].innerHTML = nv + "...";
+                        let nw = elText.node.getBBox();
+                        // if(nw.width > colWidth){
+                        //   trimText(elText, colWidth);
+                        // }
+                        // v = "...";
                     }
+                };
+                trimT(elText, colWidth);
+                // elText.node.setAttribute("width", colWidth)
+                elXaxisTexts.add(elText);
+                var elTooltipTitle = document.createElementNS(w.globals.SVGNS, "title");
+                elTooltipTitle.textContent = Array.isArray(label.text)
+                    ? label.text.join(" ")
+                    : label.text;
+                elText.node.appendChild(elTooltipTitle);
+                if (label.text !== "") {
+                    _this.drawnLabels.push(label.text);
+                    _this.drawnLabelsRects.push(label);
                 }
                 xPos = xPos + colWidth;
             };

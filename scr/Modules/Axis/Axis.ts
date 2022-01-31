@@ -1,7 +1,5 @@
 namespace pivotcharts {
   export class PivotXAxis extends apexcharts.XAxis {
-
-
     xAxisLabelCorrections() {
       let w = this.w;
 
@@ -26,20 +24,14 @@ namespace pivotcharts {
         //   let textRotatingCenter = graphics.rotateAroundCenter(xAxisTexts[xat]);
         //   textRotatingCenter.y = textRotatingCenter.y - 1; // + tickWidth/4;
         //   textRotatingCenter.x = textRotatingCenter.x + 1;
-
         //   // xAxisTexts[xat].setAttribute(
         //   //   'transform',
         //   //   // `rotate(${w.config.xaxis.labels.rotate} ${textRotatingCenter.x} ${textRotatingCenter.y})`
         //   // )
-
         //   xAxisTexts[xat].setAttribute("text-anchor", `end`);
-
         //   let offsetHeight = 10;
-
         //   xAxis.setAttribute("transform", `translate(0, ${-offsetHeight})`);
-
         //   let tSpan = xAxisTexts[xat].childNodes;
-
         //   if (w.config.xaxis.labels.trim) {
         //     Array.prototype.forEach.call(tSpan, (ts) => {
         //       graphics.placeTextWithEllipsis(
@@ -101,10 +93,6 @@ namespace pivotcharts {
         }
       }
     }
-
-    
-    
-
 
     drawXaxis() {
       let aa = document.getElementsByClassName("apexcharts-xaxis");
@@ -181,21 +169,21 @@ namespace pivotcharts {
           w.config.xaxis.tickAmount !== "dataPoints" &&
           w.config.xaxis.type !== "datetime";
 
-        if (isCategoryTickAmounts) {
-          label = _this.axesUtils.checkLabelBasedOnTickamount(
-            _i,
-            label,
-            labelsLen
-          );
-        } else {
-          label = _this.axesUtils.checkForOverflowingLabels(
-            _i,
-            label,
-            labelsLen,
-            _this.drawnLabels,
-            _this.drawnLabelsRects
-          );
-        }
+        // if (isCategoryTickAmounts) {
+        //   label = _this.axesUtils.checkLabelBasedOnTickamount(
+        //     _i,
+        //     label,
+        //     labelsLen
+        //   );
+        // } else {
+        //   label = _this.axesUtils.checkForOverflowingLabels(
+        //     _i,
+        //     label,
+        //     labelsLen,
+        //     _this.drawnLabels,
+        //     _this.drawnLabelsRects
+        //   );
+        // }
 
         var getCatForeColor = function getCatForeColor() {
           return w.config.xaxis.convertedCatToNumeric
@@ -210,64 +198,59 @@ namespace pivotcharts {
         if (label.text.le) {
         }
 
-        if (w.config.xaxis.labels.show) {
-          var elText = graphics.drawText({
-            x: label.x,
-            y:
-              _this.offY +
-              w.config.xaxis.labels.offsetY +
-              offsetYCorrection -
-              (w.config.xaxis.position === "top"
-                ? w.globals.xAxisHeight + w.config.xaxis.axisTicks.height - 2
-                : 0),
-            text: label.text,
-            textAnchor: "middle",
-            fontWeight: label.isBold
-              ? 600
-              : w.config.xaxis.labels.style.fontWeight,
-            fontSize: _this.xaxisFontSize,
-            fontFamily: _this.xaxisFontFamily,
-            foreColor: Array.isArray(_this.xaxisForeColors)
-              ? getCatForeColor()
-              : _this.xaxisForeColors,
-            isPlainText: false,
-            opacity: undefined,
-            cssClass:
-              "apexcharts-xaxis-label " + w.config.xaxis.labels.style.cssClass,
-          });
-          let trimT = function trimText(elText, colWidth){
-            let l = elText.node.getBBox();
-            if(l.width > colWidth){
-              let v = elText.node.childNodes[0].innerHTML;
-              let nv = v.slice(0,v.length-4);
-              elText.node.childNodes[0].innerHTML = nv+'...';
-              let nw = elText.node.getBBox();
-              // if(nw.width > colWidth){
-              //   trimText(elText, colWidth);
-              // }
-              // v = "...";
-            }
+        var elText = graphics.drawText({
+          x: label.x,
+          y:
+            _this.offY +
+            w.config.xaxis.labels.offsetY +
+            offsetYCorrection -
+            (w.config.xaxis.position === "top"
+              ? w.globals.xAxisHeight + w.config.xaxis.axisTicks.height - 2
+              : 0),
+          text: label.text,
+          textAnchor: "middle",
+          fontWeight: label.isBold
+            ? 600
+            : w.config.xaxis.labels.style.fontWeight,
+          fontSize: _this.xaxisFontSize,
+          fontFamily: _this.xaxisFontFamily,
+          foreColor: Array.isArray(_this.xaxisForeColors)
+            ? getCatForeColor()
+            : _this.xaxisForeColors,
+          isPlainText: false,
+          opacity: undefined,
+          cssClass:
+            "apexcharts-xaxis-label " + w.config.xaxis.labels.style.cssClass,
+        });
+        let trimT = function trimText(elText, colWidth) {
+          let l = elText.node.getBBox();
+          if (l.width > colWidth) {
+            let v = elText.node.childNodes[0].innerHTML;
+            let nv = v.slice(0, v.length / 2);
+            elText.node.childNodes[0].innerHTML = nv + "...";
+            let nw = elText.node.getBBox();
+            // if(nw.width > colWidth){
+            //   trimText(elText, colWidth);
+            // }
+            // v = "...";
           }
+        };
 
-          trimT(elText, colWidth);
-          
-          // elText.node.setAttribute("width", colWidth)
+        trimT(elText, colWidth);
 
-          elXaxisTexts.add(elText);
-          var elTooltipTitle = document.createElementNS(
-            w.globals.SVGNS,
-            "title"
-          );
-          elTooltipTitle.textContent = Array.isArray(label.text)
-            ? label.text.join(" ")
-            : label.text;
-          elText.node.appendChild(elTooltipTitle);
+        // elText.node.setAttribute("width", colWidth)
 
-          if (label.text !== "") {
-            _this.drawnLabels.push(label.text);
+        elXaxisTexts.add(elText);
+        var elTooltipTitle = document.createElementNS(w.globals.SVGNS, "title");
+        elTooltipTitle.textContent = Array.isArray(label.text)
+          ? label.text.join(" ")
+          : label.text;
+        elText.node.appendChild(elTooltipTitle);
 
-            _this.drawnLabelsRects.push(label);
-          }
+        if (label.text !== "") {
+          _this.drawnLabels.push(label.text);
+
+          _this.drawnLabelsRects.push(label);
         }
 
         xPos = xPos + colWidth;
@@ -335,33 +318,32 @@ namespace pivotcharts {
             "rows"
           );
           this.selectCurrent(text);
-          
 
           let bp = document.getElementById("buttons_panel");
           if (bp.innerHTML != "") {
             bp.innerHTML = "";
           }
-          this.createButton(bp,text);
+          this.createButton(bp, text);
           Data.NavPanel.expand(names);
         });
       }
       return elXaxis;
     }
 
-    private createButton(bp,text){
-        let b = document.createElement("button");
-        b.style.background = "#FFFFFF";
-        b.style.border = "1px solid #DF3800";
-        b.style.boxSizing = "border-box";
-        b.style.borderRadius = "4px";
-        b.style.color = "DF3800";
-        b.style.padding = "6px 16px";
-        b.style.fontSize = "14px";
-        b.style.fontFamily = "Open Sans";
-        b.onclick = () => this.close(text);
-        bp.appendChild(b);
-        b.value = text;
-        b.innerHTML = "<&nbsp;&nbsp;Back to the main chart";
+    private createButton(bp, text) {
+      let b = document.createElement("button");
+      b.style.background = "#FFFFFF";
+      b.style.border = "1px solid #DF3800";
+      b.style.boxSizing = "border-box";
+      b.style.borderRadius = "4px";
+      b.style.color = "DF3800";
+      b.style.padding = "6px 16px";
+      b.style.fontSize = "14px";
+      b.style.fontFamily = "Open Sans";
+      b.onclick = () => this.close(text);
+      bp.appendChild(b);
+      b.value = text;
+      b.innerHTML = "<&nbsp;&nbsp;Back to the main chart";
     }
 
     private selectCurrent(text) {
@@ -398,10 +380,9 @@ namespace pivotcharts {
       });
     }
 
-
     private close(val: string) {
       // var index = id.split("_")[0];
-      if(val.split("_").length == 1){
+      if (val.split("_").length == 1) {
         Data.xaxisFilter = "";
       }
       Data.DataStorage.manipulateChartData(
@@ -419,7 +400,7 @@ namespace pivotcharts {
       // if (val.split("_").length > 1) {
       //   // let b = document.createElement("button");
       //   this.createButton(bp,text);
-        
+
       // }
       Data.xaxisFilter = "";
 
