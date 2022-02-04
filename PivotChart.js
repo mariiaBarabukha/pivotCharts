@@ -2537,7 +2537,7 @@ var charts;
                     rel: i + 1,
                     seriesName: apexcharts.Utils.escapeString(w.globals.seriesNames[realIndex], "x"),
                     full_name: full_names[i],
-                    "data:realIndex": realIndex,
+                    "data:realIndex": realIndex
                 });
                 this.ctx.series.addCollapsedClassToSeries(elSeries, realIndex);
                 if (series[i].length > 0) {
@@ -2557,6 +2557,9 @@ var charts;
                 yDivision = initPositions.yDivision;
                 zeroW = initPositions.zeroW;
                 x = initPositions.x;
+                if (i != 0) {
+                    x += 8;
+                }
                 barWidth = initPositions.barWidth;
                 xDivision = initPositions.xDivision;
                 zeroH = initPositions.zeroH;
@@ -3107,10 +3110,12 @@ var pivotcharts;
             if (w.config.chart.zoom.enabled ||
                 (w.config.chart.selection && w.config.chart.selection.enabled) ||
                 (w.config.chart.pan && w.config.chart.pan.enabled)) {
-                if (Data.Model.scroll == undefined) {
+                if (Data.Model.scroll == undefined && Data.chartType != 'pie') {
                     Data.Model.scroll = new pivotcharts.Scroll(this.ctx);
                 }
-                Data.Model.scroll.create();
+                if (Data.chartType != 'pie') {
+                    Data.Model.scroll.create();
+                }
             }
             if (Data.NavPanel == null) {
                 let navPanel = new pivotcharts.NavigationPanel(this.ctx);

@@ -119,10 +119,13 @@ namespace pivotcharts {
         (w.config.chart.selection && w.config.chart.selection.enabled) ||
         (w.config.chart.pan && w.config.chart.pan.enabled)
       ) {
-        if (Data.Model.scroll == undefined) {
+        if (Data.Model.scroll == undefined && Data.chartType != 'pie' ) {
           Data.Model.scroll = new pivotcharts.Scroll(this.ctx);
         }
-        Data.Model.scroll.create();
+        if(Data.chartType != 'pie'){
+          Data.Model.scroll.create();
+        }
+        
       }
 
       if (Data.NavPanel == null) {

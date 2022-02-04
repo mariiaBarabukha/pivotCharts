@@ -50,7 +50,7 @@ namespace charts {
             "x"
           ),
           full_name: full_names[i],
-          "data:realIndex": realIndex,
+          "data:realIndex": realIndex
         });
 
         this.ctx.series.addCollapsedClassToSeries(elSeries, realIndex);
@@ -78,6 +78,9 @@ namespace charts {
         zeroW = initPositions.zeroW;
 
         x = initPositions.x;
+        if(i != 0){
+          x+=8
+        }
         barWidth = initPositions.barWidth;
         xDivision = initPositions.xDivision;
         zeroH = initPositions.zeroH;
