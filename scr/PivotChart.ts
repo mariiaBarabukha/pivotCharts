@@ -45,7 +45,7 @@ namespace pivotcharts {
       if (Data.NavPanel != null && Data.xaxisFilter == "") {
         Data.NavPanel.toRoot();
       }
-      if (options.series != null && Data.Model.dataStorage.stateOfUpdate != 1) {
+      if (Data.chartType != 'pie' && options.series != null && Data.Model.dataStorage.stateOfUpdate != 1) {
         //Data.Hiddens;
         let a = w.globals.collapsedSeriesIndices;
         let uniqueArray = a.filter(function (item, pos) {
