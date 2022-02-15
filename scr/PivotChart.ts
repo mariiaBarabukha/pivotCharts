@@ -304,7 +304,11 @@ namespace pivotcharts {
           Data.Hiddens.shift();
           Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: ee });
         });
-        this.ctx.legend.setCorrectHeight();
+        let legend_position = this.w.config.legend.position;
+        if(legend_position == 'top' || legend_position == 'bottom'){
+          this.ctx.legend.setCorrectHeight();
+        }
+        
       });
     }
   }

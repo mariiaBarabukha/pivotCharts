@@ -20,6 +20,7 @@ namespace Data{
     export var RowsLevels = [];
     export var xaxisFilter = "";
     export var NavPanel: pivotcharts.NavigationPanel;
+    export var legendFilter = "";
     
     export function processData(rawData, type?){
         if(type != undefined){

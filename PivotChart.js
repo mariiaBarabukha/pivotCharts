@@ -239,6 +239,9 @@ var Data;
         makeSeries(sortByColumns) {
             var key = "c_full";
             var series = [];
+            if (Data.legendFilter.length != 0) {
+                sortByColumns = sortByColumns.filter(x => x[0].c_full.includes(Data.legendFilter));
+            }
             sortByColumns.forEach((group) => {
                 if (group[0].r0 === undefined && group.length > 1) {
                     group.splice(0, 1);
@@ -541,6 +544,7 @@ var Data;
     Data.xaxisHiddenLabels = [];
     Data.RowsLevels = [];
     Data.xaxisFilter = "";
+    Data.legendFilter = "";
     function processData(rawData, type) {
         if (type != undefined) {
             Data.chartType = type;
@@ -614,11 +618,14 @@ var pivotcharts;
             }
             Data.seriesLenght = w.config.series.length;
             if (isHidden) {
+                Data.legendFilter = names.splice(0, names.length - 1).join(" ");
                 Data.DataStorage.manipulateChartData(names, Data.Flexmonster.drillUpCell, Data.Flexmonster.collapseCell, "columns");
                 // Data.Flexmonster.collapseCell("columns", names);
             }
             else {
+                Data.legendFilter = names.join(" ");
                 Data.DataStorage.manipulateChartData(names, Data.Flexmonster.drillDownCell, Data.Flexmonster.expandCell, "columns");
+                Data.NavPanel.expand(names);
                 // realIndex = this._realIndex(seriesCnt).realIndex;
             }
         }
@@ -963,41 +970,44 @@ var pivotcharts;
                     "data:default-text": encodeURIComponent(text),
                     "data:collapsed": collapsedSeries || ancillaryCollapsedSeries,
                 });
-                let wrapLegendSet;
-                if (w.globals.series_levels[i] == 0) {
-                    wrapLegendSet = document.createElement("div");
-                    wrapLegendSet.id = "legend-set-" + i;
-                    wrapLegendSet.classList.add("legend-set");
-                    wrapLegendSet.appendChild(elLegend);
-                    wrapLegendSet.style.display = "flex";
-                    wrapLegendSet.style.flexDirection = "column";
-                    //let arr:number[] = [...w.globals.series_levels].slice(0,i);
-                    // if(arr.includes(1)){
-                    //   this.needToResize = false;
-                    // }
-                }
-                else {
-                    let c = 1;
-                    let curr = w.globals.series_levels[i];
-                    let prev = w.globals.series_levels[i - c];
-                    if (curr != 0) {
-                        while (curr != 0) {
-                            curr = w.globals.series_levels[i - c];
-                            c++;
-                        }
-                    }
-                    let wId = "legend-set-" + (i - c + 1);
-                    for (let j = 0; j < w.globals.dom.elLegendWrap.childNodes.length; j++) {
-                        if (w.globals.dom.elLegendWrap.childNodes[j].id == wId) {
-                            wrapLegendSet = w.globals.dom.elLegendWrap.childNodes[j];
-                            break;
-                        }
-                    }
-                    wrapLegendSet.appendChild(elLegend);
-                }
+                // let wrapLegendSet;
+                // if (w.globals.series_levels[i] == 0) {
+                //   wrapLegendSet = document.createElement("div");
+                //   wrapLegendSet.id = "legend-set-" + i;
+                //   wrapLegendSet.classList.add("legend-set");
+                //   wrapLegendSet.appendChild(elLegend);
+                //   wrapLegendSet.style.display = "flex";
+                //   wrapLegendSet.style.flexDirection = "column";
+                //   //let arr:number[] = [...w.globals.series_levels].slice(0,i);
+                //   // if(arr.includes(1)){
+                //   //   this.needToResize = false;
+                //   // }
+                // } else {
+                //   let c = 1;
+                //   let curr = w.globals.series_levels[i];
+                //   let prev = w.globals.series_levels[i - c];
+                //   if (curr != 0) {
+                //     while (curr != 0) {
+                //       curr = w.globals.series_levels[i - c];
+                //       c++;
+                //     }
+                //   }
+                //   let wId = "legend-set-" + (i - c + 1);
+                //   for (
+                //     let j = 0;
+                //     j < w.globals.dom.elLegendWrap.childNodes.length;
+                //     j++
+                //   ) {
+                //     if (w.globals.dom.elLegendWrap.childNodes[j].id == wId) {
+                //       wrapLegendSet = w.globals.dom.elLegendWrap.childNodes[j];
+                //       break;
+                //     }
+                //   }
+                //   wrapLegendSet.appendChild(elLegend);
+                // }
                 elLegend.appendChild(elMarker);
                 elLegend.appendChild(elLegendText);
-                elLegend.style.transform = "translateX(" + 5 * w.globals.series_levels[i] + "px)";
+                // elLegend.style.transform = "translateX(" + 5 * w.globals.series_levels[i] + "px)";
                 const coreUtils = new apexcharts.CoreUtils(this.ctx);
                 if (!w.config.legend.showForZeroSeries) {
                     const total = coreUtils.getSeriesTotalByIndex(i);
@@ -1016,7 +1026,7 @@ var pivotcharts;
                         elLegend.classList.add("apexcharts-hidden-null-series");
                     }
                 }
-                w.globals.dom.elLegendWrap.appendChild(wrapLegendSet);
+                w.globals.dom.elLegendWrap.appendChild(elLegend);
                 w.globals.dom.elLegendWrap.classList.add(`apexcharts-align-${w.config.legend.horizontalAlign}`);
                 w.globals.dom.elLegendWrap.classList.add("position-" + w.config.legend.position);
                 elLegend.classList.add("apexcharts-legend-series");
@@ -3264,7 +3274,10 @@ var pivotcharts;
                     Data.Hiddens.shift();
                     Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: ee });
                 });
-                this.ctx.legend.setCorrectHeight();
+                let legend_position = this.w.config.legend.position;
+                if (legend_position == 'top' || legend_position == 'bottom') {
+                    this.ctx.legend.setCorrectHeight();
+                }
             });
         }
     }

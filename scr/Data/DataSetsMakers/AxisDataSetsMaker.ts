@@ -49,6 +49,9 @@ namespace Data {
     makeSeries(sortByColumns: any[]): any[] {
       var key = "c_full";
       var series = [];
+      if(Data.legendFilter.length != 0){
+        sortByColumns = sortByColumns.filter(x => x[0].c_full.includes(Data.legendFilter));
+      }
       sortByColumns.forEach((group) => {
         if (group[0].r0 === undefined && group.length > 1) {
           group.splice(0, 1);
