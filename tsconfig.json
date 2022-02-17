@@ -18,6 +18,9 @@
         "types/apexcharts.d.ts",
         "types/legend.d.ts",
 
+        
+        "scr/Modules/MarkerHandler.ts",
+        
         "scr/Data/DataSetsMakers/DataSetsMaker.ts",        
         "scr/Data/DataSetsMakers/AxisDataSetsMaker.ts",        
         "scr/Data/DataSetsMakers/OneDimentionalDataSetsMaker.ts",
@@ -40,6 +43,7 @@
         "scr/Modules/UpdateHelper.ts",
         "scr/Modules/Graphics.ts",
         "scr/Modules/Theme.ts",
+        "scr/Modules/ToMainChartButton.ts",
         "scr/Modules/Destroy.ts",
         "scr/Modules/NavigationPanel.ts",
         "scr/Modules/ZoomPanSelection.ts",

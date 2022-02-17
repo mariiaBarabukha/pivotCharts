@@ -63,12 +63,19 @@ namespace Data {
       }
     }
 
+    public static getMembersDepth(member:any):number {
+      let res = 0;
+      while (member.children.length > 0) {
+        member = member.children[0];
+        res++;
+      }
+      return res;
+    }
+
     private static search(members, names) {
       if (members.length < 1 || members == null) {
         return null;
       }
-      var b = false;
-      var index = -1;
       for (var i = 0; i < members.length; i++) {
         var incl = names.map((x) =>
           members[i].uniqueName.includes(x.toLowerCase())

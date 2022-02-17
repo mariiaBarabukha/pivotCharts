@@ -56,7 +56,7 @@ namespace pivotcharts {
 
       Data.seriesLenght = w.config.series.length;
       if (isHidden) {
-        Data.legendFilter = names.splice(0,names.length-1).join(" ");
+        Data.legendFilter = [...names].splice(0,names.length-1).join("_");
         Data.DataStorage.manipulateChartData(
           names,
           Data.Flexmonster.drillUpCell,
@@ -65,7 +65,8 @@ namespace pivotcharts {
         );
         // Data.Flexmonster.collapseCell("columns", names);
       } else {
-        Data.legendFilter = names.join(" ");
+        
+        Data.legendFilter = names.join("_");
         Data.DataStorage.manipulateChartData(
           names,
           Data.Flexmonster.drillDownCell,
@@ -73,9 +74,26 @@ namespace pivotcharts {
           "columns"
         );
         Data.NavPanel.expand(names);
+        let _button = new pivotcharts.ToMainChartButton(this.lgCtx.ctx);
+        _button.createButton(names.join("_"),this.close)
 
         // realIndex = this._realIndex(seriesCnt).realIndex;
       }
+    }
+
+    private close(val: string) {
+      // var index = id.split("_")[0];
+      Data.legendFilter = "";
+      Data.DataStorage.manipulateChartData(
+        [val.split("_")[0]],
+        Data.Flexmonster.drillUpCell,
+        Data.Flexmonster.collapseCell,
+        "columns"
+      );
+      Data.NavPanel.toRoot();
+
+      Data.legendFilter = "";
+    
     }
 
     _realIndex(seriesCnt) {
@@ -392,6 +410,8 @@ namespace pivotcharts {
         let elMarker = document.createElement("span");
         elMarker.classList.add("apexcharts-legend-marker");
 
+        elMarker.innerHTML = Data.MarkerHandler.getMark(w.globals.series_levels[i], w.globals.series_levels);
+
         let mOffsetX = w.config.legend.markers.offsetX;
         let mOffsetY = w.config.legend.markers.offsetY;
         let mHeight = w.config.legend.markers.height;
@@ -402,8 +422,10 @@ namespace pivotcharts {
 
         let mStyle = elMarker.style;
 
+
         mStyle.background = fillcolor[i];
-        mStyle.color = fillcolor[i];
+        mStyle.color = "white";
+        mStyle.fontSize = "10px";
         mStyle.setProperty("background", fillcolor[i], "important");
 
         // override fill color with custom legend.markers.fillColors
@@ -444,15 +466,15 @@ namespace pivotcharts {
           ? parseFloat(mBorderRadius[i]) + "px"
           : parseFloat(mBorderRadius) + "px";
 
-        if (w.config.legend.markers.customHTML) {
-          if (Array.isArray(w.config.legend.markers.customHTML)) {
-            if (w.config.legend.markers.customHTML[i]) {
-              elMarker.innerHTML = w.config.legend.markers.customHTML[i]();
-            }
-          } else {
-            elMarker.innerHTML = w.config.legend.markers.customHTML();
-          }
-        }
+        // if (w.config.legend.markers.customHTML) {
+        //   if (Array.isArray(w.config.legend.markers.customHTML)) {
+        //     if (w.config.legend.markers.customHTML[i]) {
+        //       elMarker.innerHTML = w.config.legend.markers.customHTML[i]();
+        //     }
+        //   } else {
+        //     elMarker.innerHTML = w.config.legend.markers.customHTML();
+        //   }
+        // }
 
         markerHeight = Number(mStyle.height.replace("px", ""));
 

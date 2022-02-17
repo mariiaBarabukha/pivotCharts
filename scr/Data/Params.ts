@@ -21,6 +21,7 @@ namespace Data{
     export var xaxisFilter = "";
     export var NavPanel: pivotcharts.NavigationPanel;
     export var legendFilter = "";
+    export var MarkerHandler: pivotcharts.MarkerHandler;
     
     export function processData(rawData, type?){
         if(type != undefined){

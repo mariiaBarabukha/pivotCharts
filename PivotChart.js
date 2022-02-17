@@ -1,3 +1,43 @@
+var pivotcharts;
+(function (pivotcharts) {
+    class MarkerHandler {
+        constructor() {
+            let cols = Data.Flexmonster.getReport()["slice"]["columns"];
+            this.max_level = 0;
+            cols.forEach(col => {
+                let members = Data.Flexmonster.getMembers(col.uniqueName);
+                if (members.length > 0) {
+                    let depth = Data.DataStorage.getMembersDepth(members[0]) + 1;
+                    this.max_level += depth;
+                }
+            });
+            this.max_level--;
+        }
+        setMaxLevel(level) {
+            this.max_level = level - 1;
+        }
+        getMark(curr_level, all_levels) {
+            if (curr_level == this.max_level) {
+                return "";
+            }
+            if (this.isArrayValuesEquals(all_levels)) {
+                return "+";
+            }
+            if (all_levels[0] == curr_level) {
+                return "-";
+            }
+            return "+";
+        }
+        isArrayValuesEquals(arr) {
+            for (let i = 0; i < arr.length - 1; i++) {
+                if (arr[i] != arr[i + 1])
+                    return false;
+            }
+            return true;
+        }
+    }
+    pivotcharts.MarkerHandler = MarkerHandler;
+})(pivotcharts || (pivotcharts = {}));
 var Data;
 (function (Data) {
     class DataSetsMaker {
@@ -6,6 +46,7 @@ var Data;
             this._meta = undefined;
             this._data = data === null || data === void 0 ? void 0 : data.data;
             this._meta = data === null || data === void 0 ? void 0 : data.meta;
+            Data.MarkerHandler = new pivotcharts.MarkerHandler();
         }
         riseAllCollapsedSeries() {
             if (Data.Chart != undefined) {
@@ -142,23 +183,36 @@ var Data;
             return data.series.map((x) => x.full_name);
         }
         hideSeries(series) {
-            Data.Hiddens = [];
-            let legends = this.formStringsToHide(series);
-            for (var i = 0; i < legends.length; i++) {
-                for (var j = 1; j < legends.length; j++) {
-                    if (legends[i].toLowerCase() != legends[j].toLowerCase() &&
-                        this.isPrevLegend(legends[i], legends[j])) {
-                        Data.Hiddens.push(j - 1);
-                        var sEl = null;
-                        var obj = Data.LegendHelper._realIndex(j - 1);
-                        if (obj == null)
-                            return;
-                        sEl = obj.seriesEl;
-                        Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: j - 1 });
-                        break;
-                    }
-                }
+            if (Data.LegendHelper == null) {
+                return;
             }
+            if (Data.legendFilter.length == 0) {
+                return;
+            }
+            Data.Hiddens = [];
+            var sEl = null;
+            var obj = Data.LegendHelper._realIndex(0);
+            if (obj == null)
+                return;
+            sEl = obj.seriesEl;
+            Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: 0 });
+            // let legends = this.formStringsToHide(series);
+            // for (var i = 0; i < legends.length; i++) {
+            //   for (var j = 1; j < legends.length; j++) {
+            //     if (
+            //       legends[i].toLowerCase() != legends[j].toLowerCase() &&
+            //       this.isPrevLegend(legends[i], legends[j])
+            //     ) {
+            //       Data.Hiddens.push(j - 1);
+            //       var sEl = null;
+            //       var obj = Data.LegendHelper._realIndex(j-1);
+            //       if (obj == null) return;
+            //       sEl = obj.seriesEl;
+            //       Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: j - 1 });
+            //       break;
+            //     }
+            //   }
+            // }
         }
         isPrevLegend(old_legend, expand_legend) {
             var words_old = old_legend.toLowerCase().split("_");
@@ -255,7 +309,6 @@ var Data;
                     r_fulls: group.map(x => x.r_full)
                 });
             });
-            Data.RowsLevels = (sortByColumns[0].map(x => x.r_full.split('_').length - 1));
             // pivotcharts.LabelsGroup.allLabels = (sortByColumns[0].map(x=>x.r_full));
             return series;
         }
@@ -499,12 +552,18 @@ var Data;
                 }
             }
         }
+        static getMembersDepth(member) {
+            let res = 0;
+            while (member.children.length > 0) {
+                member = member.children[0];
+                res++;
+            }
+            return res;
+        }
         static search(members, names) {
             if (members.length < 1 || members == null) {
                 return null;
             }
-            var b = false;
-            var index = -1;
             for (var i = 0; i < members.length; i++) {
                 var incl = names.map((x) => members[i].uniqueName.includes(x.toLowerCase()));
                 var res = true;
@@ -618,16 +677,25 @@ var pivotcharts;
             }
             Data.seriesLenght = w.config.series.length;
             if (isHidden) {
-                Data.legendFilter = names.splice(0, names.length - 1).join(" ");
+                Data.legendFilter = [...names].splice(0, names.length - 1).join("_");
                 Data.DataStorage.manipulateChartData(names, Data.Flexmonster.drillUpCell, Data.Flexmonster.collapseCell, "columns");
                 // Data.Flexmonster.collapseCell("columns", names);
             }
             else {
-                Data.legendFilter = names.join(" ");
+                Data.legendFilter = names.join("_");
                 Data.DataStorage.manipulateChartData(names, Data.Flexmonster.drillDownCell, Data.Flexmonster.expandCell, "columns");
                 Data.NavPanel.expand(names);
+                let _button = new pivotcharts.ToMainChartButton(this.lgCtx.ctx);
+                _button.createButton(names.join("_"), this.close);
                 // realIndex = this._realIndex(seriesCnt).realIndex;
             }
+        }
+        close(val) {
+            // var index = id.split("_")[0];
+            Data.legendFilter = "";
+            Data.DataStorage.manipulateChartData([val.split("_")[0]], Data.Flexmonster.drillUpCell, Data.Flexmonster.collapseCell, "columns");
+            Data.NavPanel.toRoot();
+            Data.legendFilter = "";
         }
         _realIndex(seriesCnt) {
             var seriesEl = null;
@@ -885,6 +953,7 @@ var pivotcharts;
                 }
                 let elMarker = document.createElement("span");
                 elMarker.classList.add("apexcharts-legend-marker");
+                elMarker.innerHTML = Data.MarkerHandler.getMark(w.globals.series_levels[i], w.globals.series_levels);
                 let mOffsetX = w.config.legend.markers.offsetX;
                 let mOffsetY = w.config.legend.markers.offsetY;
                 let mHeight = w.config.legend.markers.height;
@@ -894,7 +963,8 @@ var pivotcharts;
                 let mBorderRadius = w.config.legend.markers.radius;
                 let mStyle = elMarker.style;
                 mStyle.background = fillcolor[i];
-                mStyle.color = fillcolor[i];
+                mStyle.color = "white";
+                mStyle.fontSize = "10px";
                 mStyle.setProperty("background", fillcolor[i], "important");
                 // override fill color with custom legend.markers.fillColors
                 if (w.config.legend.markers.fillColors &&
@@ -929,16 +999,15 @@ var pivotcharts;
                 mStyle.borderRadius = Array.isArray(mBorderRadius)
                     ? parseFloat(mBorderRadius[i]) + "px"
                     : parseFloat(mBorderRadius) + "px";
-                if (w.config.legend.markers.customHTML) {
-                    if (Array.isArray(w.config.legend.markers.customHTML)) {
-                        if (w.config.legend.markers.customHTML[i]) {
-                            elMarker.innerHTML = w.config.legend.markers.customHTML[i]();
-                        }
-                    }
-                    else {
-                        elMarker.innerHTML = w.config.legend.markers.customHTML();
-                    }
-                }
+                // if (w.config.legend.markers.customHTML) {
+                //   if (Array.isArray(w.config.legend.markers.customHTML)) {
+                //     if (w.config.legend.markers.customHTML[i]) {
+                //       elMarker.innerHTML = w.config.legend.markers.customHTML[i]();
+                //     }
+                //   } else {
+                //     elMarker.innerHTML = w.config.legend.markers.customHTML();
+                //   }
+                // }
                 markerHeight = Number(mStyle.height.replace("px", ""));
                 apexcharts.Graphics.setAttrs(elMarker, {
                     rel: i + 1,
@@ -1539,30 +1608,12 @@ var pivotcharts;
                     Data.xaxisFilter = text;
                     Data.DataStorage.manipulateChartData(names, Data.Flexmonster.drillDownCell, Data.Flexmonster.expandCell, "rows");
                     this.selectCurrent(text);
-                    let bp = document.getElementById("buttons_panel");
-                    if (bp.innerHTML != "") {
-                        bp.innerHTML = "";
-                    }
-                    this.createButton(bp, text);
+                    let _button = new pivotcharts.ToMainChartButton(this.ctx);
+                    _button.createButton(text, this.close);
                     Data.NavPanel.expand(names);
                 });
             }
             return elXaxis;
-        }
-        createButton(bp, text) {
-            let b = document.createElement("button");
-            b.style.background = "#FFFFFF";
-            b.style.border = "1px solid #DF3800";
-            b.style.boxSizing = "border-box";
-            b.style.borderRadius = "4px";
-            b.style.color = "DF3800";
-            b.style.padding = "6px 16px";
-            b.style.fontSize = "14px";
-            b.style.fontFamily = "Open Sans";
-            b.onclick = () => this.close(text);
-            bp.appendChild(b);
-            b.value = text;
-            b.innerHTML = "<&nbsp;&nbsp;Back to the main chart";
         }
         selectCurrent(text) {
             let cSeries = Data.BasicSeries.series;
@@ -1867,75 +1918,74 @@ var pivotcharts;
 var pivotcharts;
 (function (pivotcharts) {
     class PivotTheme extends apexcharts.Theme {
-        pushExtraColors(colorSeries, length, distributed = null) {
-            let w = this.w;
-            let utils = new apexcharts.Utils();
-            let len = length == undefined || length == -2 || length == -3 ? w.globals.series.length : length;
-            if (distributed === null) {
-                distributed =
-                    this.isBarDistributed ||
-                        this.isHeatmapDistributed ||
-                        (w.config.chart.type === "heatmap" &&
-                            w.config.plotOptions.heatmap.colorScale.inverse);
-            }
-            if (distributed && w.globals.series.length) {
-                len =
-                    w.globals.series[w.globals.maxValsInArrayIndex].length *
-                        w.globals.series.length;
-            }
-            var cl = JSON.parse(JSON.stringify(colorSeries));
-            //!Cause error
-            if (cl.length < len || length == -2 || length == -3) {
-                var new_colors = [];
-                let nn = w.globals.series_levels.filter((x) => x == 0).length || 0;
-                if ((length == undefined || length == -2 || length == -3) &&
-                    (nn <= cl.length || nn != w.globals.series_levels.length)) {
-                    var lev = 0;
-                    let ser_lev = w.globals.series_levels;
-                    for (var i = 0; i < len; i++) {
-                        if (ser_lev[i] == 0) {
-                            if (cl.length == 0) {
-                                cl = JSON.parse(JSON.stringify(colorSeries));
-                            }
-                            new_colors.push(cl.shift());
-                        }
-                        else {
-                            if (ser_lev[i] >= lev) {
-                                new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
-                                lev = ser_lev[i];
-                            }
-                            else {
-                                for (var j = i - 1; j >= 0; j--) {
-                                    if (ser_lev[i] != ser_lev[j]) {
-                                        break;
-                                    }
-                                }
-                                if (j < 0) {
-                                    new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
-                                }
-                                else {
-                                    new_colors.push(utils.shadeColor(0.1, new_colors[j]));
-                                }
-                                lev = ser_lev[i];
-                            }
-                        }
-                    }
-                    // console.log(new_colors);
-                    //   colorSeries = [...new_colors];
-                    //   colorSeries = JSON.parse(JSON.stringify(new_colors));
-                    colorSeries.splice(0, colorSeries.length);
-                    new_colors.forEach((c) => {
-                        colorSeries.push(c);
-                    });
-                }
-                else {
-                    let diff = len - colorSeries.length;
-                    for (let i = 0; i < diff; i++) {
-                        colorSeries.push(colorSeries[i]);
-                    }
-                }
-            }
-        }
+        // pushExtraColors(colorSeries, length, distributed = null) {
+        //   let w = this.w;
+        //   let utils = new apexcharts.Utils();
+        //   let len =
+        //     length == undefined || length == -2 || length == -3 ? w.globals.series.length : length;
+        //   if (distributed === null) {
+        //     distributed =
+        //       this.isBarDistributed ||
+        //       this.isHeatmapDistributed ||
+        //       (w.config.chart.type === "heatmap" &&
+        //         w.config.plotOptions.heatmap.colorScale.inverse);
+        //   }
+        //   if (distributed && w.globals.series.length) {
+        //     len =
+        //       w.globals.series[w.globals.maxValsInArrayIndex].length *
+        //       w.globals.series.length;
+        //   }
+        //   var cl = JSON.parse(JSON.stringify(colorSeries));
+        //   //!Cause error
+        //   if (cl.length < len || length == -2 || length == -3) {
+        //     var new_colors = [];
+        //     let nn = w.globals.series_levels.filter((x) => x == 0).length || 0;
+        //     if (
+        //       (length == undefined || length == -2 || length == -3)&&
+        //       (nn <= cl.length || nn != w.globals.series_levels.length)
+        //     ) {
+        //       var lev = 0;
+        //       let ser_lev = w.globals.series_levels;
+        //       for (var i = 0; i < len; i++) {
+        //         if (ser_lev[i] == 0) {
+        //           if(cl.length == 0){
+        //             cl = JSON.parse(JSON.stringify(colorSeries));
+        //           }
+        //           new_colors.push(cl.shift());
+        //         } else {
+        //           if (ser_lev[i] >= lev) {
+        //             new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
+        //             lev = ser_lev[i];
+        //           } else {
+        //             for (var j = i - 1; j >= 0; j--) {
+        //               if (ser_lev[i] != ser_lev[j]) {
+        //                 break;
+        //               }
+        //             }
+        //             if (j < 0) {
+        //               new_colors.push(utils.shadeColor(0.15, new_colors[i - 1]));
+        //             } else {
+        //               new_colors.push(utils.shadeColor(0.1, new_colors[j]));
+        //             }
+        //             lev = ser_lev[i];
+        //           }
+        //         }
+        //       }
+        //       // console.log(new_colors);
+        //       //   colorSeries = [...new_colors];
+        //       //   colorSeries = JSON.parse(JSON.stringify(new_colors));
+        //       colorSeries.splice(0, colorSeries.length);
+        //       new_colors.forEach((c) => {
+        //         colorSeries.push(c);
+        //       });
+        //     } else {
+        //       let diff = len - colorSeries.length;
+        //       for (let i = 0; i < diff; i++) {
+        //         colorSeries.push(colorSeries[i]);
+        //       }
+        //     }
+        //   }
+        // }
         setDefaultColors() {
             let w = this.w;
             let utils = new apexcharts.Utils();
@@ -2117,6 +2167,36 @@ var pivotcharts;
         }
     }
     pivotcharts.PivotTheme = PivotTheme;
+})(pivotcharts || (pivotcharts = {}));
+var pivotcharts;
+(function (pivotcharts) {
+    class ToMainChartButton {
+        constructor(ctx) {
+            this.ctx = ctx;
+        }
+        createButton(text, close) {
+            let bp = document.getElementById("buttons_panel");
+            if (bp.innerHTML != "") {
+                bp.innerHTML = "";
+            }
+            let b = document.createElement("button");
+            b.style.background = "#FFFFFF";
+            b.style.border = "1px solid #DF3800";
+            b.style.boxSizing = "border-box";
+            b.style.borderRadius = "4px";
+            b.style.color = "DF3800";
+            b.style.padding = "6px 16px";
+            b.style.fontSize = "14px";
+            b.style.fontFamily = "Open Sans";
+            b.onclick = () => close(text);
+            b.onmouseover = () => b.style.cursor = "pointer";
+            b.onmouseleave = () => b.style.cursor = "none";
+            bp.appendChild(b);
+            b.value = text;
+            b.innerHTML = "<&nbsp;&nbsp;Back to the main chart";
+        }
+    }
+    pivotcharts.ToMainChartButton = ToMainChartButton;
 })(pivotcharts || (pivotcharts = {}));
 var pivotcharts;
 (function (pivotcharts) {
@@ -3266,18 +3346,18 @@ var pivotcharts;
                     .catch((e) => {
                     reject(e);
                 });
-                Data.Hiddens.forEach((e) => {
-                    var sEl = null;
-                    var obj = Data.LegendHelper._realIndex(e);
-                    sEl = obj.seriesEl;
-                    let ee = e;
-                    Data.Hiddens.shift();
-                    Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: ee });
-                });
-                let legend_position = this.w.config.legend.position;
-                if (legend_position == 'top' || legend_position == 'bottom') {
-                    this.ctx.legend.setCorrectHeight();
-                }
+                // Data.Hiddens.forEach((e) => {
+                //   var sEl = null;
+                //   var obj = Data.LegendHelper._realIndex(e);
+                //   sEl = obj.seriesEl;
+                //   let ee = e;
+                //   Data.Hiddens.shift();
+                //   Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: ee });
+                // });
+                // let legend_position = this.w.config.legend.position;
+                // if(legend_position == 'top' || legend_position == 'bottom'){
+                //   this.ctx.legend.setCorrectHeight();
+                // }
             });
         }
     }

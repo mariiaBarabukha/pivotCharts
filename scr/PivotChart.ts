@@ -296,18 +296,18 @@ namespace pivotcharts {
             reject(e);
           });
 
-        Data.Hiddens.forEach((e) => {
-          var sEl = null;
-          var obj = Data.LegendHelper._realIndex(e);
-          sEl = obj.seriesEl;
-          let ee = e;
-          Data.Hiddens.shift();
-          Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: ee });
-        });
-        let legend_position = this.w.config.legend.position;
-        if(legend_position == 'top' || legend_position == 'bottom'){
-          this.ctx.legend.setCorrectHeight();
-        }
+        // Data.Hiddens.forEach((e) => {
+        //   var sEl = null;
+        //   var obj = Data.LegendHelper._realIndex(e);
+        //   sEl = obj.seriesEl;
+        //   let ee = e;
+        //   Data.Hiddens.shift();
+        //   Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: ee });
+        // });
+        // let legend_position = this.w.config.legend.position;
+        // if(legend_position == 'top' || legend_position == 'bottom'){
+        //   this.ctx.legend.setCorrectHeight();
+        // }
         
       });
     }

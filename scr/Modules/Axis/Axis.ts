@@ -319,32 +319,17 @@ namespace pivotcharts {
           );
           this.selectCurrent(text);
 
-          let bp = document.getElementById("buttons_panel");
-          if (bp.innerHTML != "") {
-            bp.innerHTML = "";
-          }
-          this.createButton(bp, text);
+          
+          let _button = new ToMainChartButton(this.ctx);
+
+          _button.createButton(text,this.close);
           Data.NavPanel.expand(names);
         });
       }
       return elXaxis;
     }
 
-    private createButton(bp, text) {
-      let b = document.createElement("button");
-      b.style.background = "#FFFFFF";
-      b.style.border = "1px solid #DF3800";
-      b.style.boxSizing = "border-box";
-      b.style.borderRadius = "4px";
-      b.style.color = "DF3800";
-      b.style.padding = "6px 16px";
-      b.style.fontSize = "14px";
-      b.style.fontFamily = "Open Sans";
-      b.onclick = () => this.close(text);
-      bp.appendChild(b);
-      b.value = text;
-      b.innerHTML = "<&nbsp;&nbsp;Back to the main chart";
-    }
+    
 
     private selectCurrent(text) {
       let cSeries = Data.BasicSeries.series;

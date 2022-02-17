@@ -65,7 +65,7 @@ namespace Data {
           r_fulls: group.map(x=>x.r_full)
         });
       });
-      Data.RowsLevels = (sortByColumns[0].map(x=>x.r_full.split('_').length-1));
+      
       // pivotcharts.LabelsGroup.allLabels = (sortByColumns[0].map(x=>x.r_full));
       return series;
     }

@@ -10,6 +10,7 @@ namespace Data {
     constructor(data) {
       this._data = data?.data;
       this._meta = data?.meta;
+      Data.MarkerHandler = new pivotcharts.MarkerHandler();
     }
 
     abstract makeDataSets();
@@ -18,8 +19,8 @@ namespace Data {
       if (Data.Chart != undefined) {
         [...Data.Chart.w.globals.collapsedSeries].forEach((i) => {
           let realObj = Data.LegendHelper._realIndex(i.index);
-          var realIndex
-          if(realObj != null){
+          var realIndex;
+          if (realObj != null) {
             realIndex = realObj.realIndex;
             const seriesToMakeVisible = [
               {
@@ -35,8 +36,6 @@ namespace Data {
               Data.LegendHelper.riseCollapsedSeries(r.cs, r.csi, realIndex);
             });
           }
-          
-          
         });
       }
     }
@@ -57,7 +56,7 @@ namespace Data {
       }
     }
 
-    protected combineFullNames(key, element, v){
+    protected combineFullNames(key, element, v) {
       if (key[0].includes("full")) {
         var a =
           element[key[0]] === undefined
@@ -75,8 +74,7 @@ namespace Data {
           }
         }
       } else {
-        var b =
-          element[key[0]] === undefined ? "" : "_" + element[key[0]];
+        var b = element[key[0]] === undefined ? "" : "_" + element[key[0]];
         if (this.includesDespiteCase(b, element[v])) {
           element[v] = b;
         } else {
@@ -104,8 +102,12 @@ namespace Data {
           }
         });
 
-        element.c_full = this.removeFirstUnderLine(element.c_full.replace("__", "_"));
-        element.r_full = this.removeFirstUnderLine(element.r_full.replace("__", "_"));
+        element.c_full = this.removeFirstUnderLine(
+          element.c_full.replace("__", "_")
+        );
+        element.r_full = this.removeFirstUnderLine(
+          element.r_full.replace("__", "_")
+        );
 
         var categKey = sortKey == "c_full" ? "r_full" : "c_full";
         Data.Categories.push(element[categKey]);
@@ -165,29 +167,39 @@ namespace Data {
     }
 
     protected hideSeries(series: any[]) {
-      Data.Hiddens = [];
-      
-      let legends = this.formStringsToHide(series);
-      for (var i = 0; i < legends.length; i++) {
-        for (var j = 1; j < legends.length; j++) {
-          if (
-            legends[i].toLowerCase() != legends[j].toLowerCase() &&
-            this.isPrevLegend(legends[i], legends[j])
-          ) {
-            Data.Hiddens.push(j - 1);
-            var sEl = null;
-            var obj = Data.LegendHelper._realIndex(j-1);
-            if (obj == null) return;
-            sEl = obj.seriesEl;
-            Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: j - 1 });
-            
-            break;
-          }
-        }
+      if(Data.LegendHelper == null) {
+        return;
       }
+      if(Data.legendFilter.length == 0){
+        return;
+      }
+      Data.Hiddens = [];
+      var sEl = null;
+      var obj = Data.LegendHelper._realIndex(0);
+      if (obj == null) return;
+      sEl = obj.seriesEl;
+      Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: 0 });
+      // let legends = this.formStringsToHide(series);
+      // for (var i = 0; i < legends.length; i++) {
+      //   for (var j = 1; j < legends.length; j++) {
+      //     if (
+      //       legends[i].toLowerCase() != legends[j].toLowerCase() &&
+      //       this.isPrevLegend(legends[i], legends[j])
+      //     ) {
+      //       Data.Hiddens.push(j - 1);
+      //       var sEl = null;
+      //       var obj = Data.LegendHelper._realIndex(j-1);
+      //       if (obj == null) return;
+      //       sEl = obj.seriesEl;
+      //       Data.LegendHelper.hideSeries({ seriesEl: sEl, realIndex: j - 1 });
+
+      //       break;
+      //     }
+      //   }
+      // }
     }
 
-    abstract formStringsToHide(series) : string[];
+    abstract formStringsToHide(series): string[];
 
     protected isPrevLegend(old_legend: string, expand_legend: string): boolean {
       var words_old = old_legend.toLowerCase().split("_");
