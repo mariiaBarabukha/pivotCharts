@@ -679,6 +679,8 @@ var pivotcharts;
             if (isHidden) {
                 Data.legendFilter = [...names].splice(0, names.length - 1).join("_");
                 Data.DataStorage.manipulateChartData(names, Data.Flexmonster.drillUpCell, Data.Flexmonster.collapseCell, "columns");
+                if (Data.legendFilter != "")
+                    Data.NavPanel.expand(Data.legendFilter.split('_'));
                 // Data.Flexmonster.collapseCell("columns", names);
             }
             else {
@@ -831,6 +833,70 @@ var pivotcharts;
             }
             return series;
         }
+        getLegendStyles() {
+            let stylesheet = document.createElement('style');
+            stylesheet.setAttribute('type', 'text/css');
+            const text = `	
+        
+        .apexcharts-legend {	
+          display: flex;	
+          padding: 0 10px;  	
+        }	
+        .apexcharts-legend.position-bottom, .apexcharts-legend.position-top {	
+          flex-wrap: wrap	
+        }	
+        .apexcharts-legend.position-right, .apexcharts-legend.position-left {	
+          flex-direction: column;	
+          bottom: 0;	
+        }	
+        .apexcharts-legend.position-bottom.apexcharts-align-left, .apexcharts-legend.position-top.apexcharts-align-left, .apexcharts-legend.position-right, .apexcharts-legend.position-left {	
+          justify-content: flex-start;	
+        }	
+        .apexcharts-legend.position-bottom.apexcharts-align-center, .apexcharts-legend.position-top.apexcharts-align-center {	
+          justify-content: center;  	
+        }	
+        .apexcharts-legend.position-bottom.apexcharts-align-right, .apexcharts-legend.position-top.apexcharts-align-right {	
+          justify-content: flex-end;	
+        }	
+        .apexcharts-legend-series {	
+          cursor: pointer;	
+          line-height: normal;	
+        }	
+        .apexcharts-legend.position-bottom .apexcharts-legend-series, .apexcharts-legend.position-top .apexcharts-legend-series{	
+          display: flex;	
+          align-items: center;	
+        }	
+        .apexcharts-legend-text {	
+          position: relative;	
+          font-size: 14px;	
+        }	
+        .apexcharts-legend-text *, .apexcharts-legend-marker * {	
+          pointer-events: none;	
+        }	
+        .apexcharts-legend-marker {	
+          position: relative;	
+          display: inline-block;	
+          cursor: pointer;	
+          margin-right: 3px;	
+          border-style: solid;
+        }	
+          
+        .apexcharts-legend.apexcharts-align-right .apexcharts-legend-series, .apexcharts-legend.apexcharts-align-left .apexcharts-legend-series{	
+          display: inline-block;	
+        }	
+        .apexcharts-legend-series.apexcharts-no-click {	
+          cursor: auto;	
+        }	
+        .apexcharts-legend .apexcharts-hidden-zero-series, .apexcharts-legend .apexcharts-hidden-null-series {	
+          display: none !important;	
+        }	
+        .apexcharts-inactive-legend {	
+          opacity: 0.45;	
+        }`;
+            let rules = document.createTextNode(text);
+            stylesheet.appendChild(rules);
+            return stylesheet;
+        }
     }
     pivotcharts.PivotHelper = PivotHelper;
     class PivotLegend extends apexcharts.Legend {
@@ -951,7 +1017,7 @@ var pivotcharts;
                         }
                     }
                 }
-                let elMarker = document.createElement("span");
+                let elMarker = document.createElement("div");
                 elMarker.classList.add("apexcharts-legend-marker");
                 elMarker.innerHTML = Data.MarkerHandler.getMark(w.globals.series_levels[i], w.globals.series_levels);
                 let mOffsetX = w.config.legend.markers.offsetX;
@@ -963,8 +1029,11 @@ var pivotcharts;
                 let mBorderRadius = w.config.legend.markers.radius;
                 let mStyle = elMarker.style;
                 mStyle.background = fillcolor[i];
+                mStyle.display = "flex";
+                mStyle.justifyContent = "center";
+                mStyle.alignItems = "center";
+                mStyle.fontWeight = "900";
                 mStyle.color = "white";
-                mStyle.fontSize = "10px";
                 mStyle.setProperty("background", fillcolor[i], "important");
                 // override fill color with custom legend.markers.fillColors
                 if (w.config.legend.markers.fillColors &&
@@ -1097,6 +1166,7 @@ var pivotcharts;
                 }
                 w.globals.dom.elLegendWrap.appendChild(elLegend);
                 w.globals.dom.elLegendWrap.classList.add(`apexcharts-align-${w.config.legend.horizontalAlign}`);
+                // w.globals.dom.elLegendWrap.style.overflow = 'none';
                 w.globals.dom.elLegendWrap.classList.add("position-" + w.config.legend.position);
                 elLegend.classList.add("apexcharts-legend-series");
                 elLegend.style.margin = `${w.config.legend.itemMargin.vertical}px ${w.config.legend.itemMargin.horizontal}px`;
@@ -3126,14 +3196,14 @@ var pivotcharts;
         updateOptions(options, redraw = false, animate = true, updateSyncedCharts = true, overwriteInitialConfig = true) {
             const w = this.w;
             let path = document.querySelector("#path");
-            if (path != null && Data.xaxisFilter == '') {
+            if (path != null && Data.xaxisFilter == '' && Data.legendFilter == '') {
                 path.innerHTML = "";
             }
             let bp = document.querySelector("#buttons_panel");
-            if (bp != null && Data.xaxisFilter == '') {
+            if (bp != null && Data.xaxisFilter == '' && Data.legendFilter == '') {
                 bp.innerHTML = "";
             }
-            if (Data.NavPanel != null && Data.xaxisFilter == "") {
+            if (Data.NavPanel != null && Data.xaxisFilter == "" && Data.legendFilter == '') {
                 Data.NavPanel.toRoot();
             }
             if (Data.chartType != 'pie' && options.series != null && Data.Model.dataStorage.stateOfUpdate != 1) {

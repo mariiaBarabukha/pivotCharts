@@ -33,16 +33,16 @@ namespace pivotcharts {
     ) {
       const w = this.w;
       let path = document.querySelector("#path");
-      if (path != null && Data.xaxisFilter == '') {
+      if (path != null && Data.xaxisFilter == '' && Data.legendFilter == '') {
         path.innerHTML = "";
       }
 
       let bp = document.querySelector("#buttons_panel");
-      if (bp != null && Data.xaxisFilter == '') {
+      if (bp != null && Data.xaxisFilter == '' && Data.legendFilter == '') {
         bp.innerHTML = "";
       }
 
-      if (Data.NavPanel != null && Data.xaxisFilter == "") {
+      if (Data.NavPanel != null && Data.xaxisFilter == "" && Data.legendFilter == '') {
         Data.NavPanel.toRoot();
       }
       if (Data.chartType != 'pie' && options.series != null && Data.Model.dataStorage.stateOfUpdate != 1) {
